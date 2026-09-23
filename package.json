@@ -2,13 +2,20 @@
   "name": "ag-grid",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "node --env-file=.env.local scripts/seed-paypal.ts",
+    "paypal:refresh-token": "node --env-file=.env.local scripts/refresh-paypal-token.ts"
   },
   "dependencies": {
+    "ag-grid-community": "^36.2.0",
+    "ag-grid-react": "^36.2.0",
+    "ag-studio": "^3.0.0",
+    "ag-studio-react": "^3.0.0",
     "next": "16.3.6",
     "react": "19.2.8",
     "react-dom": "19.2.8"
