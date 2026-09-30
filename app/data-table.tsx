@@ -1,9 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type Money = { value: string; currencyCode: string } | undefined;
+import type { Money } from "@/lib/paypal";
 
-export const money = (m: Money) => (m ? `${m.value} ${m.currencyCode}` : "");
+export const money = (m: Money | undefined) => (m ? `${m.value} ${m.currency_code}` : "");
 
 export function DataTable({
   title,

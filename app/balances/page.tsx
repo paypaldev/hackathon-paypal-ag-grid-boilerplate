@@ -9,16 +9,16 @@ export default async function BalancesPage() {
 
   return (
     <DataTable
-      title={`Balances (account ${result.accountId}, as of ${result.asOfTime})`}
+      title={`Balances (account ${result.account_id}, as of ${result.as_of_time})`}
       columns={["Currency", "Primary", "Total", "Available", "Withheld"]}
-      rows={(result.balances ?? []).map((b) => ({
+      rows={result.balances.map((b) => ({
         key: b.currency,
         cells: [
           b.currency,
           b.primary ? "Yes" : "No",
-          money(b.totalBalance),
-          money(b.availableBalance),
-          money(b.withheldBalance),
+          money(b.total_balance),
+          money(b.available_balance),
+          money(b.withheld_balance),
         ],
       }))}
     />
