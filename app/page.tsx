@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const pages = [
+  { href: "/dashboard-api", label: "Dashboard (REST API)" },
   { href: "/transactions", label: "Transaction search" },
   { href: "/subscriptions", label: "Subscriptions" },
   { href: "/balances", label: "Balances" },
