@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const pages = [
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/transactions", label: "Transaction search" },
   { href: "/subscriptions", label: "Subscriptions" },
   { href: "/balances", label: "Balances" },
