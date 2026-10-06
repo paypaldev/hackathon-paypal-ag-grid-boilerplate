@@ -1,8 +1,8 @@
 // The REST dashboard's initial AG Studio report. Field references are '<source>.<field>' from
-// ./studio-data.ts, bare ids for its expression measures, and 'calendar::<fragment>' for dates.
+// ./data.ts, bare ids for its expression measures, and 'calendar::<fragment>' for dates.
 // Everything here can be changed in Edit mode.
 //
-// Studio leaves page navigation to the host, so each page carries a title for the tabs.
+// Studio leaves page navigation to the host, so each page carries a title for the sidebar.
 
 import type { AgFilterState, AgPageState, AgReportState, AgWidgetLayoutState } from 'ag-studio';
 
@@ -12,24 +12,33 @@ type Widgets = NonNullable<AgPageState['widgets']>;
 
 const at = (xTrack: number, yTrack: number, xSpan: number, ySpan: number): AgWidgetLayoutState => ({ xTrack, yTrack, xSpan, ySpan });
 const title = (text: string) => ({ title: { enabled: true, text } });
-const caption = (text: string) => ({ caption: { enabled: true, text } });
 
 const sum = (id: string) => ({ id, aggregation: 'sum' as const });
 const avg = (id: string) => ({ id, aggregation: 'avg' as const });
 const countd = (id: string) => ({ id, aggregation: 'countd' as const });
 
+// Explicit typography in widget formats takes a literal font stack: some of it is drawn on a
+// canvas, which can't resolve CSS variables. Matches --pp-font in app/globals.css.
+const PAYPAL_FONT = '"PayPal Open", "Helvetica Neue", Helvetica, Arial, sans-serif';
+const typography = (fontSize: number, fontWeight: 'normal' | 'bold' = 'normal') => ({
+  fontFamily: PAYPAL_FONT,
+  fontSize,
+  fontWeight,
+  fontStyle: 'normal' as const,
+});
+
+// KPI tiles: a bold label as the title above the value. Studio has no per-widget padding, so
+// an empty 0px caption is kept on to reserve its row and gap, lifting the value and sparkline
+// off the tile's bottom edge.
+const bottomSpacer = { enabled: true, text: '', typography: typography(0) };
+
 const kpi = (text: string, value: { id: string; aggregation?: 'sum' | 'avg' | 'countd' }, sparklineX?: string) => ({
   type: 'value' as const,
   dataMapping: { value: [value], ...(sparklineX && { sparklineX: [{ id: sparklineX }] }) },
-  format: caption(text),
-});
-
-const gauge = (text: string, measure: string, secondary: string) => ({
-  type: 'radial-gauge' as const,
-  dataMapping: { value: [{ id: measure }] },
   format: {
-    ...title(text),
-    style: { scaleLabel: { min: 0, max: 1 }, secondaryLabel: { enabled: true, text: secondary } },
+    title: { enabled: true, text, typography: typography(14, 'bold') },
+    caption: bottomSpacer,
+    style: { typography: typography(22) },
   },
 });
 
@@ -57,11 +66,17 @@ const revenue: DashboardPage = {
   state: {
     id: 'revenue',
     widgets: {
-      currency: currencySwitch,
+      'invoice-date': {
+        type: 'date-filter',
+        dataMapping: { value: [{ id: 'invoices.invoiceDate' }] },
+        // No default period: a relative date filter in saved state fails to apply on load in
+        // Studio 3.0 ("must be a two-element range"), though it works once picked in the widget.
+        format: { style: { filterType: 'relative' } },
+      },
       'kpi-invoiced': kpi('Invoiced', sum('invoices.issuedAmount'), 'calendar::month'),
       'kpi-collected': kpi('Collected', sum('invoices.paidAmount'), 'calendar::month'),
-      'kpi-outstanding': kpi('Outstanding', sum('invoices.outstanding')),
-      'kpi-refund-rate': kpi('Refund rate', { id: 'refundRate' }),
+      'kpi-outstanding': kpi('Outstanding', sum('invoices.outstanding'), 'invoices.outstanding'),
+      'kpi-overdue': kpi('Overdue', sum('invoices.overdueAmount'), 'invoices.overdueAmount'),
       'billed-vs-collected': {
         type: 'combo-chart-grouped-column-line',
         dataMapping: {
@@ -69,13 +84,27 @@ const revenue: DashboardPage = {
           valueKey: [sum('invoices.issuedAmount'), sum('invoices.paidAmount')],
           secondaryValueKey: [{ id: 'collectionRate' }],
         },
-        format: title('Invoiced and paid by invoice month, with collection rate'),
+        format: {
+          ...title('Invoiced and paid by invoice month, with collection rate'),
+          style: { theme: { common: { legend: { enabled: true } } } },
+        },
       },
-      'collection-rate': gauge('Collection rate', 'collectionRate', 'of invoiced value paid'),
+      'collection-rate': {
+        type: 'radial-gauge',
+        dataMapping: { value: [{ id: 'collectionRate' }] },
+        format: {
+          ...title('Collection rate'),
+          style: {
+            scaleLabel: { min: 0, max: 1 },
+            label: { typography: typography(24, 'bold') },
+            secondaryLabel: { enabled: true, text: 'of invoiced value paid', typography: typography(12) },
+          },
+        },
+      },
       'status-sunburst': {
         type: 'sunburst-chart',
         dataMapping: {
-          categoryKey: [{ id: 'invoices.statusGroup' }, { id: 'customers.name' }],
+          categoryKey: [{ id: 'invoices.statusGroup' }, { id: 'customers.company' }],
           valueKey: [sum('invoices.total')],
         },
         format: title('Invoice value by status and customer'),
@@ -86,7 +115,7 @@ const revenue: DashboardPage = {
           categoryKey: [{ id: 'invoiceItems.unit' }, { id: 'invoiceItems.name' }],
           valueKey: [sum('invoiceItems.lineTotal')],
         },
-        format: title('What we bill for (line totals)'),
+        format: title('Billing by unit'),
       },
       'payment-methods': {
         type: 'nightingale-chart',
@@ -94,45 +123,41 @@ const revenue: DashboardPage = {
           categoryKey: [{ id: 'invoicePayments.method' }],
           valueKey: [sum('invoicePayments.amount')],
         },
-        format: title('Payments by method'),
-      },
-      'customer-bubbles': {
-        type: 'bubble-chart',
-        dataMapping: {
-          groupByKey: [{ id: 'customers.name' }],
-          categoryKey: [sum('invoices.issuedAmount')],
-          valueKey: [{ id: 'collectionRate' }],
-          sizeKey: [sum('invoices.outstanding')],
+        format: {
+          ...title('Payments by method'),
+          style: {
+            theme: {
+              nightingale: {
+                series: { label: { enabled: true, ...typography(2) } },
+              },
+            },
+          },
         },
-        format: title('Customers: invoiced vs collection rate (size = outstanding)'),
       },
-      'company-stack': {
-        type: 'bar-chart-stacked',
+      'invoice-status-pivot': {
+        type: 'pivot-grid',
         dataMapping: {
-          categoryKey: [{ id: 'customers.company' }],
-          valueKey: [sum('invoices.paidAmount'), sum('invoices.outstanding')],
+          rows: [{ id: 'customers.company' }, { id: 'invoices.number' }],
+          columns: [{ id: 'invoices.status' }],
+          values: [sum('invoices.total')],
         },
-        format: title('Paid and outstanding by company'),
+        format: {
+          style: { totalColumns: true, totalColumnsPlacement: 'before', grandTotalRow: { enabled: true } },
+        },
       },
     } satisfies Widgets,
     widgetLayout: {
-      'kpi-invoiced': at(0, 0, 5, 7),
-      'kpi-collected': at(5, 0, 5, 7),
-      'kpi-outstanding': at(10, 0, 5, 7),
-      'kpi-refund-rate': at(15, 0, 4, 7),
-      currency: at(19, 0, 5, 7),
+      'kpi-invoiced': at(0, 0, 4, 7),
+      'kpi-collected': at(4, 0, 4, 7),
+      'kpi-outstanding': at(8, 0, 4, 7),
+      'kpi-overdue': at(12, 0, 4, 7),
+      'invoice-date': at(16, 0, 8, 7),
       'billed-vs-collected': at(0, 7, 16, 16),
       'collection-rate': at(16, 7, 8, 16),
       'status-sunburst': at(0, 23, 8, 18),
       'items-treemap': at(8, 23, 8, 18),
       'payment-methods': at(16, 23, 8, 18),
-      'customer-bubbles': at(0, 41, 12, 18),
-      'company-stack': at(12, 41, 12, 18),
-    },
-    filter: {
-      page: [currencyFilter('currency')],
-      // Collection rate is undefined for customers with nothing invoiced yet (drafts only).
-      widget: { 'customer-bubbles': [{ field: { id: 'invoices.issuedAmount' }, model: { operator: 'greaterThan', value: 0 } }] },
+      'invoice-status-pivot': at(0, 41, 24, 20),
     },
   },
 };
@@ -146,15 +171,29 @@ const receivables: DashboardPage = {
       'kpi-outstanding': kpi('Outstanding', sum('invoices.outstanding')),
       'kpi-overdue': kpi('Overdue', sum('invoices.overdueAmount')),
       'kpi-open': kpi('Open invoices', countd('invoices.id')),
-      'overdue-share': gauge('Overdue share', 'overdueShare', 'of receivables past due'),
+      'overdue-share': {
+        type: 'radial-gauge',
+        dataMapping: { value: [{ id: 'overdueShare' }] },
+        format: {
+          ...title('Overdue share'),
+          style: {
+            label: { typography: typography(24) },
+            secondaryLabel: { enabled: true, text: 'of receivables past due' },
+            scaleLabel: { min: 0, max: 1, typography: typography(11) },
+          },
+        },
+      },
       aging: {
         type: 'column-chart-stacked',
         dataMapping: {
-          categoryKey: [{ id: 'invoices.agingBucket' }],
-          valueKey: [sum('invoices.outstanding')],
-          legendKey: [{ id: 'customers.name' }],
+          categoryKey: [{ id: 'customers.name' }],
+          valueKey: [sum('invoices.total')],
+          legendKey: [{ id: 'invoices.status' }],
         },
-        format: title('Receivables aging by customer'),
+        format: {
+          ...title('Receivables aging by customer'),
+          style: { theme: { common: { legend: { enabled: true } } } },
+        },
       },
       'open-invoices': {
         type: 'grid',
@@ -182,7 +221,7 @@ const receivables: DashboardPage = {
       currency: at(18, 0, 6, 7),
       aging: at(0, 7, 16, 18),
       'overdue-share': at(16, 7, 8, 18),
-      'open-invoices': at(0, 25, 24, 14),
+      'open-invoices': at(0, 25, 24, 20),
     },
     filter: {
       page: [currencyFilter('currency'), ...receivableOnly],
@@ -202,6 +241,7 @@ const cash: DashboardPage = {
       'payout-treemap': {
         type: 'treemap-chart',
         dataMapping: {
+          // Payouts aren't related to customers, so recipient (not company) is the second level.
           categoryKey: [{ id: 'payouts.campaign' }, { id: 'payouts.recipient' }],
           valueKey: [sum('payouts.amount')],
         },
@@ -213,7 +253,10 @@ const cash: DashboardPage = {
           categoryKey: [{ id: 'payouts.campaign' }],
           valueKey: [sum('payouts.amount')],
         },
-        format: title('Payout share by campaign'),
+        format: {
+          ...title('Payout share by campaign'),
+          style: { custom: { pieDataLabel: { enabled: true }, totalLabel: { enabled: true } } },
+        },
       },
       ledger: {
         type: 'grid',
@@ -272,7 +315,10 @@ const catalogue: DashboardPage = {
             { id: 'plans.monthlyPrice', aggregation: 'max' },
           ],
         },
-        format: title('Monthly-normalised price range by product'),
+        format: {
+          ...title('Monthly-normalised price range by product'),
+          style: { theme: { common: { legend: { enabled: true, position: 'right' } } } },
+        },
       },
       'plan-intervals': {
         type: 'donut-chart',
@@ -280,7 +326,10 @@ const catalogue: DashboardPage = {
           categoryKey: [{ id: 'plans.billingInterval' }],
           valueKey: [countd('plans.id')],
         },
-        format: title('Plans by billing interval'),
+        format: {
+          ...title('Plans by billing interval'),
+          style: { custom: { pieDataLabel: { enabled: true }, totalLabel: { enabled: false } } },
+        },
       },
       plans: {
         type: 'grid',
@@ -305,10 +354,10 @@ const catalogue: DashboardPage = {
       'kpi-plans': at(6, 0, 6, 7),
       'kpi-monthly': at(12, 0, 6, 7),
       'kpi-trial': at(18, 0, 6, 7),
-      'catalogue-sunburst': at(0, 7, 10, 20),
+      'plan-intervals': at(0, 7, 10, 20),
       'price-range': at(10, 7, 14, 20),
-      'plan-intervals': at(0, 27, 8, 24),
-      plans: at(8, 27, 16, 24),
+      plans: at(0, 27, 16, 24),
+      'catalogue-sunburst': at(16, 27, 8, 24),
     },
   },
 };
@@ -317,6 +366,5 @@ export const dashboardPages: DashboardPage[] = [revenue, receivables, cash, cata
 
 export const dashboardReport: AgReportState = {
   selectedPageId: dashboardPages[0].state.id,
-  panels: { filters: { collapsed: true } },
   pages: dashboardPages.map((page) => page.state),
 };
