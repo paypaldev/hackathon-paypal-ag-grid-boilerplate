@@ -1,99 +1,117 @@
 'use client';
 
-// The dashboard: the PayPal shell (./shell) wrapped around a single AG Studio instance
-// (./studio). This file is the glue between them. The shell owns saved reports, page names
-// and navigation; Studio owns the report itself. They meet in two places:
+// The dashboard: the PayPal shell (./components) wrapped around a single AG Studio instance
+// (./components/studio). This file is the glue between them. The shell owns saved reports,
+// page names and navigation; Studio owns the report being edited. They meet in two places:
 //   - the shell drives Studio through its AgStudioApi (setState, getState, undo, redo)
-//   - Studio reports every change back through onStateChange
+//   - Studio reports every change back through onStateChange, which only redraws the shell
+//
+// Nothing tracks edits as they happen. Save reads the report from Studio with getState(), and
+// leaving a report compares Studio's state with the saved one there and then.
 
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useRef, useState, useSyncExternalStore } from 'react';
 import type { AgReportState, AgStudioApi, AgStudioMode } from 'ag-studio';
-import type { DashboardApiData } from '@/lib/dashboard-api';
-import { AppShell } from './shell/app-shell';
-import { CreateReportDialog, DeleteReportDialog, ResetDemoDialog, UnsavedChangesDialog } from './shell/dialogs';
-import { EmptyData } from './shell/empty-data';
-import { ReportHeader } from './shell/report-header';
-import { blankReport, defaultReport, newId, pageTitle, reportsStore, type SavedReport } from './shell/reports-store';
-import { ReportsSidebar } from './shell/sidebar';
-import { DashboardSkeleton } from './shell/skeleton';
-import { PayPalStudio, type StudioHistory } from './studio/paypal-studio';
-import * as reportState from './studio/state';
+import { AppShell } from './components/app-shell';
+import {
+  CreateReportDialog,
+  DeleteReportDialog,
+  ResetDemoDialog,
+  UnsavedChangesDialog,
+  type DashboardDialog,
+} from './components/dialogs';
+import { EmptyData } from './components/empty-data';
+import { ReportHeader } from './components/report-header';
+import {
+  blankReport,
+  copyOf,
+  defaultReport,
+  findReport,
+  initialReports,
+  loadReports,
+  newId,
+  remove,
+  saveReports,
+  upsert,
+  type SavedReport,
+  type StoredReports,
+} from './reports-store';
+import { pagesFor, pageTitlesFor } from './page-titles';
+import { ReportsSidebar } from './components/sidebar';
+import { DashboardSkeleton } from './components/skeleton';
+import { hasData } from './components/studio/config/data';
+import {
+  NO_HISTORY,
+  PayPalStudio,
+  type StudioHistory,
+  type StudioSource,
+} from './components/studio/ag-studio-paypal';
+import * as reportState from './components/studio/utils/state-utils';
 
-const titlesFor = (state: AgReportState, titles: Record<string, string>) =>
-  Object.fromEntries(state.pages.map((page) => [page.id, titles[page.id] ?? pageTitle({ pageTitles: titles, state }, page.id)]));
+const noSubscription = () => () => {};
 
-const hasData = (data: DashboardApiData) =>
-  [data.invoices, data.transactions, data.products, data.plans, data.balances].some((rows) => rows.length > 0);
-
-export function Dashboard({ data, licenseKey }: { data: DashboardApiData; licenseKey?: string }) {
-  // Saved reports live in localStorage, so there's nothing to show until the browser has read them.
-  const store = useSyncExternalStore(reportsStore.subscribe, reportsStore.getSnapshot, reportsStore.getServerSnapshot);
-  if (!store) return <DashboardSkeleton />;
-  return <Workspace reports={store.reports} initialReportId={store.activeId} data={data} licenseKey={licenseKey} />;
+export function Dashboard(props: StudioSource) {
+  // Saved reports live in localStorage, which only exists in the browser.
+  const inBrowser = useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
+  return inBrowser ? <ReportsDashboard {...props} /> : <DashboardSkeleton />;
 }
 
-type DialogState =
-  | { kind: 'unsaved'; then: () => void }
-  | { kind: 'create' }
-  | { kind: 'delete'; report: SavedReport }
-  | { kind: 'reset' }
-  | null;
-
-function Workspace({
-  reports,
-  initialReportId,
-  data,
-  licenseKey,
-}: {
-  reports: SavedReport[];
-  initialReportId: string;
-  data: DashboardApiData;
-  licenseKey?: string;
-}) {
+function ReportsDashboard({ data, licenseKey, aiModels }: StudioSource) {
+  const [store, setStore] = useState(loadReports);
+  // The latest reports, for handlers that run one after another before React re-renders.
+  const storeRef = useRef(store);
   const apiRef = useRef<AgStudioApi | null>(null);
 
-  // A single Studio instance for the whole session. It starts on the last opened report;
-  // opening another report (or discarding changes) replaces its state with api.setState.
-  const [initial] = useState(() => reports.find((r) => r.id === initialReportId) ?? reports[0]);
-  const [initialState] = useState(() => reportState.withFiltersPanelFor('view', initial.state));
-  const [reportId, setReportId] = useState(initial.id);
-  const saved = reports.find((r) => r.id === reportId) ?? reports[0];
-
-  const [titles, setTitles] = useState(saved.pageTitles);
-  const [live, setLive] = useState<AgReportState | null>(null);
-  const [baseline, setBaseline] = useState<string | null>(null);
-  const [history, setHistory] = useState<StudioHistory>({ canUndo: false, canRedo: false });
+  // The open report as it is in Studio now, unsaved edits included, for drawing the shell.
+  // Null until Studio is ready.
+  const [studioState, setStudioState] = useState<AgReportState | null>(null);
+  const [history, setHistory] = useState<StudioHistory>(NO_HISTORY);
   const [mode, setMode] = useState<AgStudioMode>('view');
-  const [dialog, setDialog] = useState<DialogState>(null);
+  const [dialog, setDialog] = useState<DashboardDialog>(null);
 
-  const state = live ?? initialState;
-  const dirty =
-    live !== null &&
-    baseline !== null &&
-    (reportState.durable(live) !== baseline ||
-      JSON.stringify(titlesFor(live, titles)) !== JSON.stringify(titlesFor(live, saved.pageTitles)));
+  const { reports } = store;
+  // The open report, as it was last saved.
+  const saved = findReport(reports, store.activeId) ?? reports[0];
+  // Studio starts on the open report; after that, its state is read from Studio.
+  const initialState = reportState.withFiltersPanelFor('view', saved.state);
+  const state = studioState ?? initialState;
 
-  useEffect(() => {
-    if (!dirty) return;
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  }, [dirty]);
+  // --- Saved reports ----------------------------------------------------------------
+  const update = (change: (current: StoredReports) => StoredReports) => {
+    const next = change(storeRef.current);
+    storeRef.current = next;
+    saveReports(next);
+    setStore(next);
+  };
+  const editReport = (id: string, change: (report: SavedReport) => SavedReport) =>
+    update((current) => {
+      const report = findReport(current.reports, id);
+      return report ? upsert(current, change(report)) : current;
+    });
 
   // --- Driving Studio ---------------------------------------------------------------
-  const load = (report: SavedReport, selectedPageId = report.state.selectedPageId, nextMode = mode) => {
+  const load = (
+    report: SavedReport,
+    selectedPageId = report.state.selectedPageId,
+    nextMode = mode,
+  ) => {
     const api = apiRef.current;
     if (!api) return;
-    api.setState(reportState.withFiltersPanelFor(nextMode, { ...report.state, selectedPageId }));
+    api.setState(
+      reportState.withFiltersPanelFor(nextMode, {
+        ...report.state,
+        selectedPageId,
+      }),
+    );
     // Undo shouldn't step back into the previous report.
     api.clearHistory();
-    const current = api.getState();
-    setReportId(report.id);
-    setTitles(report.pageTitles);
-    setLive(current);
-    setBaseline(reportState.durable(current));
-    setHistory({ canUndo: false, canRedo: false });
-    reportsStore.setActive(report.id);
+    setStudioState(api.getState());
+    setHistory(NO_HISTORY);
+    setMode(nextMode);
+    update((current) => ({ ...current, activeId: report.id }));
   };
   const updateState = (next: (current: AgReportState) => AgReportState) => {
     const api = apiRef.current;
@@ -109,81 +127,83 @@ function Workspace({
     const api = apiRef.current;
     if (!api) return;
     const current = api.getState();
-    reportsStore.upsert({ ...saved, pageTitles: titlesFor(current, titles), state: current, updatedAt: new Date().toISOString() });
-    setBaseline(reportState.durable(current));
+    editReport(saved.id, (report) => ({
+      ...report,
+      // Titles for exactly the pages being saved.
+      pageTitles: pageTitlesFor({ pageTitles: report.pageTitles, state: current }),
+      state: current,
+      updatedAt: new Date().toISOString(),
+    }));
     console.log('[AG Studio] saved report', saved.name, current);
   };
-  const discard = () => {
-    const selectedPageId = saved.state.pages.some((p) => p.id === state.selectedPageId)
-      ? state.selectedPageId
-      : saved.state.selectedPageId;
-    load(saved, selectedPageId);
+  const discard = () =>
+    load(saved, reportState.pageToSelect(saved.state, state.selectedPageId));
+  // Anything that leaves the current report or edit mode asks first when it has unsaved changes.
+  const guard = (then: () => void) => {
+    const api = apiRef.current;
+    if (api && reportState.hasChanges(api.getState(), saved.state)) {
+      setDialog({ kind: 'unsaved', then });
+    } else then();
   };
-  // Anything that leaves the current report asks first when it has unsaved changes.
-  const guard = (then: () => void) => (dirty ? setDialog({ kind: 'unsaved', then }) : then());
 
   // --- Reports ----------------------------------------------------------------------
   const openReport = (id: string) => {
-    const report = reports.find((r) => r.id === id);
+    const report = findReport(reports, id);
     if (report && id !== saved.id) guard(() => load(report));
   };
   const createReport = (name: string) => {
     const report = blankReport(name);
-    reportsStore.upsert(report, { activate: true });
+    update((current) => upsert(current, report));
     load(report, report.state.selectedPageId, 'edit');
-    setMode('edit');
   };
   const duplicateReport = (id: string) =>
     guard(() => {
-      const source = reports.find((r) => r.id === id);
+      const source = findReport(reports, id);
       if (!source) return;
-      const copy: SavedReport = {
-        ...source,
-        id: newId('report'),
-        name: `${source.name} (copy)`,
-        builtIn: undefined,
-        updatedAt: new Date().toISOString(),
-      };
-      reportsStore.upsert(copy, { activate: true });
+      const copy = copyOf(source);
+      update((current) => upsert(current, copy));
       load(copy);
     });
   const resetDemo = () => {
-    reportsStore.reset();
-    const report = defaultReport();
-    load(report, report.state.selectedPageId, 'view');
-    setMode('view');
+    update(initialReports);
+    load(defaultReport(), undefined, 'view');
   };
   const deleteReport = (report: SavedReport) => {
-    reportsStore.remove(report.id);
+    update((current) => remove(current, report.id));
     if (report.id !== saved.id) return;
-    const { reports: next, activeId } = reportsStore.getSnapshot();
-    load(next.find((r) => r.id === activeId) ?? next[0]);
+    const { reports: next, activeId } = storeRef.current;
+    load(findReport(next, activeId) ?? next[0]);
   };
-  const renameReport = (id: string, name: string) => {
-    const report = reports.find((r) => r.id === id);
-    if (report) reportsStore.upsert({ ...report, name });
-  };
+  const renameReport = (id: string, name: string) =>
+    editReport(id, (report) => ({ ...report, name }));
 
   // --- Pages ------------------------------------------------------------------------
-  // Studio leaves page navigation to the host, and its state has no page names.
+  // Studio leaves page navigation to the host, and its state has no page names. Page names are
+  // saved as soon as they change; new pages are numbered until they're named.
   const selectPage = (id: string, pageId: string) => {
     if (id === saved.id) updateState((s) => reportState.selectPage(s, pageId));
     else {
-      const report = reports.find((r) => r.id === id);
+      const report = findReport(reports, id);
       if (report) guard(() => load(report, pageId));
     }
   };
   const addPage = () => {
     const id = newId('page');
-    setTitles((current) => ({ ...current, [id]: `Page ${state.pages.length + 1}` }));
     updateState((s) => reportState.addPage(s, id));
+    // A new page is empty, so open edit mode to fill it.
+    if (mode !== 'edit') changeMode('edit');
     return id;
   };
-  const removePage = (id: string) => updateState((s) => reportState.removePage(s, id));
-  const renamePage = (id: string, title: string) => setTitles((current) => ({ ...current, [id]: title }));
+  const removePage = (id: string) =>
+    updateState((s) => reportState.removePage(s, id));
+  const renamePage = (id: string, title: string) =>
+    editReport(saved.id, (report) => ({
+      ...report,
+      pageTitles: { ...report.pageTitles, [id]: title },
+    }));
 
   const editing = mode === 'edit';
-  const pages = state.pages.map((page) => ({ id: page.id, title: titles[page.id] ?? pageTitle({ pageTitles: titles, state }, page.id) }));
+  const pages = pagesFor({ pageTitles: saved.pageTitles, state });
 
   return (
     <AppShell
@@ -191,11 +211,10 @@ function Workspace({
         <ReportsSidebar
           reports={reports}
           activeId={saved.id}
-          activeDirty={dirty}
           activePages={pages}
           selectedPageId={state.selectedPageId}
           editing={editing}
-          ready={live !== null}
+          ready={studioState !== null}
           onSelectReport={openReport}
           onSelectPage={selectPage}
           onAddPage={() => (apiRef.current ? addPage() : undefined)}
@@ -205,7 +224,7 @@ function Workspace({
           onCreate={() => guard(() => setDialog({ kind: 'create' }))}
           onDuplicate={duplicateReport}
           onDelete={(id) => {
-            const report = reports.find((r) => r.id === id);
+            const report = findReport(reports, id);
             if (report) setDialog({ kind: 'delete', report });
           }}
           onReset={() => setDialog({ kind: 'reset' })}
@@ -217,16 +236,16 @@ function Workspace({
         pageTitle={pages.find((p) => p.id === state.selectedPageId)?.title}
         asOf={data.asOf}
         editing={editing}
-        pageIsEmpty={live !== null && !reportState.pageHasWidgets(state)}
-        dirty={dirty}
-        saved={baseline !== null}
+        pageIsEmpty={studioState !== null && !reportState.pageHasWidgets(state)}
         canUndo={history.canUndo}
         canRedo={history.canRedo}
         onUndo={() => apiRef.current?.undo()}
         onRedo={() => apiRef.current?.redo()}
         onSave={save}
         onDiscard={discard}
-        onEditingChange={(next) => changeMode(next ? 'edit' : 'view')}
+        onEditingChange={(next) =>
+          next ? changeMode('edit') : guard(() => changeMode('view'))
+        }
       />
 
       <div className="min-h-0 flex-1">
@@ -234,17 +253,15 @@ function Workspace({
           <PayPalStudio
             data={data}
             licenseKey={licenseKey}
+            aiModels={aiModels}
             initialState={initialState}
             mode={mode}
             onApiReady={(api) => {
               apiRef.current = api;
             }}
-            onReady={(current) => {
-              setLive(current);
-              setBaseline(reportState.durable(current));
-            }}
+            onReady={setStudioState}
             onStateChange={(current, nextHistory) => {
-              setLive(current);
+              setStudioState(current);
               setHistory(nextHistory);
             }}
           />
@@ -258,6 +275,7 @@ function Workspace({
         reportName={saved.name}
         onCancel={() => setDialog(null)}
         onDiscard={() => {
+          discard();
           if (dialog?.kind === 'unsaved') dialog.then();
           setDialog(null);
         }}

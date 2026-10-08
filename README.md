@@ -16,6 +16,21 @@ Open [http://localhost:3000](http://localhost:3000). Next.js only loads the dott
 
 Other scripts: `npm run build` (production build), `npm run start` (serve the build), `npm run lint`.
 
+### AI assistant (optional)
+
+The AG Studio dashboard at `/dashboard-api` has an AI assistant backed by OpenAI. The key is taken from the first of these that is set; with neither, the assistant is hidden:
+
+1. `AG_STUDIO_OPENAI_API_KEY`, specific to this app. Put it in `.env.local` to choose the key for this demo.
+2. `OPENAI_API_KEY`, the name OpenAI's own tools use. If you already export one (e.g. in `~/.zshrc`), the demo uses it with no setup, and spends against it.
+
+A separate name is needed because Next.js prefers variables already in the environment over `.env.local`, so a globally exported `OPENAI_API_KEY` can't be overridden per project. The server logs which variable it used (never the key) the first time the assistant is configured.
+
+`OPENAI_MODELS` lists the model ids the assistant may use, comma-separated, first one the default (`gpt-5.4-mini` when unset); with two or more, the chat offers a model picker.
+
+The key never reaches the browser. Studio's adapter ([`openai-adapter.ts`](app/dashboard-api/components/studio/ai/openai-adapter.ts), copied from the AG Studio docs) runs client-side and posts to this app's own [`/api/ai/responses`](app/api/ai/responses/route.ts), which adds the key, only allows the configured models, caps output tokens, and streams OpenAI's reply back.
+
+In production `.env.local` isn't deployed: set the variable in your host's environment (e.g. Vercel project settings, `docker run --env-file`, or a secrets manager), as with the PayPal credentials. The route has no auth or rate limiting, so don't deploy it publicly with a real key without adding one.
+
 ## How it works
 
 Every SDK call lives in [`lib/paypal.ts`](lib/paypal.ts), which owns the sandbox `Client`. Each page is a server component that calls one of those functions and renders the result with [`app/data-table.tsx`](app/data-table.tsx). Pages call `await connection()` so they render per request with live data instead of being prerendered at build time.

@@ -1,4 +1,4 @@
-import { InboxIcon } from './icons';
+import { InboxIcon } from './ui/icons';
 
 // Shown in place of Studio when the sandbox account has nothing to report on.
 export function EmptyData() {

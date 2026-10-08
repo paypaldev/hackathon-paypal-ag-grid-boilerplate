@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import { aiEnabled, aiModels } from "@/lib/ai";
 import { getDashboardApiData } from "@/lib/dashboard-api";
 import { Dashboard } from "./dashboard";
 
@@ -12,5 +13,12 @@ export default async function DashboardApiPage() {
   await connection();
   const data = await getDashboardApiData();
 
-  return <Dashboard data={data} licenseKey={process.env.AG_STUDIO} />;
+  // Only the model ids reach the client; the OpenAI key stays on the server (lib/ai.ts).
+  return (
+    <Dashboard
+      data={data}
+      licenseKey={process.env.AG_STUDIO}
+      aiModels={aiEnabled() ? aiModels() : undefined}
+    />
+  );
 }

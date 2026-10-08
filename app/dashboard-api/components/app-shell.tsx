@@ -1,12 +1,13 @@
+'use client';
+
 import type { ReactNode } from 'react';
-import { BellIcon, HelpIcon } from './icons';
-import { AgStudioLogo } from './logo';
+import { BellIcon, HelpIcon } from './ui/icons';
+import { AgStudioLogo } from './ui/logo';
 
 // The app frame, laid out like the PayPal Developer Dashboard: a white top bar, a left sidebar
-// and a light canvas. Shared by the dashboard, its loading skeleton and its error page, so it
-// holds no state.
+// and a light canvas. Shared by the dashboard, its loading skeleton and its error page.
 
-export function PayPalWordmark({ className = '' }: { className?: string }) {
+function PayPalWordmark({ className = '' }: { className?: string }) {
   return (
     <span className={`font-bold italic tracking-tight ${className}`}>
       <span className="text-pp-blue-dark">Pay</span>
@@ -15,7 +16,7 @@ export function PayPalWordmark({ className = '' }: { className?: string }) {
   );
 }
 
-export function BrandLockup() {
+function BrandLockup() {
   return (
     <div className="flex items-center gap-3">
       <AgStudioLogo className="-ml-3 h-12 w-auto" />
@@ -49,7 +50,13 @@ function TopBar() {
   );
 }
 
-export function AppShell({ sidebar, children }: { sidebar: ReactNode; children: ReactNode }) {
+export function AppShell({
+  sidebar,
+  children,
+}: {
+  sidebar: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <div className="flex h-dvh flex-col bg-pp-canvas font-paypal text-pp-ink">
       <TopBar />
@@ -61,8 +68,4 @@ export function AppShell({ sidebar, children }: { sidebar: ReactNode; children: 
       </div>
     </div>
   );
-}
-
-export function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-pp-border/60 ${className}`} />;
 }

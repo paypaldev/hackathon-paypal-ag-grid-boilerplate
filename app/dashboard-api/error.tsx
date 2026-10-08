@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AlertIcon } from './shell/icons';
-import { AppShell } from './shell/app-shell';
-import { SidebarSkeleton } from './shell/skeleton';
-import { Button } from './shell/ui';
+import { AlertIcon } from './components/ui/icons';
+import { AppShell } from './components/app-shell';
+import { SidebarSkeleton } from './components/skeleton';
+import { Button } from './components/ui/ui';
 
 // Shown when the PayPal API can't be reached, or rejects the request, while loading the page.
 export default function DashboardError({ error, retry }: { error: Error & { digest?: string }; retry: () => void }) {

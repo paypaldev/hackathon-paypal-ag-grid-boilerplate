@@ -1,10 +1,18 @@
 'use client';
 
-import type { SavedReport } from './reports-store';
-import { Button, Dialog } from './ui';
+import type { SavedReport } from '../reports-store';
+import { Button, Dialog } from './ui/ui';
 
 // The shell's confirmation dialogs. Each takes its own open flag and callbacks, so the
 // dashboard decides when they show and what happens next.
+
+// Which dialog is open, if any. Only one shows at a time.
+export type DashboardDialog =
+  | { kind: 'unsaved'; then: () => void }
+  | { kind: 'create' }
+  | { kind: 'delete'; report: SavedReport }
+  | { kind: 'reset' }
+  | null;
 
 export function UnsavedChangesDialog({
   open,

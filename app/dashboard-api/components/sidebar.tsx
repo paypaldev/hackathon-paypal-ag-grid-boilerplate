@@ -1,18 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { CloseIcon, MoreIcon, PlusIcon, ReportIcon } from './icons';
-import { pageTitle, type SavedReport } from './reports-store';
-import { Button, Menu, MenuItem } from './ui';
-
-export type SidebarPage = { id: string; title: string };
+import { CloseIcon, MoreIcon, PlusIcon, ReportIcon } from './ui/icons';
+import { pagesFor, type ReportPage } from '../page-titles';
+import type { SavedReport } from '../reports-store';
+import { Button, Menu, MenuItem } from './ui/ui';
 
 // Reports, each listing its pages. The open report shows its live pages (including unsaved
 // ones); the others show their saved pages. Double-click a report or page to rename it.
 export function ReportsSidebar({
   reports,
   activeId,
-  activeDirty,
   activePages,
   selectedPageId,
   editing,
@@ -30,8 +28,7 @@ export function ReportsSidebar({
 }: {
   reports: SavedReport[];
   activeId: string;
-  activeDirty: boolean;
-  activePages: SidebarPage[];
+  activePages: ReportPage[];
   selectedPageId: string;
   editing: boolean;
   ready: boolean;
@@ -62,9 +59,7 @@ export function ReportsSidebar({
         {reports.map((report) => {
           const active = report.id === activeId;
           const open = expanded[report.id] ?? active;
-          const pages: SidebarPage[] = active
-            ? activePages
-            : report.state.pages.map((page) => ({ id: page.id, title: pageTitle(report, page.id) }));
+          const pages = active ? activePages : pagesFor(report);
 
           return (
             <li key={report.id}>
@@ -96,9 +91,6 @@ export function ReportsSidebar({
                   >
                     <ReportIcon className={`size-5 shrink-0 ${active ? 'text-pp-blue' : ''}`} />
                     <span className="truncate">{report.name}</span>
-                    {active && activeDirty && (
-                      <span className="size-2 shrink-0 rounded-full bg-pp-warning" title="Unsaved changes" />
-                    )}
                   </button>
                 )}
                 <div className="absolute right-1 top-1/2 -translate-y-1/2">
@@ -187,7 +179,7 @@ export function ReportsSidebar({
                       </li>
                     );
                   })}
-                  {active && editing && (
+                  {active && (
                     <li>
                       <button
                         type="button"

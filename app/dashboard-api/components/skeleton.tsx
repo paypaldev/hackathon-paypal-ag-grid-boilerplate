@@ -1,7 +1,11 @@
-import { AppShell, Skeleton } from './app-shell';
+import { AppShell } from './app-shell';
 
 // Placeholder for the dashboard while PayPal data loads (./loading.tsx) and while saved
 // reports are read from this browser.
+
+function Skeleton({ className = '' }: { className?: string }) {
+  return <div className={`animate-pulse rounded-lg bg-pp-border/60 ${className}`} />;
+}
 
 export function SidebarSkeleton() {
   return (

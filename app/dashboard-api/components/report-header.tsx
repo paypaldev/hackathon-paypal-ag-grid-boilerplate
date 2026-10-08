@@ -2,19 +2,17 @@
 
 import { useSyncExternalStore, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { EditIcon, EyeIcon, RedoIcon, RefreshIcon, UndoIcon } from './icons';
-import { Button, IconButton } from './ui';
+import { EditIcon, EyeIcon, RedoIcon, RefreshIcon, UndoIcon } from './ui/icons';
+import { Button, IconButton } from './ui/ui';
 
 // The bar above Studio: which report and page you're on, how fresh the data is, and the
-// Customise / Save / Discard controls.
+// Edit / Save / Discard controls.
 export function ReportHeader({
   reportName,
   pageTitle,
   asOf,
   editing,
   pageIsEmpty,
-  dirty,
-  saved,
   canUndo,
   canRedo,
   onUndo,
@@ -28,9 +26,6 @@ export function ReportHeader({
   asOf: string;
   editing: boolean;
   pageIsEmpty: boolean;
-  dirty: boolean;
-  /** Studio is ready and its state matches the saved report. */
-  saved: boolean;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
@@ -61,28 +56,21 @@ export function ReportHeader({
               <RedoIcon />
             </IconButton>
             <span className="mx-2 h-6 w-px bg-pp-border" aria-hidden />
+            <Button onClick={onDiscard} size="sm">
+              Discard
+            </Button>
+            <Button variant="primary" size="sm" onClick={onSave}>
+              Save
+            </Button>
           </>
-        )}
-        <span className={`mr-2 text-sm ${dirty ? 'text-pp-warning' : 'text-pp-muted'}`} role="status">
-          {dirty ? 'Unsaved changes' : saved ? 'All changes saved' : ''}
-        </span>
-        {dirty && (
-          <Button onClick={onDiscard} size="sm">
-            Discard
-          </Button>
-        )}
-        {(editing || dirty) && (
-          <Button variant="primary" size="sm" disabled={!dirty} onClick={onSave}>
-            Save
-          </Button>
         )}
         {editing ? (
           <Button variant="ghost" size="sm" onClick={() => onEditingChange(false)}>
-            <EyeIcon className="size-4" /> Preview
+            <EyeIcon className="size-4" /> View
           </Button>
         ) : (
           <Button variant="ghost" size="sm" onClick={() => onEditingChange(true)}>
-            <EditIcon className="size-4" /> Customise
+            <EditIcon className="size-4" /> Edit
           </Button>
         )}
       </div>
