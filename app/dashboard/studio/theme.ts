@@ -15,7 +15,7 @@ const palette = Object.fromEntries(
   ]).flat(),
 );
 
-export const paypalStudioTheme = studioTheme.withParams({
+export const agStudioPayPalTheme = studioTheme.withParams({
   // Shared by Studio's UI, grids and charts.
   fontFamily: token('font'),
   fontSize: 14,

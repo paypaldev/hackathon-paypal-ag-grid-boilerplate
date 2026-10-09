@@ -1,10 +1,13 @@
-# PayPal SDK data pages
+# PayPal REST APIs with AG Grid & AG Studio
 
-A Next.js app that reads sandbox data with the [PayPal TypeScript Server SDK](https://github.com/paypal/PayPal-TypeScript-Server-SDK) (`@paypal/paypal-server-sdk`) and shows it in simple tables.
+A Next.js app that reads PayPal sandbox data over the [PayPal REST API](https://developer.paypal.com/api/rest/) and shows it two ways:
+
+- **Endpoint pages**: one [AG Grid](https://www.ag-grid.com/react-data-grid/) per PayPal endpoint the demo calls, showing what each returns.
+- **Dashboard** (`/dashboard`): an [AG Studio](https://www.ag-grid.com/studio/) report over all of that data, joined together, which you can edit and save in the browser.
 
 ## Run locally
 
-Requires Node.js 20.9 or later and a PayPal sandbox REST app ([developer.paypal.com](https://developer.paypal.com/dashboard/applications/sandbox)). The Transaction Search pages also need the app's **Transaction search** feature enabled.
+Requires Node.js 20.9 or later and a PayPal sandbox REST app ([developer.paypal.com](https://developer.paypal.com/dashboard/applications/sandbox)). The transactions and balances pages also need the app's **Transaction search** feature enabled.
 
 ```bash
 npm install
@@ -16,9 +19,13 @@ Open [http://localhost:3000](http://localhost:3000). Next.js only loads the dott
 
 Other scripts: `npm run build` (production build), `npm run start` (serve the build), `npm run lint`.
 
+### AG Studio licence (optional)
+
+Set `AG_STUDIO` in `.env.local` to your AG Studio licence key. The dashboard passes it to `AgStudioProvider`.
+
 ### AI assistant (optional)
 
-The AG Studio dashboard at `/dashboard-api` has an AI assistant backed by OpenAI. The key is taken from the first of these that is set; with neither, the assistant is hidden:
+The AG Studio dashboard at `/dashboard` has an AI assistant backed by OpenAI. The key is taken from the first of these that is set; with neither, the assistant is hidden:
 
 1. `AG_STUDIO_OPENAI_API_KEY`, specific to this app. Put it in `.env.local` to choose the key for this demo.
 2. `OPENAI_API_KEY`, the name OpenAI's own tools use. If you already export one (e.g. in `~/.zshrc`), the demo uses it with no setup, and spends against it.
@@ -27,137 +34,47 @@ A separate name is needed because Next.js prefers variables already in the envir
 
 `OPENAI_MODELS` lists the model ids the assistant may use, comma-separated, first one the default (`gpt-5.4-mini` when unset); with two or more, the chat offers a model picker.
 
-The key never reaches the browser. Studio's adapter ([`openai-adapter.ts`](app/dashboard-api/components/studio/ai/openai-adapter.ts), copied from the AG Studio docs) runs client-side and posts to this app's own [`/api/ai/responses`](app/api/ai/responses/route.ts), which adds the key, only allows the configured models, caps output tokens, and streams OpenAI's reply back.
+The key never reaches the browser. Studio's adapter ([`openai-adapter.ts`](app/dashboard/studio/openai-adapter.ts), copied from the AG Studio docs) runs client-side and posts to this app's own [`/api/ai/responses`](app/api/ai/responses/route.ts), which adds the key, only allows the configured models, caps output tokens, and streams OpenAI's reply back.
 
 In production `.env.local` isn't deployed: set the variable in your host's environment (e.g. Vercel project settings, `docker run --env-file`, or a secrets manager), as with the PayPal credentials. The route has no auth or rate limiting, so don't deploy it publicly with a real key without adding one.
 
 ## How it works
 
-Every SDK call lives in [`lib/paypal.ts`](lib/paypal.ts), which owns the sandbox `Client`. Each page is a server component that calls one of those functions and renders the result with [`app/data-table.tsx`](app/data-table.tsx). Pages call `await connection()` so they render per request with live data instead of being prerendered at build time.
-
-## Data pages
-
-| Page | `lib/paypal.ts` function | SDK call | Shows |
-|---|---|---|---|
-| [`/transactions`](app/transactions/page.tsx) | `getRecentTransactions()` | `TransactionSearchController.searchTransactions` | First 20 transactions from the last 30 days |
-| [`/subscriptions`](app/subscriptions/page.tsx) | `getBillingPlans()` | `SubscriptionsController.listBillingPlans` | First 20 subscription billing plans |
-| [`/balances`](app/balances/page.tsx) | `getBalances()` | `TransactionSearchController.searchBalances` | Current balance per currency |
-
-The examples below are real sandbox responses as the SDK returns them (camelCase fields, not the REST API's snake_case).
-
-### `/transactions`
-
-`searchTransactions({ startDate, endDate, fields: 'all', pageSize: 20 })` returns `transactionDetails[]`. Transaction Search accepts at most a 31-day range, and new activity can take up to three hours to appear. `fields: 'all'` adds `payerInfo` and the other sections; without it only `transactionInfo` is returned.
-
-One `transactionDetails` item (a payout):
-
-```json
-{
-  "transactionInfo": {
-    "transactionId": "10890159B0554833L",
-    "paypalReferenceId": "1FX78001X2681601H",
-    "paypalReferenceIdType": "TXN",
-    "transactionEventCode": "T0001",
-    "transactionInitiationDate": "2026-09-23T12:11:56Z",
-    "transactionUpdatedDate": "2026-09-23T12:11:56Z",
-    "transactionAmount": { "currencyCode": "USD", "value": "-1.00" },
-    "feeAmount": { "currencyCode": "USD", "value": "-0.25" },
-    "transactionStatus": "P",
-    "transactionSubject": "Probe payout",
-    "transactionNote": "probe",
-    "endingBalance": { "currencyCode": "USD", "value": "4997.50" },
-    "availableBalance": { "currencyCode": "USD", "value": "4997.50" },
-    "customField": "probe-1",
-    "protectionEligibility": "02",
-    "instrumentType": "PayPal",
-    "instrumentSubType": "PayPal Wallet"
-  },
-  "payerInfo": {
-    "emailAddress": "probe-receiver@example.com",
-    "phoneNumber": { "countryCode": "1", "nationalNumber": "2028188144" },
-    "addressStatus": "N",
-    "payerName": {}
-  },
-  "shippingInfo": { "name": "John, Doe" },
-  "cartInfo": {},
-  "storeInfo": {},
-  "auctionInfo": {},
-  "incentiveInfo": {}
-}
+```
+lib/paypal.ts            Every PayPal call: OAuth token, paging, retries, response types
+lib/dashboard-data.ts    Turns those responses into the dashboard's related tables
+app/(endpoints)/         One page per endpoint, each rendering an AG Grid
+app/dashboard/           The AG Studio dashboard
+app/api/ai/responses/    Server-side proxy for the dashboard's AI assistant
 ```
 
-`transactionEventCode` is a [PayPal T-code](https://developer.paypal.com/docs/transaction-search/transaction-event-codes/) (`T0001` = payout). `transactionStatus` is `S` success, `P` pending, `D` denied, `V` reversed or `F` partially refunded.
+[`lib/paypal.ts`](lib/paypal.ts) calls the REST API with plain `fetch`, no SDK. It gets an OAuth access token with the client-credentials grant and caches it until just before it expires. It follows `page`/`total_pages` paging, and retries on 401, 429 and 5xx responses. Its types are hand-written for the fields this demo reads, in the API's own snake_case.
 
-### `/subscriptions`
+Every page is a server component that calls `await connection()`, so it renders per request with live data instead of being prerendered at build time. PayPal credentials never leave the server.
 
-`listBillingPlans({ pageSize: 20, prefer: 'return=representation' })` returns `plans[]`. The `prefer` header makes the list include `billingCycles` and `paymentPreferences`, which the default list response omits.
+## Endpoint pages
 
-One `plans` item (a plan with a 30-day trial):
+Each page in [`app/(endpoints)`](app/(endpoints)) calls one function in `lib/paypal.ts`, maps the response to flat rows, and passes them with plain column definitions to the shared [`DataGrid`](app/(endpoints)/data-grid.tsx). The page header shows the REST calls behind it.
 
-```json
-{
-  "id": "P-3RM52651TF551181NNKZ4BHQ",
-  "productId": "AGGRID-CLOUD-STORAGE",
-  "name": "Cloud Storage Basic (100 GB)",
-  "status": "ACTIVE",
-  "description": "Cloud Storage: Cloud Storage Basic (100 GB)",
-  "billingCycles": [
-    {
-      "frequency": { "intervalUnit": "DAY", "intervalCount": 30 },
-      "tenureType": "TRIAL",
-      "sequence": 1,
-      "totalCycles": 1
-    },
-    {
-      "pricingScheme": {
-        "version": 1,
-        "fixedPrice": { "currencyCode": "USD", "value": "2.99" },
-        "createTime": "2026-09-23T12:05:50Z",
-        "updateTime": "2026-09-23T12:05:50Z"
-      },
-      "frequency": { "intervalUnit": "MONTH", "intervalCount": 1 },
-      "tenureType": "REGULAR",
-      "sequence": 2,
-      "totalCycles": 0
-    }
-  ],
-  "paymentPreferences": {
-    "autoBillOutstanding": true,
-    "setupFee": { "currencyCode": "USD", "value": "0.0" },
-    "setupFeeFailureAction": "CONTINUE",
-    "paymentFailureThreshold": 3
-  },
-  "quantitySupported": false,
-  "createTime": "2026-09-23T12:05:50Z",
-  "updateTime": "2026-09-23T12:05:50Z",
-  "links": [
-    {
-      "href": "https://api.sandbox.paypal.com/v1/billing/plans/P-3RM52651TF551181NNKZ4BHQ",
-      "rel": "self",
-      "method": "GET"
-    }
-  ]
-}
-```
+| Page | `lib/paypal.ts` function | REST calls |
+|---|---|---|
+| [`/products`](app/(endpoints)/products/page.tsx) | `listProducts()` | `GET /v1/catalogs/products`, then `GET /v1/catalogs/products/{id}` per product |
+| [`/plans`](app/(endpoints)/plans/page.tsx) | `listPlans()` | `GET /v1/billing/plans`, then `GET /v1/billing/plans/{id}` per plan |
+| [`/invoices`](app/(endpoints)/invoices/page.tsx) | `listInvoices()` | `GET /v2/invoicing/invoices`, then `GET /v2/invoicing/invoices/{id}` per invoice |
+| [`/transactions`](app/(endpoints)/transactions/page.tsx) | `searchTransactions(start, end)` | `GET /v1/reporting/transactions` |
+| [`/balances`](app/(endpoints)/balances/page.tsx) | `getBalances()` | `GET /v1/reporting/balances` |
 
-`totalCycles: 0` on the `REGULAR` cycle means the plan bills until cancelled.
+Things worth knowing about these endpoints:
 
-### `/balances`
+- **List endpoints return summaries.** Products have no type or category, plans no billing cycles, and invoices no line items, payments or refunds. So each record is fetched again in full, which is why these pages take a second or two.
+- **Billing plans keep their price in `billing_cycles`.** There is an optional `TRIAL` cycle, then the `REGULAR` cycle; `total_cycles: 0` means it bills until cancelled.
+- **Transaction Search covers at most 31 days per request** and rejects fractional seconds in dates. New activity can take up to three hours to appear. `fields=all` adds `payer_info` to each `transaction_info`. Event codes are [PayPal T-codes](https://developer.paypal.com/docs/transaction-search/transaction-event-codes/) (`T0001` = payout); status is `S` success, `P` pending, `D` denied, `V` reversed or `F` partially refunded.
+- **Amounts are decimal strings with a currency**, e.g. `{ "value": "2.99", "currency_code": "USD" }`. `amountOf()` turns them into numbers, and the grid formats money columns in each row's currency.
 
-`searchBalances({})` returns the current balances. Pass `asOfTime` to get the balance at an earlier point in time.
+### The grid
 
-```json
-{
-  "balances": [
-    {
-      "currency": "USD",
-      "totalBalance": { "currencyCode": "USD", "value": "3537.71" },
-      "availableBalance": { "currencyCode": "USD", "value": "3537.71" },
-      "withheldBalance": { "currencyCode": "USD", "value": "0.00" }
-    }
-  ],
-  "accountId": "QXJYHKET9Y4VC",
-  "asOfTime": "2026-09-28T10:59:59Z",
-  "lastRefreshTime": "2026-09-28T10:59:59Z"
-}
-```
+Pages are server components, so the column definitions they pass to the grid must be plain data, with no functions. Money columns use the `type: 'money'` column type, defined in `data-grid.tsx`, which formats the value in the row's `currency`. Date columns use AG Grid's built-in `cellDataType: 'dateString'` or `'dateTimeString'`. Every column can be sorted and filtered, and the search box filters across all columns.
+
+## Dashboard
+
+[`/dashboard`](app/dashboard/page.tsx) fetches all five endpoints at once. [`lib/dashboard-data.ts`](lib/dashboard-data.ts) turns them into related tables: customers, invoices, invoice line items, invoice payments, products, plans, transactions, payouts and balances. AG Studio's data sources, relationships, theme, default report and AI assistant are configured in [`app/dashboard/studio`](app/dashboard/studio). Reports you create or edit are saved in the browser's localStorage.

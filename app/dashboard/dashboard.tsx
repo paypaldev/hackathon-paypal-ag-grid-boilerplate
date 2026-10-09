@@ -1,16 +1,25 @@
 'use client';
 
-// The dashboard: the PayPal shell (./components) wrapped around a single AG Studio instance
-// (./components/studio). This file is the glue between them. The shell owns saved reports,
-// page names and navigation; Studio owns the report being edited. They meet in two places:
+// The dashboard: the PayPal shell (./components) wrapped around a single AG Studio instance, which
+// this file renders. Studio's configuration (data sources, theme, default report, AI) lives in
+// ./studio. The shell owns saved reports, page names and navigation; Studio owns
+// the report being edited. They meet in two places:
 //   - the shell drives Studio through its AgStudioApi (setState, getState, undo, redo)
-//   - Studio reports every change back through onStateChange, which only redraws the shell
+//   - Studio reports every change back through onStateUpdated, which only redraws the shell
 //
 // Nothing tracks edits as they happen. Save reads the report from Studio with getState(), and
 // leaving a report compares Studio's state with the saved one there and then.
 
-import { useRef, useState, useSyncExternalStore } from 'react';
-import type { AgReportState, AgStudioApi, AgStudioMode } from 'ag-studio';
+import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  AgStudioAiModule,
+  enableStudioDevValidations,
+  type AgReportState,
+  type AgStudioApi,
+  type AgStudioMode,
+} from 'ag-studio';
+import { AgStudio, AgStudioProvider } from 'ag-studio-react';
+import type { DashboardData } from '@/lib/dashboard-data';
 import { AppShell } from './components/app-shell';
 import {
   CreateReportDialog,
@@ -27,29 +36,38 @@ import {
   defaultReport,
   findReport,
   initialReports,
-  loadReports,
   newId,
   remove,
-  saveReports,
   upsert,
   type SavedReport,
-  type StoredReports,
 } from './reports-store';
 import { pagesFor, pageTitlesFor } from './page-titles';
 import { ReportsSidebar } from './components/sidebar';
 import { DashboardSkeleton } from './components/skeleton';
-import { hasData } from './components/studio/config/data';
-import {
-  NO_HISTORY,
-  PayPalStudio,
-  type StudioHistory,
-  type StudioSource,
-} from './components/studio/ag-studio-paypal';
-import * as reportState from './components/studio/utils/state-utils';
+import * as reportState from './report-state';
+import { buildAi } from './studio/ai';
+import { buildStudioData, hasData } from './studio/data';
+import { agStudioPayPalTheme } from './studio/theme';
+import { useReports } from './use-reports';
+
+if (process.env.NODE_ENV !== 'production') {
+  enableStudioDevValidations();
+}
+
+type DashboardProps = {
+  data: DashboardData;
+  licenseKey?: string;
+  /** OpenAI models the assistant may use; omitted when no key is configured, which hides the assistant. */
+  aiModels?: string[];
+};
+
+type StudioHistory = { canUndo: boolean; canRedo: boolean };
+
+const NO_HISTORY: StudioHistory = { canUndo: false, canRedo: false };
 
 const noSubscription = () => () => {};
 
-export function Dashboard(props: StudioSource) {
+export function Dashboard(props: DashboardProps) {
   // Saved reports live in localStorage, which only exists in the browser.
   const inBrowser = useSyncExternalStore(
     noSubscription,
@@ -59,10 +77,8 @@ export function Dashboard(props: StudioSource) {
   return inBrowser ? <ReportsDashboard {...props} /> : <DashboardSkeleton />;
 }
 
-function ReportsDashboard({ data, licenseKey, aiModels }: StudioSource) {
-  const [store, setStore] = useState(loadReports);
-  // The latest reports, for handlers that run one after another before React re-renders.
-  const storeRef = useRef(store);
+function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
+  const { store, latest, update, editReport } = useReports();
   const apiRef = useRef<AgStudioApi | null>(null);
 
   // The open report as it is in Studio now, unsaved edits included, for drawing the shell.
@@ -75,22 +91,13 @@ function ReportsDashboard({ data, licenseKey, aiModels }: StudioSource) {
   const { reports } = store;
   // The open report, as it was last saved.
   const saved = findReport(reports, store.activeId) ?? reports[0];
-  // Studio starts on the open report; after that, its state is read from Studio.
-  const initialState = reportState.withFiltersPanelFor('view', saved.state);
+  // Studio reads initialState once, when it is created, and starts on the open report; after that,
+  // its state is read from Studio.
+  const [initialState] = useState(() => reportState.withFiltersPanelFor('view', saved.state));
   const state = studioState ?? initialState;
-
-  // --- Saved reports ----------------------------------------------------------------
-  const update = (change: (current: StoredReports) => StoredReports) => {
-    const next = change(storeRef.current);
-    storeRef.current = next;
-    saveReports(next);
-    setStore(next);
-  };
-  const editReport = (id: string, change: (report: SavedReport) => SavedReport) =>
-    update((current) => {
-      const report = findReport(current.reports, id);
-      return report ? upsert(current, change(report)) : current;
-    });
+  const studioData = useMemo(() => buildStudioData(data), [data]);
+  // `ai` is read once, when Studio is created.
+  const ai = useMemo(() => (aiModels?.length ? buildAi(aiModels) : undefined), [aiModels]);
 
   // --- Driving Studio ---------------------------------------------------------------
   const load = (
@@ -171,7 +178,7 @@ function ReportsDashboard({ data, licenseKey, aiModels }: StudioSource) {
   const deleteReport = (report: SavedReport) => {
     update((current) => remove(current, report.id));
     if (report.id !== saved.id) return;
-    const { reports: next, activeId } = storeRef.current;
+    const { reports: next, activeId } = latest();
     load(findReport(next, activeId) ?? next[0]);
   };
   const renameReport = (id: string, name: string) =>
@@ -250,21 +257,31 @@ function ReportsDashboard({ data, licenseKey, aiModels }: StudioSource) {
 
       <div className="min-h-0 flex-1">
         {hasData(data) ? (
-          <PayPalStudio
-            data={data}
-            licenseKey={licenseKey}
-            aiModels={aiModels}
-            initialState={initialState}
-            mode={mode}
-            onApiReady={(api) => {
-              apiRef.current = api;
-            }}
-            onReady={setStudioState}
-            onStateChange={(current, nextHistory) => {
-              setStudioState(current);
-              setHistory(nextHistory);
-            }}
-          />
+          <AgStudioProvider licenseKey={licenseKey} modules={ai ? [AgStudioAiModule] : undefined}>
+            <AgStudio
+              style={{ height: '100%', width: '100%' }}
+              theme={agStudioPayPalTheme}
+              layout={{ widgetBorderEnabled: true }}
+              data={studioData}
+              ai={ai}
+              initialState={initialState}
+              mode={mode}
+              onApiReady={(event) => {
+                apiRef.current = event.api;
+              }}
+              onStudioReady={(event) => {
+                const current = event.api.getState();
+                console.log('[AG Studio] initial state', current);
+                setStudioState(current);
+              }}
+              onStateUpdated={(event) => {
+                console.log('[AG Studio] state updated', event.state);
+                const { undo, redo } = event.api.getHistory();
+                setStudioState(event.state);
+                setHistory({ canUndo: undo.length > 0, canRedo: redo.length > 0 });
+              }}
+            />
+          </AgStudioProvider>
         ) : (
           <EmptyData />
         )}

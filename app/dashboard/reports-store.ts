@@ -1,11 +1,11 @@
 // Saved reports, kept in this browser's localStorage. Studio's state has no page names, so each
 // report carries its page titles alongside the AG Studio state.
 //
-// The built-in report comes from ./components/studio/config/initialState.ts until it is saved;
+// The built-in report comes from ./studio/initial-report.ts until it is saved;
 // after that the saved copy wins until it is reset to default.
 
 import type { AgReportState } from 'ag-studio';
-import { dashboardReport } from './components/studio/config/initialState';
+import { dashboardReport } from './studio/initial-report';
 
 export type SavedReport = {
   id: string;
@@ -22,7 +22,7 @@ const STORAGE_KEY = 'ag-paypal-demo:reports:v1';
 
 export const BUILT_IN_ID = 'paypal-overview';
 
-// Sidebar titles for the built-in report's pages, keyed by page id in initialState.ts.
+// Sidebar titles for the built-in report's pages, keyed by page id in initial-report.ts.
 const defaultPageTitles: Record<string, string> = {
   revenue: 'Revenue',
   receivables: 'Receivables',
@@ -66,10 +66,10 @@ export const findReport = (reports: SavedReport[], id: string) => reports.find((
 // --- Updates ----------------------------------------------------------------------
 // Pure: each returns the next StoredReports, for the caller to save.
 
-export function upsert(current: StoredReports, report: SavedReport, { activate = false } = {}): StoredReports {
+export function upsert(current: StoredReports, report: SavedReport): StoredReports {
   const exists = current.reports.some((r) => r.id === report.id);
   const reports = exists ? current.reports.map((r) => (r.id === report.id ? report : r)) : [...current.reports, report];
-  return { reports, activeId: activate ? report.id : current.activeId };
+  return { ...current, reports };
 }
 
 // Deleting the built-in report resets it to default rather than removing it.
@@ -79,7 +79,7 @@ export function remove(current: StoredReports, id: string): StoredReports {
   return { reports, activeId: current.activeId === id ? BUILT_IN_ID : current.activeId };
 }
 
-// Back to a fresh demo: only the built-in report, as defined in initialState.ts.
+// Back to a fresh demo: only the built-in report, as defined in initial-report.ts.
 export const initialReports = (): StoredReports => ({ reports: [defaultReport()], activeId: BUILT_IN_ID });
 
 // --- Storage ----------------------------------------------------------------------
@@ -102,7 +102,7 @@ export function loadReports(): StoredReports {
 }
 
 export function saveReports(next: StoredReports) {
-  // Only keep the built-in report once it differs from code, so edits to initialState.ts show up.
+  // Only keep the built-in report once it differs from code, so edits to initial-report.ts show up.
   const untouched = (r: SavedReport) =>
     r.id === BUILT_IN_ID &&
     r.state === dashboardReport &&

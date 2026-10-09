@@ -1,14 +1,48 @@
-/*
- * Defines the initial AG Studio report state, with pages for revenue, receivables, cash and catalogue.
- */
+// The built-in "PayPal overview" report: pages for revenue, receivables, cash and catalogue, as
+// AG Studio report state. Field ids ('invoices.paidAmount') refer to the data sources in ./data.ts.
 
-// Studio Types
-import type { AgPageState, AgReportState } from 'ag-studio';
+import type { AgPageState, AgReportState, AgWidgetLayoutState } from 'ag-studio';
 
-// Util functions for building report state
-import { at, avg, countd, kpi, sum, title, typography } from '../utils/report-utils';
+// --- Helpers ----------------------------------------------------------------------
 
-// ** ---------------------- BEGIN REPORT STATE ---------------------- **
+// Position on the canvas grid, in tracks: 24 columns wide, rows of studioCanvasRowHeight.
+const at = (xTrack: number, yTrack: number, xSpan: number, ySpan: number): AgWidgetLayoutState => ({
+  xTrack,
+  yTrack,
+  xSpan,
+  ySpan,
+});
+const title = (text: string) => ({ title: { enabled: true, text } });
+const sum = (id: string) => ({ id, aggregation: 'sum' as const });
+const avg = (id: string) => ({ id, aggregation: 'avg' as const });
+const countd = (id: string) => ({ id, aggregation: 'countd' as const });
+
+// Same stack as --pp-font in app/globals.css.
+const PAYPAL_FONT = '"PayPal Open", "Helvetica Neue", Helvetica, Arial, sans-serif';
+
+const typography = (fontSize: number, fontWeight: 'normal' | 'bold' = 'normal') => ({
+  fontFamily: PAYPAL_FONT,
+  fontSize,
+  fontWeight,
+  fontStyle: 'normal' as const,
+});
+
+// A KPI tile, styled the same everywhere: bold title, large value, optional sparkline along `sparklineX`.
+const kpi = (text: string, value: { id: string; aggregation?: 'sum' | 'avg' | 'countd' }, sparklineX?: string) => ({
+  type: 'value' as const,
+  dataMapping: {
+    value: [value],
+    ...(sparklineX && { sparklineX: [{ id: sparklineX }] }),
+  },
+  format: {
+    title: { enabled: true, text, typography: typography(14, 'bold') },
+    caption: { enabled: true, text: '', typography: typography(0) },
+    style: { typography: typography(22) },
+  },
+});
+
+// --- Pages ------------------------------------------------------------------------
+
 const revenue: AgPageState = {
   id: 'revenue',
   widgets: {
@@ -361,9 +395,7 @@ const catalogue: AgPageState = {
     'catalogue-sunburst': at(16, 27, 8, 24),
   },
 };
-// ** ----------------------- END REPORT STATE ------------------------ **
-
-// Return report state as a combination of reports + default currently selected page to revenue.
+// The report opens on its first page.
 export const dashboardReport: AgReportState = {
   selectedPageId: revenue.id,
   pages: [revenue, receivables, cash, catalogue],

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { useEffect, useEffectEvent, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
 // PayPal-style building blocks for the dashboard shell: pill buttons, a modal dialog and a
 // small popover menu. Styling only; behaviour stays in the callers.
@@ -91,19 +91,21 @@ export function Menu({
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  // Callers pass a new onClose each render; this keeps the listeners below from re-attaching.
+  const close = useEffectEvent(onClose);
   useEffect(() => {
     if (!open) return;
     const onPointer = (event: PointerEvent) => {
-      if (!ref.current?.contains(event.target as Node)) onClose();
+      if (!ref.current?.contains(event.target as Node)) close();
     };
-    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose();
+    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && close();
     document.addEventListener('pointerdown', onPointer);
     document.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('pointerdown', onPointer);
       document.removeEventListener('keydown', onKey);
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
   return (
