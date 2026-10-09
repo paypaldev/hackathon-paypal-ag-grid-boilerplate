@@ -1,5 +1,5 @@
 {
-  "name": "ag-grid",
+  "name": "ag-paypal-demo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,7 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@paypal/paypal-server-sdk": "^2.5.0",
+    "ag-grid-community": "36.2.0",
+    "ag-grid-react": "36.2.0",
+    "ag-studio": "3.0.0",
+    "ag-studio-react": "3.0.0",
     "next": "16.3.6",
     "react": "19.2.8",
     "react-dom": "19.2.8"

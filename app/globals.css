@@ -1,26 +1,63 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--pp-canvas);
+  color: var(--pp-ink);
+  font-family: var(--pp-font);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/*
+ * PayPal design tokens: the single source of truth for the dashboard shell (through the
+ * Tailwind colours below, e.g. bg-pp-blue), for AG Studio (app/dashboard/studio/theme.ts)
+ * and for AG Grid (app/(endpoints)/data-grid.tsx), whose themes reference these variables directly.
+ */
+:root {
+  --pp-navy: #001c64;
+  --pp-blue: #0070e0;
+  --pp-blue-dark: #003087;
+  --pp-sky: #009cde;
+  --pp-highlight: #e6f0fc;
+  --pp-canvas: #f5f7fa;
+  --pp-surface: #ffffff;
+  --pp-border: #dbe1e8;
+  --pp-gridline: #e9edf2;
+  --pp-ink: #001435;
+  --pp-muted: #545d68;
+  --pp-success: #00875a;
+  --pp-warning: #b45309;
+  --pp-danger: #c4122f;
+  --pp-font: "PayPal Open", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* Chart series, PayPal blue and navy first. */
+  --pp-chart-1: #0070e0;
+  --pp-chart-2: #001c64;
+  --pp-chart-3: #00a8a8;
+  --pp-chart-4: #f5a623;
+  --pp-chart-5: #7b61ff;
+  --pp-chart-6: #e8615a;
+  --pp-chart-7: #60cdff;
+  --pp-chart-8: #2e9e6a;
+  --pp-chart-9: #b47cd8;
+  --pp-chart-10: #8a94a6;
+}
+
+@theme inline {
+  --color-pp-navy: var(--pp-navy);
+  --color-pp-blue: var(--pp-blue);
+  --color-pp-blue-dark: var(--pp-blue-dark);
+  --color-pp-sky: var(--pp-sky);
+  --color-pp-highlight: var(--pp-highlight);
+  --color-pp-canvas: var(--pp-canvas);
+  --color-pp-surface: var(--pp-surface);
+  --color-pp-border: var(--pp-border);
+  --color-pp-ink: var(--pp-ink);
+  --color-pp-muted: var(--pp-muted);
+  --color-pp-success: var(--pp-success);
+  --color-pp-warning: var(--pp-warning);
+  --color-pp-danger: var(--pp-danger);
+  --font-paypal: var(--pp-font);
 }
