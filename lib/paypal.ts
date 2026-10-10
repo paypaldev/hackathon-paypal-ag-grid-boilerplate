@@ -51,8 +51,42 @@ export type Balances = {
   }[];
 };
 
+export type Product = {
+  id: string;
+  name: string;
+  description?: string;
+  type?: string; // PHYSICAL, DIGITAL or SERVICE
+  category?: string;
+  create_time?: string;
+};
+
+export type Invoice = {
+  id: string;
+  status: string;
+  detail: {
+    invoice_number: string;
+    currency_code: string;
+    invoice_date?: string;
+    payment_term?: { due_date?: string };
+  };
+  primary_recipients?: {
+    billing_info?: {
+      name?: { full_name?: string };
+      business_name?: string;
+      email_address?: string;
+    };
+  }[];
+  amount?: Money;
+  due_amount?: Money;
+  payments?: { paid_amount?: Money };
+  refunds?: { refund_amount?: Money };
+};
+
 // Exchange the app's client ID and secret for an access token.
-// Kept simple: a new token per request, no caching.
+// Kept simple: a new token per request, no caching, so expiry never applies
+// (tokens live ~9h; each is used immediately). Costs one extra OAuth round trip
+// per API call. If you add caching, refresh before `expires_in` and retry once
+// on 401, or stale tokens will make every paypalGet throw.
 async function getAccessToken(): Promise<string> {
   const credentials = btoa(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_SECRET}`);
   const res = await fetch(`${BASE_URL}/v1/oauth2/token`, {
@@ -105,4 +139,21 @@ export async function getBillingPlans() {
 
 export function getBalances() {
   return paypalGet<Balances>('/v1/reporting/balances');
+}
+
+// Prefer: return=representation includes type and category in the list.
+export async function getProducts() {
+  const result = await paypalGet<{ products?: Product[] }>(
+    '/v1/catalogs/products',
+    { page_size: '20' },
+    { Prefer: 'return=representation' },
+  );
+  return result.products ?? [];
+}
+
+// The list has totals (amount, paid, refunded, due) but not line items or individual
+// payments; those need GET /v2/invoicing/invoices/{id}.
+export async function getInvoices() {
+  const result = await paypalGet<{ items?: Invoice[] }>('/v2/invoicing/invoices', { page_size: '20' });
+  return result.items ?? [];
 }

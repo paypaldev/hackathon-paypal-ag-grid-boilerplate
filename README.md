@@ -26,6 +26,8 @@ Every PayPal request lives in [`lib/paypal.ts`](lib/paypal.ts), a small `fetch` 
 |---|---|---|---|
 | [`/transactions`](app/transactions/page.tsx) | `getRecentTransactions()` | [`GET /v1/reporting/transactions`](https://developer.paypal.com/docs/api/transaction-search/v1/) | First 20 transactions from the last 30 days |
 | [`/subscriptions`](app/subscriptions/page.tsx) | `getBillingPlans()` | [`GET /v1/billing/plans`](https://developer.paypal.com/docs/api/subscriptions/v1/) | First 20 subscription billing plans |
+| [`/products`](app/products/page.tsx) | `getProducts()` | [`GET /v1/catalogs/products`](https://developer.paypal.com/docs/api/catalog-products/v1/) | First 20 catalog products |
+| [`/invoices`](app/invoices/page.tsx) | `getInvoices()` | [`GET /v2/invoicing/invoices`](https://developer.paypal.com/docs/api/invoicing/v2/) | First 20 invoices |
 | [`/balances`](app/balances/page.tsx) | `getBalances()` | [`GET /v1/reporting/balances`](https://developer.paypal.com/docs/api/transaction-search/v1/) | Current balance per currency |
 
 The examples below are real sandbox responses, exactly as the REST API returns them.
@@ -137,6 +139,77 @@ One `plans` item (a plan with a 30-day trial):
 ```
 
 `total_cycles: 0` on the `REGULAR` cycle means the plan bills until cancelled.
+
+### `/products`
+
+`GET /v1/catalogs/products?page_size=20` with the header `Prefer: return=representation` returns `products[]`. As with plans, the `Prefer` header adds fields the default list omits: here `type` and `category`. A plan's `product_id` is the `id` of one of these products.
+
+One `products` item:
+
+```json
+{
+  "id": "AGGRID-CLOUD-STORAGE",
+  "name": "Cloud Storage",
+  "description": "Encrypted file storage and sync across devices",
+  "type": "SERVICE",
+  "category": "SOFTWARE",
+  "payee": {
+    "merchant_id": "QXJYHKET9Y4VC",
+    "display_data": {
+      "business_phone": { "country_code": "1", "national_number": "202-806-4825" }
+    }
+  },
+  "create_time": "2026-09-23T12:05:49Z",
+  "update_time": "2026-09-23T12:05:49Z",
+  "links": [
+    {
+      "href": "https://api.sandbox.paypal.com/v1/catalogs/products/AGGRID-CLOUD-STORAGE",
+      "rel": "self",
+      "method": "GET"
+    }
+  ]
+}
+```
+
+### `/invoices`
+
+`GET /v2/invoicing/invoices?page_size=20` returns `items[]` (not `invoices[]`). Each item has the invoice totals: `amount`, `due_amount`, and `payments.paid_amount` / `refunds.refund_amount` once money has moved. Line items and the individual payment and refund records are not in the list; fetch them per invoice with `GET /v2/invoicing/invoices/{id}`.
+
+One `items` entry (a partially paid invoice, `links` omitted):
+
+```json
+{
+  "id": "INV2-5B53-67UE-XYZX-UKQC",
+  "status": "PARTIALLY_PAID",
+  "detail": {
+    "currency_code": "USD",
+    "note": "Thank you for your business, Ada.",
+    "invoice_number": "AGG-1009",
+    "invoice_date": "2026-08-30",
+    "payment_term": { "due_date": "2026-09-29" },
+    "viewed_by_recipient": false,
+    "group_draft": false,
+    "metadata": { "create_time": "2026-09-23T12:14:57Z" }
+  },
+  "primary_recipients": [
+    {
+      "billing_info": {
+        "business_name": "Analytical Engines Ltd",
+        "name": { "given_name": "Ada", "surname": "Lovelace", "full_name": "Ada Lovelace" },
+        "email_address": "ada.lovelace@example.com"
+      }
+    }
+  ],
+  "amount": { "currency_code": "USD", "value": "2913.56" },
+  "due_amount": { "currency_code": "USD", "value": "1748.14" },
+  "payments": {
+    "paid_amount": { "currency_code": "USD", "value": "1165.42" }
+  },
+  "unilateral": false
+}
+```
+
+`status` is one of `DRAFT`, `SENT`, `SCHEDULED`, `UNPAID`, `PAYMENT_PENDING`, `PARTIALLY_PAID`, `PAID`, `MARKED_AS_PAID`, `REFUNDED`, `PARTIALLY_REFUNDED`, `MARKED_AS_REFUNDED` or `CANCELLED`.
 
 ### `/balances`
 
