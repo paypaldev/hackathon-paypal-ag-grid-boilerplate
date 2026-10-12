@@ -16,6 +16,30 @@ Open [http://localhost:3000](http://localhost:3000). Next.js only loads the dott
 
 Other scripts: `npm run build` (production build), `npm run start` (serve the build), `npm run lint`.
 
+## Seed the PayPal sandbox
+
+Add your PayPal sandbox REST app credentials to `.env.local`:
+
+```dotenv
+PAYPAL_CLIENT_ID=your_sandbox_client_id
+PAYPAL_SECRET=your_sandbox_secret
+```
+
+Seed products, subscription plans, invoices and payouts:
+
+```bash
+npm run seed
+```
+
+To seed only selected data, pass one or more step names:
+
+```bash
+npm run seed -- catalog
+npm run seed -- invoices payouts
+```
+
+The scripts use only PayPal's sandbox API and are safe to rerun: existing seeded records are skipped. The sandbox app must have Catalog Products, Subscriptions, Invoicing and Payouts enabled.
+
 ## How it works
 
 Every PayPal request lives in [`lib/paypal.ts`](lib/paypal.ts), a small `fetch` client. It exchanges the client ID and secret for an OAuth access token at `POST /v1/oauth2/token`, then calls the endpoint with `Authorization: Bearer <token>`. To keep the example simple it gets a new token for every request instead of caching it. Each page is a server component that calls one of the `lib/paypal.ts` functions and renders the result with [`app/data-table.tsx`](app/data-table.tsx). Pages call `await connection()` so they render per request with live data instead of being prerendered at build time.
