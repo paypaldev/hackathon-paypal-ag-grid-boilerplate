@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#paypal": "./lib/paypal.ts",
+    "#seed/*": "./seed/*.ts"
+  }
+}
