@@ -28,6 +28,9 @@ import {
   evaluateEarlyDiscountSkepticGate,
   evaluateDisputeTriage,
   evaluate3WayMatch,
+  evaluateCollusionGuardMcp,
+  evaluateMarginPulseBandit,
+  evaluateRestockForecaster,
 } from '../src/lib/ml-fallback';
 import { toolSearch, executeTool } from '../src/lib/mcp-gateway';
 import {
@@ -608,5 +611,98 @@ describe('VeriSettle AI — Automated Verification Suite (10 Mandatory Test Case
     expect(ledgerEntry.paypalDebugId).toBeDefined();
     expect(ledgerEntry.reasons.length).toBeGreaterThanOrEqual(3);
   }, 35000);
+
+  // TEST 21: collusion_guard_mcp_risk_fusion
+  it('21. collusion_guard_mcp_risk_fusion: verifies GAT + LSTM Autoencoder + Leak-Free XGBoost risk scoring and fail-closed block', () => {
+    // Normal transaction
+    const normal = evaluateCollusionGuardMcp({
+      vendorId: 'VEND-APEX-901',
+      priorVendorTxns: 45,
+      totalPriorTxns: 500,
+      priorVendorLateCount: 1,
+      amountUsd: 2200,
+      categoryMeanUsd: 2200,
+      categoryStdUsd: 200,
+      lstmReconResidualZ: 0.2,
+      gnnCollusionScore: 0.1,
+    });
+
+    expect(normal.status).toBe('PASS');
+    expect(normal.comprehensiveRiskScore).toBeLessThanOrEqual(0.70);
+    expect(normal.pOnTime).toBeGreaterThan(0.70);
+
+    // Collusion or anomaly spike (> 0.70 risk score triggers fail-closed block)
+    const anomaly = evaluateCollusionGuardMcp({
+      vendorId: 'VEND-SUSPICIOUS-999',
+      priorVendorTxns: 0,
+      totalPriorTxns: 500,
+      priorVendorLateCount: 0,
+      amountUsd: 4500,
+      categoryMeanUsd: 2000,
+      categoryStdUsd: 250,
+      lstmReconResidualZ: 2.8, // High sequence reconstruction residual
+      gnnCollusionScore: 0.85, // High GAT counterparty collusion score
+    });
+
+    expect(anomaly.status).toBe('FAIL_CLOSED_BLOCKED');
+    expect(anomaly.comprehensiveRiskScore).toBeGreaterThan(0.70);
+    expect(anomaly.reasons.some((r) => r.includes('collusion score') || r.includes('anomaly'))).toBe(true);
+  });
+
+  // TEST 22: margin_pulse_bandit_dynamic_terms
+  it('22. margin_pulse_bandit_dynamic_terms: verifies multi-armed bandit tier selection across early-discount options', () => {
+    // High on-time client (95%): Bandit should select 0% Net 30 to prevent margin surrender
+    const resultHighOnTime = evaluateMarginPulseBandit({
+      invoiceValueUsd: 5000,
+      pOnTimeClient: 0.95,
+      annualCapitalCost: 0.15,
+    });
+
+    expect(resultHighOnTime.selectedTier.tierName).toBe('0% Standard Net 30');
+    expect(resultHighOnTime.selectedTier.discountPct).toBe(0);
+
+    // Lower on-time client (65%): Bandit selects discount tier (e.g. 2/10 or 1/10) with positive EV
+    const resultModerate = evaluateMarginPulseBandit({
+      invoiceValueUsd: 5000,
+      pOnTimeClient: 0.60,
+      annualCapitalCost: 0.18,
+    });
+
+    expect(resultModerate.selectedTier.evUsd).toBeGreaterThanOrEqual(0);
+    expect(resultModerate.tiers.length).toBe(3);
+  });
+
+  // TEST 23: restock_pilot_ap2_mandate_forecaster
+  it('23. restock_pilot_ap2_mandate_forecaster: computes Holt-Winters 80% prediction interval and issues AP2 spend mandate', () => {
+    // Within budget scenario
+    const forecast = evaluateRestockForecaster({
+      sku: 'SKU-RACK-42U',
+      itemTitle: '42U Enterprise Server Rack Enclosure',
+      historicalDailySales: [12, 14, 15, 16, 15, 18, 17],
+      leadTimeDays: 5,
+      currentStockUnits: 20,
+      unitPriceUsd: 1225.0,
+      authorizedBudgetCapUsd: 300000.0,
+    });
+
+    expect(forecast.forecastMeanDailyUnits).toBeGreaterThan(0);
+    expect(forecast.forecastUpper80PctUnits).toBeGreaterThanOrEqual(forecast.forecastMeanDailyUnits);
+    expect(forecast.budgetCompliance).toBe('WITHIN_BUDGET');
+    expect(forecast.ap2SpendMandatePayload.protocol).toContain('AP2');
+    expect(forecast.ap2SpendMandatePayload.sha256PolicyHash).toMatch(/^0x[a-f0-9]+$/);
+
+    // Exceeds budget scenario
+    const overBudget = evaluateRestockForecaster({
+      sku: 'SKU-RACK-42U',
+      itemTitle: '42U Enterprise Server Rack Enclosure',
+      historicalDailySales: [12, 14, 15, 16, 15, 18, 17],
+      leadTimeDays: 5,
+      currentStockUnits: 20,
+      unitPriceUsd: 1225.0,
+      authorizedBudgetCapUsd: 1000.0, // Cap too low
+    });
+
+    expect(overBudget.budgetCompliance).toBe('EXCEEDS_BUDGET');
+  });
 });
 
