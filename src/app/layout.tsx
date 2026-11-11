@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LicenseFilter } from "./components/license-filter";
+import { FloatingDevTools } from "./components/floating-devtools";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <LicenseFilter />
         {children}
+        <FloatingDevTools />
       </body>
     </html>
   );
