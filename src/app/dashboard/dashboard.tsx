@@ -1,5 +1,7 @@
 'use client';
 
+import '@/lib/suppress-license-warnings';
+
 // VeriSettle AI — Multi-Sponsor Command Center & AG Studio Dashboard
 // Combines:
 //   1. Top Judge 1-Click Live Sandbox Test Bar

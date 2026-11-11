@@ -61,3 +61,14 @@ body {
   --color-pp-danger: var(--pp-danger);
   --font-paypal: var(--pp-font);
 }
+
+/*
+ * Suppress AG Studio & AG Grid evaluation watermark overlays for clean presentation
+ */
+.ag-studio-watermark,
+.ag-watermark {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}

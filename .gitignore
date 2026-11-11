@@ -54,5 +54,18 @@ ml_service/.vscode/
 ml_service/scripts/
 ml_service/.coderabbit.yaml
 ml_service/.mcp.json
+ml_service/.agents/
+
+# Local agent plugin symlinks
+.agents/skills/avoid-ai-writing-router/
+.agents/skills/figma-code-workflows/
+.agents/skills/figma-spec/
+.agents/skills/gcalendar/
+.agents/skills/gdocs/
+.agents/skills/gdrive/
+.agents/skills/generate-project-plan/
+.agents/skills/gsheets/
+.agents/skills/gslides/
+.agents/skills/video-interaction-mapper/
 
 
