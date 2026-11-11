@@ -42,3 +42,4 @@ PayPal's internal Cosmos.AI MCP Gateway enforces:
 2. **Double Authorization:** Permissions validated at discovery and re-verified at execution.
 3. **Read-Only vs. Mutation Separation:** Discovery tools (`get_order`, `list_invoices`) are read-only. Financial mutations require formal proposals (`propose_escrow_settlement`) validated by a deterministic policy monitor.
 4. **FIPS 180-4 SHA-256 Approval Digest:** Canonical JSON hash over recipient, amount, and verification evidence.
+

@@ -53,6 +53,7 @@ import { useReports } from './use-reports';
 import { JudgeTestBar } from './components/judge-test-bar';
 import { RelationalTableWorkspace } from './components/relational-table-workspace';
 import { BryntumGanttPanel } from './components/bryntum-gantt-panel';
+import { Channel3CatalogExplorer } from './components/channel3-catalog-explorer';
 import { SkepticDisputeSimulator } from './components/skeptic-dispute-simulator';
 import { CosmosAuditDrawer } from './components/cosmos-audit-drawer';
 import { ShieldCheck, BarChart3, Database, Layers, Calculator, Terminal, TrendingUp, CheckCircle2, DollarSign } from 'lucide-react';
@@ -69,7 +70,7 @@ type DashboardProps = {
 
 type StudioHistory = { canUndo: boolean; canRedo: boolean };
 const NO_HISTORY: StudioHistory = { canUndo: false, canRedo: false };
-const noSubscription = () => () => {};
+const noSubscription = () => () => { };
 
 export function Dashboard(props: DashboardProps) {
   const inBrowser = useSyncExternalStore(
@@ -229,22 +230,20 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
         <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
           <button
             onClick={() => setActiveTab('COMMAND_CENTER')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
-              activeTab === 'COMMAND_CENTER'
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${activeTab === 'COMMAND_CENTER'
                 ? 'bg-blue-600 text-white shadow'
                 : 'text-slate-400 hover:text-white'
-            }`}
+              }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Autonomous Command Center</span>
           </button>
           <button
             onClick={() => setActiveTab('AG_STUDIO')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
-              activeTab === 'AG_STUDIO'
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${activeTab === 'AG_STUDIO'
                 ? 'bg-blue-600 text-white shadow'
                 : 'text-slate-400 hover:text-white'
-            }`}
+              }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
             <span>AG Studio Visual BI &amp; Reports</span>
@@ -312,10 +311,13 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
           {/* Section 2: Bryntum Gantt Escrow Milestone Schedule */}
           <BryntumGanttPanel />
 
-          {/* Section 3: Invoicing v2 Skeptic Gate & Disputes v1 Simulator */}
+          {/* Section 3: Channel3 Multi-Merchant Catalog Discovery & Anomaly Z-Score Explorer */}
+          <Channel3CatalogExplorer />
+
+          {/* Section 4: Invoicing v2 Skeptic Gate & Disputes v1 Simulator */}
           <SkepticDisputeSimulator />
 
-          {/* Section 4: Cosmos.AI MCP & PayPal REST Audit Drawer */}
+          {/* Section 5: Cosmos.AI MCP & PayPal REST Audit Drawer */}
           <CosmosAuditDrawer />
         </main>
       ) : (

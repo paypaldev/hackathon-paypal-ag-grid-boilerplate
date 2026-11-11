@@ -272,6 +272,245 @@ export async function settleAuthorizationHold(
   }
 }
 
+// 2a. Orders v2: Retrieve Order Details (GET /v2/checkout/orders/{id})
+export async function getOrderDetails(
+  accessToken: string,
+  orderId: string
+): Promise<{ data: Record<string, unknown>; trace: PayPalAuditTrace }> {
+  const start = performance.now();
+  const isSimulated = accessToken.startsWith("simulated_") || orderId.startsWith("SIM-");
+
+  if (isSimulated) {
+    const trace: PayPalAuditTrace = {
+      timestamp: new Date().toISOString(),
+      method: "GET",
+      path: `/v2/checkout/orders/${orderId}`,
+      status: 200,
+      paypalDebugId: `SIM-GET-${orderId}`,
+      latencyMs: Math.round(performance.now() - start + 10),
+      requestId: `get-${orderId}`,
+      simulated: true,
+    };
+    return {
+      data: {
+        id: orderId,
+        status: "APPROVED",
+        intent: "AUTHORIZE",
+        purchase_units: [{ amount: { currency_code: "USD", value: "2450.00" } }],
+      },
+      trace,
+    };
+  }
+
+  const path = `/v2/checkout/orders/${orderId}`;
+  try {
+    const res = await fetch(`${PAYPAL_BASE_URL}${path}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const trace: PayPalAuditTrace = {
+      timestamp: new Date().toISOString(),
+      method: "GET",
+      path,
+      status: res.status,
+      paypalDebugId: res.headers.get("paypal-debug-id"),
+      latencyMs: Math.round(performance.now() - start),
+      requestId: `get-${orderId}`,
+      simulated: false,
+    };
+
+    const data = await res.json();
+    return { data, trace };
+  } catch (err: unknown) {
+    const trace: PayPalAuditTrace = {
+      timestamp: new Date().toISOString(),
+      method: "GET",
+      path,
+      status: 500,
+      paypalDebugId: null,
+      latencyMs: Math.round(performance.now() - start),
+      requestId: `get-${orderId}`,
+      simulated: false,
+    };
+    return { data: { error: err instanceof Error ? err.message : String(err) }, trace };
+  }
+}
+
+// 2b. Orders v2: Authorize Payment for an Approved Order (POST /v2/checkout/orders/{id}/authorize)
+export async function authorizeOrder(
+  accessToken: string,
+  orderId: string,
+  requestId: string = `auth-${orderId}-${Date.now().toString(36)}`
+): Promise<{ data: Record<string, unknown>; trace: PayPalAuditTrace }> {
+  const start = performance.now();
+  const isSimulated = accessToken.startsWith("simulated_") || orderId.startsWith("SIM-");
+
+  if (isSimulated) {
+    const authId = `SIM-AUTH-${Date.now().toString(36).toUpperCase()}`;
+    const trace: PayPalAuditTrace = {
+      timestamp: new Date().toISOString(),
+      method: "POST",
+      path: `/v2/checkout/orders/${orderId}/authorize`,
+      status: 201,
+      paypalDebugId: `SIM-AUTH-DBG-${orderId}`,
+      latencyMs: Math.round(performance.now() - start + 15),
+      requestId,
+      simulated: true,
+    };
+    return {
+      data: {
+        id: orderId,
+        status: "COMPLETED",
+        purchase_units: [
+          {
+            payments: {
+              authorizations: [
+                {
+                  id: authId,
+                  status: "CREATED",
+                  amount: { currency_code: "USD", value: "2450.00" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+      trace,
+    };
+  }
+
+  const path = `/v2/checkout/orders/${orderId}/authorize`;
+  try {
+    const res = await fetch(`${PAYPAL_BASE_URL}${path}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        "PayPal-Request-Id": requestId,
+        Prefer: "return=representation",
+      },
+    });
+
+    const trace: PayPalAuditTrace = {
+      timestamp: new Date().toISOString(),
+      method: "POST",
+      path,
+      status: res.status,
+      paypalDebugId: res.headers.get("paypal-debug-id"),
+      latencyMs: Math.round(performance.now() - start),
+      requestId,
+      simulated: false,
+    };
+
+    const data = await res.json();
+    return { data, trace };
+  } catch (err: unknown) {
+    const trace: PayPalAuditTrace = {
+      timestamp: new Date().toISOString(),
+      method: "POST",
+      path,
+      status: 500,
+      paypalDebugId: null,
+      latencyMs: Math.round(performance.now() - start),
+      requestId,
+      simulated: false,
+    };
+    return { data: { error: err instanceof Error ? err.message : String(err) }, trace };
+  }
+}
+
+// 2c. Payments v2: Get Authorization Details (GET /v2/payments/authorizations/{id})
+export async function getAuthorizationDetails(
+  accessToken: string,
+  authorizationId: string
+): Promise<{ data: Record<string, unknown>; trace: PayPalAuditTrace }> {
+  const start = performance.now();
+  const isSimulated = accessToken.startsWith("simulated_") || authorizationId.startsWith("SIM-");
+
+  if (isSimulated) {
+    const trace: PayPalAuditTrace = {
+      timestamp: new Date().toISOString(),
+      method: "GET",
+      path: `/v2/payments/authorizations/${authorizationId}`,
+      status: 200,
+      paypalDebugId: `SIM-AUTH-DETAIL-${authorizationId}`,
+      latencyMs: Math.round(performance.now() - start + 8),
+      requestId: `get-auth-${authorizationId}`,
+      simulated: true,
+    };
+    return {
+      data: {
+        id: authorizationId,
+        status: "CREATED",
+        amount: { currency_code: "USD", value: "2450.00" },
+      },
+      trace,
+    };
+  }
+
+  const path = `/v2/payments/authorizations/${authorizationId}`;
+  try {
+    const res = await fetch(`${PAYPAL_BASE_URL}${path}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const trace: PayPalAuditTrace = {
+      timestamp: new Date().toISOString(),
+      method: "GET",
+      path,
+      status: res.status,
+      paypalDebugId: res.headers.get("paypal-debug-id"),
+      latencyMs: Math.round(performance.now() - start),
+      requestId: `get-auth-${authorizationId}`,
+      simulated: false,
+    };
+
+    const data = await res.json();
+    return { data, trace };
+  } catch (err: unknown) {
+    const trace: PayPalAuditTrace = {
+      timestamp: new Date().toISOString(),
+      method: "GET",
+      path,
+      status: 500,
+      paypalDebugId: null,
+      latencyMs: Math.round(performance.now() - start),
+      requestId: `get-auth-${authorizationId}`,
+      simulated: false,
+    };
+    return { data: { error: err instanceof Error ? err.message : String(err) }, trace };
+  }
+}
+
+// 2d. Payments v2: Capture an Authorization Hold (POST /v2/payments/authorizations/{id}/capture)
+export async function captureAuthorization(
+  accessToken: string,
+  authorizationId: string,
+  amountValue: string,
+  currencyCode: string = "USD",
+  finalCapture: boolean = true,
+  requestId: string = `cap-${authorizationId}-${Date.now().toString(36)}`
+): Promise<{ data: Record<string, unknown>; trace: PayPalAuditTrace }> {
+  return settleAuthorizationHold(accessToken, authorizationId, "CAPTURE", amountValue, currencyCode, requestId);
+}
+
+// 2e. Payments v2: Void an Authorization Hold (POST /v2/payments/authorizations/{id}/void)
+export async function voidAuthorization(
+  accessToken: string,
+  authorizationId: string,
+  requestId: string = `void-${authorizationId}-${Date.now().toString(36)}`
+): Promise<{ data: Record<string, unknown>; trace: PayPalAuditTrace }> {
+  return settleAuthorizationHold(accessToken, authorizationId, "VOID", "0.00", "USD", requestId);
+}
+
 // 3. Invoicing v2 B2B Invoice Dispatch
 export async function createB2BInvoice(
   accessToken: string,
@@ -419,3 +658,4 @@ export async function executeDisputeResolution(
     return { data: { error: err instanceof Error ? err.message : String(err) }, trace };
   }
 }
+

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldCheck, AlertTriangle, Bug, RotateCcw, CheckCircle2, Clock, Hash, ExternalLink, Play } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, Bug, RotateCcw, CheckCircle2, Clock, Hash, ExternalLink, Play, Globe, Sparkles } from 'lucide-react';
 
 export interface TestActionResult {
   testType: string;
@@ -104,7 +104,27 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
             <span>Chaos: DECLINE</span>
           </button>
 
-          {/* Button 4: Reset State */}
+          {/* Button 4: Channel3 Live Norm */}
+          <button
+            onClick={() => runTest('CHANNEL3_PRICE_NORM')}
+            disabled={loadingTest !== null}
+            className="flex items-center gap-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-indigo-600/20 disabled:opacity-50 cursor-pointer"
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>Channel3 Market Norm</span>
+          </button>
+
+          {/* Button 5: Gemini 3-Way Match Extraction */}
+          <button
+            onClick={() => runTest('GEMINI_3WAY_EXTRACT')}
+            disabled={loadingTest !== null}
+            className="flex items-center gap-1.5 text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-purple-600/20 disabled:opacity-50 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Gemini 3-Way Match</span>
+          </button>
+
+          {/* Button 6: Reset State */}
           <button
             onClick={() => runTest('RESET_STATE')}
             disabled={loadingTest !== null}
@@ -122,9 +142,9 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
           <div className="flex items-center gap-2">
             <span
               className={`font-semibold px-2 py-0.5 rounded text-[11px] uppercase tracking-wide ${
-                lastResult.status === 'SUCCESS' || lastResult.status === 'RESET_COMPLETE'
+                lastResult.status === 'SUCCESS' || lastResult.status === 'RESET_COMPLETE' || lastResult.status === 'PRICE_NORM_VERIFIED' || lastResult.status === 'GEMINI_EXTRACTION_VERIFIED'
                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                  : lastResult.status === 'FROZEN_VARIANCE_EXCEEDED'
+                  : lastResult.status === 'FROZEN_VARIANCE_EXCEEDED' || lastResult.status === 'PRICE_ANOMALY_DETECTED'
                   ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                   : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
               }`}
@@ -213,3 +233,4 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
     </div>
   );
 }
+

@@ -216,3 +216,4 @@ export function RelationalTableWorkspace({ data }: RelationalWorkspaceProps) {
     </div>
   );
 }
+

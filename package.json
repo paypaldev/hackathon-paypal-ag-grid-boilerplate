@@ -10,6 +10,7 @@
     "test": "vitest run tests/verisettle.test.ts"
   },
   "dependencies": {
+    "@channel3/sdk": "^4.9.0",
     "@paypal/agent-toolkit": "^1.11.0",
     "@paypal/paypal-server-sdk": "^2.5.0",
     "ag-grid-community": "36.2.0",

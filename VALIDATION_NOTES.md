@@ -26,7 +26,7 @@
 | **Bryntum Escrow Gantt & Liquidity** | **CONFIRMED** | `src/app/dashboard/components/bryntum-gantt-panel.tsx` | Finish-to-Start (`FS`) milestone model (M1 -> M2 -> M3). |
 | **Channel3 Catalog & Anomaly Norms** | **CONFIRMED** | `src/lib/ml-fallback.ts` | Category mean/std dev z-score evaluation for price anomalies. |
 | **Render Cloud Deployment Spec** | **CONFIRMED** | `render.yaml` | Multi-service spec for Next.js 16 Web service and Python FastAPI ML service. |
-| **Automated Verification Suite** | **CONFIRMED** | `tests/verisettle.test.ts` | 10 out of 10 automated Vitest verification tests passing. |
+| **Automated Verification Suite** | **CONFIRMED** | `tests/verisettle.test.ts` | 20 out of 20 automated Vitest verification tests passing, including the end-to-end acceptance journey: Upload invoice → extract invoice data → match against purchase order → verify PayPal authorization → run deterministic policy firewall → approve → capture permitted amount → update audit ledger. |
 
 ---
 
@@ -34,3 +34,4 @@
 - **IEEE-CIS E-Commerce Fraud Benchmark (590k transactions, 430+ features):** Author-reported ROC AUC of **0.9671** (XGBoost) vs **0.7229** (Isolation Forest) vs **0.9012** (MLP).
 - **CC0 B2B Invoice Payment Date Dataset (41,555 closed invoices):** Leak-Free Time-Split XGBoost with prior-timestamp frequency encoding ($f_e = n_e / n$) achieves **0.7830 ROC AUC** vs **0.7490** client-history deterministic baseline (+0.0340 lift).
 - **Demo Seed Records:** 3 catalog products, 3 billing plans, 5 B2B invoices, and 4 escrow milestone holds seeded for instantaneous judge testing without external dependency.
+

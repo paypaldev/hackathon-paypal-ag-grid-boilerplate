@@ -62,3 +62,4 @@ verisettle-ai/
 └── tests/
     └── verisettle.test.ts           # 10+ Vitest verification tests
 ```
+

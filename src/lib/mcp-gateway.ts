@@ -1,4 +1,5 @@
 import { computeApprovalDigest, evaluatePolicyFirewall, PolicyEvaluationInput } from "./policy-firewall";
+import { searchChannel3Catalog, getCategoryPriceNorm } from "./channel3";
 
 /**
  * VeriSettle AI — Cosmos.AI Two-Step MCP Gateway
@@ -264,6 +265,33 @@ export async function executeTool(
         clamp_note: policyResult.clampNote,
         required_approval_digest: policyResult.computedDigest,
         reasons: policyResult.reasons,
+      },
+      audit: {
+        tool: toolName,
+        callerRole,
+        verifiedDoubleAuth: true,
+        digestVerified: true,
+        timestamp: new Date().toISOString(),
+      },
+    };
+  }
+
+  // Channel3 Multi-Merchant Catalog Discovery & Price Norm Tool
+  if (toolName === "channel3_search_products") {
+    const query = (args.query as string) || "B2B Hardware";
+    const category = args.category as string | undefined;
+    const { products, source } = await searchChannel3Catalog(query, { category, limit: 5 });
+    const norm = await getCategoryPriceNorm(query, 5);
+
+    return {
+      success: true,
+      result: {
+        source,
+        query,
+        productsCount: products.length,
+        products,
+        categoryPriceNorm: norm,
+        timestamp: new Date().toISOString(),
       },
       audit: {
         tool: toolName,
