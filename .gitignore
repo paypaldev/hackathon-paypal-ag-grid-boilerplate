@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+gemini_share*.html
 
 # debug
 npm-debug.log*

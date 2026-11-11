@@ -1,10 +1,10 @@
-﻿{
-    "claudeCode.alwaysThinkingEnabled":  true,
-    "antigravity.alwaysThinkingEnabled":  true,
-    "antigravity.reasoningEffort":  "high",
-    "antigravity.maxThinkingTokens":  65536,
-    "antigravity.useAiCredits":  true,
-    "claudeCode.effortLevel":  "max",
-    "antigravity.effortLevel":  "high",
-    "claudeCode.maxEffortLevel":  "max"
+{
+  "antigravity.alwaysThinkingEnabled": true,
+  "antigravity.effortLevel": "high",
+  "antigravity.reasoningEffort": "high",
+  "antigravity.useAiCredits": true,
+  "antigravity.maxThinkingTokens": 65536,
+  "claudeCode.alwaysThinkingEnabled": true,
+  "claudeCode.effortLevel": "max",
+  "claudeCode.maxEffortLevel": "max"
 }
