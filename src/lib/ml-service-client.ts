@@ -17,7 +17,11 @@ import { extractInvoiceWithGemini, ExtractedInvoiceSchema } from "./gemini";
  * container is unconfigured, unreachable, or in cold-start.
  */
 
-export const ML_SERVICE_URL = process.env.ML_SERVICE_URL || "http://localhost:8000";
+const rawMlUrl = process.env.ML_SERVICE_URL || "http://localhost:8000";
+export const ML_SERVICE_URL =
+  rawMlUrl.startsWith("http://") || rawMlUrl.startsWith("https://")
+    ? rawMlUrl
+    : `http://${rawMlUrl}`;
 
 export interface MlServiceHealth {
   status: "healthy" | "unreachable_using_fallback";

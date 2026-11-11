@@ -4,12 +4,18 @@ services:
     name: verisettle-web
     env: node
     plan: standard
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    buildCommand: npm install --include=dev --legacy-peer-deps && npm run build
+    startCommand: npx next start -p $PORT -H 0.0.0.0
     healthCheckPath: /api/health
     envVars:
+      - key: NODE_VERSION
+        value: 22.14.0
       - key: NODE_ENV
         value: production
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
+      - key: NPM_FLAGS
+        value: --legacy-peer-deps
       - key: PAYPAL_ENVIRONMENT
         value: SANDBOX
       - key: PAYPAL_BASE_URL
