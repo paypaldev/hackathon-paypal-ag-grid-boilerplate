@@ -109,15 +109,16 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
           </div>
         </div>
 
-        {/* Right: 4 Interactive 1-Click Buttons */}
+        {/* Right: Interactive 1-Click Buttons in Stealth Black & Grey */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Button 1: Escrow Auth */}
           <button
             onClick={() => runTest('ESCROW_AUTH')}
             disabled={loadingTest !== null}
-            className="flex items-center gap-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-semibold bg-[#18181b] hover:bg-[#27272a] text-zinc-100 border border-zinc-700/80 hover:border-zinc-500 px-3 py-1.5 rounded-lg transition-all shadow-sm disabled:opacity-50 cursor-pointer"
           >
-            <Play className="w-3.5 h-3.5 fill-current" />
+            <span className="size-1.5 rounded-full bg-emerald-400 inline-block" />
+            <Play className="w-3 h-3 fill-current text-zinc-300" />
             <span>1-Click Escrow Auth</span>
           </button>
 
@@ -125,9 +126,10 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
           <button
             onClick={() => runTest('TAMPERED_INVOICE')}
             disabled={loadingTest !== null}
-            className="flex items-center gap-1.5 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-amber-600/20 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-semibold bg-[#18181b] hover:bg-[#27272a] text-zinc-100 border border-zinc-700/80 hover:border-zinc-500 px-3 py-1.5 rounded-lg transition-all shadow-sm disabled:opacity-50 cursor-pointer"
           >
-            <AlertTriangle className="w-3.5 h-3.5" />
+            <span className="size-1.5 rounded-full bg-amber-400 inline-block" />
+            <AlertTriangle className="w-3 h-3 text-amber-300" />
             <span>Inject +5% Tampered Invoice</span>
           </button>
 
@@ -135,9 +137,10 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
           <button
             onClick={() => runTest('CHAOS_DECLINE')}
             disabled={loadingTest !== null}
-            className="flex items-center gap-1.5 text-xs font-semibold bg-rose-700 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-rose-700/20 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-semibold bg-[#18181b] hover:bg-[#27272a] text-zinc-100 border border-zinc-700/80 hover:border-zinc-500 px-3 py-1.5 rounded-lg transition-all shadow-sm disabled:opacity-50 cursor-pointer"
           >
-            <Bug className="w-3.5 h-3.5" />
+            <span className="size-1.5 rounded-full bg-rose-400 inline-block" />
+            <Bug className="w-3 h-3 text-rose-300" />
             <span>Chaos: DECLINE</span>
           </button>
 
@@ -145,9 +148,9 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
           <button
             onClick={() => runTest('CHANNEL3_PRICE_NORM')}
             disabled={loadingTest !== null}
-            className="flex items-center gap-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-indigo-600/20 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-semibold bg-[#18181b] hover:bg-[#27272a] text-zinc-100 border border-zinc-700/80 hover:border-zinc-500 px-3 py-1.5 rounded-lg transition-all shadow-sm disabled:opacity-50 cursor-pointer"
           >
-            <Globe className="w-3.5 h-3.5" />
+            <Globe className="w-3 h-3 text-zinc-300" />
             <span>Channel3 Market Norm</span>
           </button>
 
@@ -155,9 +158,9 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
           <button
             onClick={() => runTest('GEMINI_3WAY_EXTRACT')}
             disabled={loadingTest !== null}
-            className="flex items-center gap-1.5 text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-purple-600/20 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-semibold bg-[#18181b] hover:bg-[#27272a] text-zinc-100 border border-zinc-700/80 hover:border-zinc-500 px-3 py-1.5 rounded-lg transition-all shadow-sm disabled:opacity-50 cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3 h-3 text-zinc-300" />
             <span>Gemini 3-Way Match</span>
           </button>
 
@@ -165,10 +168,10 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
           <button
             onClick={() => runTest('PROMPT_INJECTION_ATTACK')}
             disabled={loadingTest !== null}
-            className="flex items-center gap-1.5 text-xs font-semibold bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-red-600/20 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-semibold bg-[#18181b] hover:bg-[#27272a] text-zinc-100 border border-zinc-700/80 hover:border-zinc-500 px-3 py-1.5 rounded-lg transition-all shadow-sm disabled:opacity-50 cursor-pointer"
             title="Simulate prompt injection and adversarial jailbreak attack against AI purchasing agent"
           >
-            <ShieldAlert className="w-3.5 h-3.5" />
+            <ShieldAlert className="w-3 h-3 text-rose-400" />
             <span>Red-Team Jailbreak</span>
           </button>
 
@@ -176,10 +179,10 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
           <button
             onClick={openProofCertificate}
             disabled={loadingTest !== null}
-            className="flex items-center gap-1.5 text-xs font-semibold bg-cyan-700 hover:bg-cyan-600 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-cyan-700/20 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-bold bg-zinc-100 hover:bg-white text-zinc-950 px-3.5 py-1.5 rounded-lg transition-all shadow-md hover:shadow-zinc-700/20 disabled:opacity-50 cursor-pointer border border-white/20"
             title="View FIPS 180-4 SHA-256 Cryptographic Settlement Proof Certificate"
           >
-            <Lock className="w-3.5 h-3.5" />
+            <Lock className="w-3.5 h-3.5 text-zinc-950" />
             <span>Proof Certificate</span>
           </button>
 
@@ -187,10 +190,10 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
           <button
             onClick={() => runTest('RESET_STATE')}
             disabled={loadingTest !== null}
-            className="flex items-center gap-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1.5 rounded-lg transition-all disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-medium bg-[#121215] hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-800 px-2.5 py-1.5 rounded-lg transition-all disabled:opacity-50 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Demo</span>
+            <span>Reset</span>
           </button>
         </div>
       </div>

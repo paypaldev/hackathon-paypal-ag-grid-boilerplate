@@ -72,39 +72,39 @@ export function BryntumGanttPanel() {
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
+    <div className="bg-[#121215] border border-zinc-800 rounded-xl p-5 shadow-2xl">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-800 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-zinc-800 gap-3">
         <div className="flex items-center gap-3">
-          <div className="bg-purple-600/30 border border-purple-500/50 p-2 rounded-lg text-purple-400">
+          <div className="bg-zinc-800/80 border border-zinc-700/80 p-2 rounded-lg text-zinc-200">
             <Layers className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-bold text-white tracking-wide">
+              <h2 className="text-sm font-bold text-zinc-100 tracking-wide">
                 Bryntum Escrow Milestone Schedule
               </h2>
-              <span className="text-[10px] bg-purple-500/20 text-purple-300 font-semibold px-2 py-0.5 rounded border border-purple-500/30">
+              <span className="text-[10px] bg-zinc-800 text-zinc-300 font-semibold px-2 py-0.5 rounded border border-zinc-700">
                 Finish-to-Start (FS) Dependencies
               </span>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-zinc-400">
               Interactive timeline mapping Channel3 Quote → Carrier Transit → 3-Way Match Settlement
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-1.5 text-slate-300">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <div className="flex items-center gap-1.5 text-zinc-300">
+            <span className="w-2 h-2 rounded-full bg-zinc-200"></span>
             <span>Completed</span>
           </div>
-          <div className="flex items-center gap-1.5 text-slate-300">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+          <div className="flex items-center gap-1.5 text-zinc-300">
+            <span className="w-2 h-2 rounded-full bg-zinc-400"></span>
             <span>In Transit</span>
           </div>
-          <div className="flex items-center gap-1.5 text-slate-300">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+          <div className="flex items-center gap-1.5 text-zinc-400">
+            <span className="w-2 h-2 rounded-full bg-zinc-700"></span>
             <span>Pending FS</span>
           </div>
         </div>
@@ -120,26 +120,26 @@ export function BryntumGanttPanel() {
               onClick={() => setSelectedTask(m)}
               className={`p-3 rounded-lg border transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-slate-800/90 border-purple-500/50 shadow-md ring-1 ring-purple-500/30'
-                  : 'bg-slate-950/60 border-slate-800 hover:bg-slate-800/40'
+                  ? 'bg-[#18181b] border-zinc-600 shadow-md ring-1 ring-zinc-600/40'
+                  : 'bg-[#09090b] border-zinc-800 hover:bg-[#18181b]/50'
               }`}
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                  <span className="font-mono text-xs font-bold text-zinc-200 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700">
                     {m.id}
                   </span>
-                  <span className="text-xs font-semibold text-white">{m.name}</span>
+                  <span className="text-xs font-semibold text-zinc-100">{m.name}</span>
                   {m.dependency && (
-                    <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                      <ArrowRight className="w-3 h-3 text-slate-500" />
+                    <span className="text-[11px] text-zinc-400 flex items-center gap-1">
+                      <ArrowRight className="w-3 h-3 text-zinc-500" />
                       <span>Linked ({m.dependency} {m.dependencyType})</span>
                     </span>
                   )}
                 </div>
 
                 <div className="flex items-center gap-3 text-xs">
-                  <span className="text-slate-400 font-mono">
+                  <span className="text-zinc-400 font-mono">
                     {m.startDate} → {m.endDate}
                   </span>
                   <button
@@ -147,14 +147,14 @@ export function BryntumGanttPanel() {
                       e.stopPropagation();
                       toggleStatus(m.id);
                     }}
-                    className={`px-2 py-0.5 rounded text-[11px] font-semibold border uppercase tracking-wider ${
+                    className={`px-2 py-0.5 rounded text-[11px] font-semibold border uppercase tracking-wider cursor-pointer ${
                       m.status === 'COMPLETED'
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                        ? 'bg-zinc-800 text-zinc-100 border-zinc-600'
                         : m.status === 'IN_PROGRESS'
-                        ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                        ? 'bg-zinc-800/80 text-zinc-200 border-zinc-600'
                         : m.status === 'FROZEN'
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                        ? 'bg-amber-950/20 text-amber-300 border-amber-500/30'
+                        : 'bg-[#121215] text-zinc-500 border-zinc-800'
                     }`}
                   >
                     {m.status}
@@ -163,24 +163,24 @@ export function BryntumGanttPanel() {
               </div>
 
               {/* Gantt Bar Visualization */}
-              <div className="w-full bg-slate-800 rounded-full h-3 relative overflow-hidden">
+              <div className="w-full bg-zinc-800/70 rounded-full h-2.5 relative overflow-hidden">
                 <div
                   className={`h-full transition-all duration-500 rounded-full ${
                     m.status === 'COMPLETED'
-                      ? 'bg-gradient-to-r from-emerald-600 to-emerald-400'
+                      ? 'bg-gradient-to-r from-zinc-500 to-zinc-200'
                       : m.status === 'IN_PROGRESS'
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-500'
+                      ? 'bg-gradient-to-r from-zinc-600 via-zinc-400 to-zinc-100'
                       : m.status === 'FROZEN'
                       ? 'bg-gradient-to-r from-amber-600 to-amber-400'
-                      : 'bg-slate-700'
+                      : 'bg-zinc-700'
                   }`}
                   style={{ width: `${m.percentDone}%` }}
                 ></div>
               </div>
 
-              <div className="flex justify-between items-center text-[11px] text-slate-400 mt-1.5">
+              <div className="flex justify-between items-center text-[11px] text-zinc-400 mt-1.5">
                 <span>{m.description}</span>
-                <span className="font-semibold text-slate-300">
+                <span className="font-semibold text-zinc-300">
                   {m.holdAmountUsd > 0 ? `$${m.holdAmountUsd.toFixed(2)} USD` : 'Verification Gated'} ({m.percentDone}%)
                 </span>
               </div>
@@ -190,16 +190,16 @@ export function BryntumGanttPanel() {
       </div>
 
       {/* 30-Day Liquidity Forecast Summary */}
-      <div className="mt-5 p-4 rounded-lg bg-slate-950/80 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="mt-5 p-4 rounded-lg bg-[#09090b] border border-zinc-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-emerald-600/20 border border-emerald-500/30 text-emerald-400">
+          <div className="p-2 rounded-lg bg-zinc-800/80 border border-zinc-700/80 text-zinc-200">
             <TrendingUp className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-zinc-100 uppercase tracking-wider">
               30-Day Treasury Liquidity Forecast
             </h4>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-zinc-400">
               Escrow release projection: $2,450.00 current holds. Zero capital drag under Finish-to-Start milestones.
             </p>
           </div>
@@ -207,16 +207,16 @@ export function BryntumGanttPanel() {
 
         <div className="flex items-center gap-6 text-xs">
           <div>
-            <div className="text-slate-400 text-[11px]">Active Authorized Holds</div>
-            <div className="text-white font-bold font-mono text-sm">$2,450.00</div>
+            <div className="text-zinc-500 text-[11px]">Active Authorized Holds</div>
+            <div className="text-zinc-100 font-bold font-mono text-sm">$2,450.00</div>
           </div>
           <div>
-            <div className="text-slate-400 text-[11px]">Projected M3 Release</div>
-            <div className="text-emerald-400 font-bold font-mono text-sm">$1,715.00 (70%)</div>
+            <div className="text-zinc-500 text-[11px]">Projected M3 Release</div>
+            <div className="text-zinc-200 font-bold font-mono text-sm">$1,715.00 (70%)</div>
           </div>
           <div>
-            <div className="text-slate-400 text-[11px]">Next Settlement</div>
-            <div className="text-blue-400 font-bold font-mono text-sm">Nov 15, 2026</div>
+            <div className="text-zinc-500 text-[11px]">Next Settlement</div>
+            <div className="text-zinc-300 font-bold font-mono text-sm">Nov 15, 2026</div>
           </div>
         </div>
       </div>
