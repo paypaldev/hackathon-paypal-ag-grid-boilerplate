@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getPayPalAccessToken } from "@/lib/paypal-auth";
 import { evaluatePolicyFirewall } from "@/lib/policy-firewall";
 import { evaluateDisputeTriage } from "@/lib/ml-fallback";
+import { prooflineStore } from "@/lib/proofline/store";
 
 const PAYPAL_BASE_URL = process.env.PAYPAL_BASE_URL || "https://api-m.sandbox.paypal.com";
 
@@ -136,6 +137,18 @@ export async function POST(req: NextRequest) {
     const eventId = (event.id as string) || `EVT-${Date.now()}`;
     const resource = (event.resource as Record<string, unknown>) || {};
 
+    // Deduplication check
+    if (prooflineStore.processedWebhookEventIds.has(eventId)) {
+      return NextResponse.json({
+        received: true,
+        eventId,
+        eventType,
+        duplicate: true,
+        summary: `Webhook event ${eventId} already processed; safely skipped duplicate.`,
+      });
+    }
+    prooflineStore.processedWebhookEventIds.add(eventId);
+
     // 1. Verify webhook signature
     const verification = await verifyPayPalWebhookSignature(req, event);
 
@@ -178,6 +191,49 @@ export async function POST(req: NextRequest) {
           expectedLossUsd: triage.expectedLossUsd,
         },
       };
+    } else if (eventType.startsWith("INVOICING.INVOICE.")) {
+      // Proofline PayPal Invoicing Lifecycle Handler
+      const providerInvoiceId = (resource.id as string) || (resource.invoice as Record<string, unknown> | undefined)?.id as string;
+      if (providerInvoiceId) {
+        // Find matching Proofline invoice
+        const matchedInvoice = Array.from(prooflineStore.invoices.values()).find(
+          (i) => i.providerInvoiceId === providerInvoiceId
+        );
+
+        if (matchedInvoice) {
+          if (eventType === "INVOICING.INVOICE.PAID") {
+            matchedInvoice.status = "PAID";
+            matchedInvoice.paidAt = new Date().toISOString();
+            matchedInvoice.lastReadbackAt = new Date().toISOString();
+            matchedInvoice.readbackRawStatus = "PAID";
+          } else if (eventType === "INVOICING.INVOICE.SENT") {
+            matchedInvoice.status = "SENT";
+            matchedInvoice.lastReadbackAt = new Date().toISOString();
+          } else if (eventType === "INVOICING.INVOICE.REFUNDED") {
+            matchedInvoice.status = "REFUNDED";
+            matchedInvoice.lastReadbackAt = new Date().toISOString();
+          }
+
+          prooflineStore.appendAuditEntry(
+            matchedInvoice.projectId,
+            "PayPal Webhook Listener",
+            "PAYPAL_WEBHOOK",
+            `WEBHOOK_${eventType}`,
+            "INVOICE",
+            matchedInvoice.id,
+            "PAYPAL_CONFIRMED",
+            { eventId, providerInvoiceId, eventType, verified: verification.verified }
+          );
+
+          policyAction = {
+            rule: "PROOFLINE_INVOICE_STATUS_RECONCILED",
+            invoiceId: matchedInvoice.id,
+            providerInvoiceId,
+            newStatus: matchedInvoice.status,
+            verified: verification.verified,
+          };
+        }
+      }
     }
 
     console.log(

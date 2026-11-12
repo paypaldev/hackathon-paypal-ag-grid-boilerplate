@@ -9,6 +9,7 @@ import {
   Video,
   Lock,
   Zap,
+  FileCheck,
 } from 'lucide-react';
 import { MainNav } from '@/app/components/main-nav';
 import { StealthRadar } from '@/components/stealth-radar';
@@ -24,6 +25,14 @@ const endpoints = [
 ];
 
 const coreWorkspaces = [
+  {
+    href: '/proofline',
+    title: 'Proofline: Versioned Scope & PayPal Proof',
+    desc: 'Chat-to-scope extraction, scope creep & change order intelligence, delivery verification & tamper-evident proof receipt.',
+    icon: FileCheck,
+    badge: 'Signature Freelancer Differentiator',
+    accent: 'border-blue-700 bg-blue-950/40 text-blue-100',
+  },
   {
     href: '/dashboard',
     title: 'Autonomous Command Center',

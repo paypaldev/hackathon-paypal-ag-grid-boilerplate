@@ -15,6 +15,7 @@ import {
   Check,
   Bug,
   Globe,
+  FileCheck,
 } from 'lucide-react';
 
 interface HealthData {
@@ -363,6 +364,21 @@ export function FloatingDevTools() {
                     </div>
                   </div>
                   {loadingAction === 'GEMINI_3WAY_EXTRACT' && <RefreshCw className="w-3.5 h-3.5 animate-spin text-zinc-300" />}
+                </button>
+
+                <button
+                  onClick={() => triggerTest('PROOFLINE_SCOPE_DRIFT')}
+                  disabled={loadingAction !== null}
+                  className="w-full flex items-center justify-between bg-[#121215] hover:bg-zinc-800/80 border border-blue-900/50 hover:border-blue-700 text-zinc-200 p-2.5 rounded-lg transition-all text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileCheck className="w-3.5 h-3.5 text-blue-400" />
+                    <div>
+                      <div className="font-semibold text-[11px] text-blue-300">Proofline: Scope Creep Guard</div>
+                      <div className="text-[10px] text-zinc-400">Detects unpriced mobile addition (+ $650.00)</div>
+                    </div>
+                  </div>
+                  {loadingAction === 'PROOFLINE_SCOPE_DRIFT' && <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-400" />}
                 </button>
               </div>
             )}

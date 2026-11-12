@@ -3,7 +3,7 @@
 > **System:** VeriSettle AI (PayPal AI Hackathon 2026)  
 > **Session Date:** 12 November 2026  
 > **Role:** Lead Full-Stack Engineering Orchestrator  
-> **Verification Status:** 100% Quality Gates Passing (0 lint errors, 0 lint warnings, 0 type errors, 24/24 Vitest tests passing, Next.js 16 Turbopack build passing)
+> **Verification Status:** 100% Quality Gates Passing (0 lint errors, 0 lint warnings, 0 typecheck errors, 74/74 Vitest tests passing across 6 suites, Next.js 16 Turbopack build passing across 39 routes)
 
 ---
 
@@ -133,14 +133,44 @@
 
 ---
 
+### Workstream G: Proofline Subsystem — Scope-to-Payment Proof Engine
+- **Owner:** Agent G (Proofline Systems Architect & Cryptographer) / Lead Reviewer
+- **Target Files Created & Inspected:**
+  - `src/lib/proofline/types.ts`
+  - `src/lib/proofline/crypto.ts`
+  - `src/lib/proofline/scope-agent.ts`
+  - `src/lib/proofline/change-agent.ts`
+  - `src/lib/proofline/policy-engine.ts`
+  - `src/lib/proofline/paypal-invoicing-adapter.ts`
+  - `src/lib/proofline/delivery-service.ts`
+  - `src/lib/proofline/proof-receipt-service.ts`
+  - `src/lib/proofline/store.ts`
+  - `src/app/api/proofline/*` (13 endpoints)
+  - `src/app/proofline/page.tsx`
+  - `tests/proofline.test.ts`
+- **Findings & Actions:**
+  - Designed and implemented domain models: `Project`, `SourceDocument`, `ScopeVersion`, `ChangeOrder`, `Deliverable`, `ProoflineInvoice`, `ProofReceipt`, and provenance tags.
+  - Implemented cryptographic core in `crypto.ts`: Canonical JSON serialization, FIPS 180-4 SHA-256 calculation, hash-chain generation ($H_n = \text{SHA-256}(H_{n-1} \parallel \text{digest}_n)$), and integer minor unit currency conversions.
+  - Grounded Chat Extraction in `scope-agent.ts`: Grounded extraction with Gemini 2.5/3.1 flash-lite + deterministic regex fallback; zero-hallucination policy (`needsConfirmation: true` on unstated rates) and exact character offset spans.
+  - Scope Creep Guard in `change-agent.ts`: Classifies client messages into `IN_SCOPE`, `CLARIFICATION`, `CHANGE_REQUEST`, or `AMBIGUOUS` with prompt-injection defense and delta price/timeline generation.
+  - Pure Deterministic Policy Monitor in `policy-engine.ts`: Reference monitor (`ALLOW`, `REQUIRE_HUMAN`, `BLOCK`) enforcing accepted scope version binding, single invoice ceilings ($10k), and stale hash rejection.
+  - PayPal Invoicing v2 Server-Only Adapter in `paypal-invoicing-adapter.ts`: Draft creation, dispatch, and authoritative server-side readback.
+  - Deliverable Fingerprinting in `delivery-service.ts`: File upload processor, SHA-256 fingerprinting, deterministic size/format checks, safe filename sanitization (directory traversal defense), advisory AI criteria analysis.
+  - Proof Receipt Generator in `proof-receipt-service.ts`: Cryptographic proof receipt compiler and audit chain integrity verification.
+  - Idempotent Webhook Integration in `src/app/api/paypal/webhook/route.ts`: Deduplication by `event.id` preventing duplicate reconciliation of `INVOICING.INVOICE.PAID`.
+  - 5-Tab Interactive Workspace in `src/app/proofline/page.tsx`: Scope Intake, Scope Creep Guard, PayPal Invoices, Delivery Proof, and Cryptographic Proof Receipt.
+  - Added 18 comprehensive tests in `tests/proofline.test.ts`, all passing.
+
+---
+
 ## Summary of Verification Evidence
 
 | Quality Gate | Status | Command Executed |
 |---|---|---|
 | ESLint Linting | **PASS (0 errors, 0 warnings)** | `npm run lint` |
 | TypeScript Strict Check | **PASS (0 errors)** | `npx tsc --noEmit` |
-| Vitest Test Suite | **PASS (24/24 tests)** | `npm test` |
-| Next.js 16 Production Build | **PASS (23 routes)** | `npm run build` |
+| Vitest Test Suite | **PASS (74/74 tests passing across 6 suites)** | `npm test` |
+| Next.js 16 Production Build | **PASS (39 static & dynamic routes)** | `npm run build` |
 | ML Benchmark Evaluation | **PASS** | `python ml_service/train_benchmark.py` |
 | GitHub Actions CI Quality Gate | **PASS (100% Green across Ubuntu & Windows)** | [Run 43128081253](https://github.com/vikassharma270907-alt/hackathon-paypal-ag-grid-boilerplate/actions/runs/43128081253) |
 

@@ -5,6 +5,8 @@ import { evaluate3WayMatch } from "@/lib/ml-fallback";
 import { evaluatePolicyFirewall, computeApprovalDigest, canonicalJsonStringify } from "@/lib/policy-firewall";
 import { searchChannel3Catalog, getCategoryPriceNorm, evaluateChannel3PricingAnomaly } from "@/lib/channel3";
 import { extractInvoiceWithGemini, isGeminiEnabled } from "@/lib/gemini";
+import { analyzeChangeRequest } from "@/lib/proofline/change-agent";
+import { prooflineStore } from "@/lib/proofline/store";
 
 export async function POST(req: NextRequest) {
   try {
@@ -239,6 +241,30 @@ export async function POST(req: NextRequest) {
         status: "RESET_COMPLETE",
         timestamp: new Date().toISOString(),
         details: "Restored 10-table relational ledger, Bryntum milestone schedule, and Cosmos.AI audit drawer to clean baseline state.",
+      });
+    }
+
+    // ----------------------------------------------------
+    // TEST 5b: Proofline Scope-Drift & Change Order Check
+    // ----------------------------------------------------
+    if (testType === "PROOFLINE_SCOPE_DRIFT") {
+      const versions = prooflineStore.scopeVersions.get('proj-crossborder-demo') || [];
+      const baseScope = versions[0];
+      const message = "Hey Priya! Loved the desktop tokens. Can you also create a dedicated Mobile Responsive Layout with touch gestures and add another export format for Flutter?";
+
+      const analysis = await analyzeChangeRequest(message, baseScope);
+
+      return NextResponse.json({
+        testType: "PROOFLINE_SCOPE_DRIFT",
+        title: "Proofline Scope-Drift & Change-Order Agent",
+        status: analysis.classification,
+        classification: analysis.classification,
+        confidence: analysis.confidence,
+        suggestedPriceDelta: analysis.delta ? `+$${(analysis.delta.suggestedPriceDeltaMinor / 100).toFixed(2)} USD` : "+$0.00",
+        suggestedDaysDelta: analysis.delta ? `+${analysis.delta.suggestedDaysDelta} days` : "0 days",
+        reasons: [analysis.explanation],
+        actionTaken: "CHANGE_ORDER_DRAFTED_FOR_APPROVAL",
+        details: `Detected unpriced out-of-scope addition: ${analysis.explanation}. Prepared change order before unpaid labor began.`,
       });
     }
 

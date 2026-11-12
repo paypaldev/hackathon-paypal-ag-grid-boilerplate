@@ -69,6 +69,7 @@ import {
   Sparkles,
   Activity,
   Video,
+  FileCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -252,6 +253,13 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
           {/* Quick Links to newly integrated workspaces */}
           <div className="hidden md:flex items-center gap-1.5 border-l border-zinc-800 pl-3 text-xs">
             <Link
+              href="/proofline"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-blue-300 hover:text-white bg-blue-950/60 border border-blue-800/80 transition-colors font-medium"
+            >
+              <FileCheck className="w-3.5 h-3.5 text-blue-400" />
+              <span>Proofline</span>
+            </Link>
+            <Link
               href="/users"
               className="flex items-center gap-1 px-2.5 py-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-850 transition-colors"
             >
@@ -318,6 +326,28 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
       {/* 3. MAIN CONTENT */}
       {activeTab === 'COMMAND_CENTER' ? (
         <main className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+          {/* Proofline Quick Banner */}
+          <div className="bg-gradient-to-r from-blue-950/40 via-indigo-950/30 to-purple-950/20 border border-blue-800/60 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="size-8 rounded-lg bg-blue-600/30 border border-blue-500/50 flex items-center justify-center text-blue-400">
+                <FileCheck className="size-4" />
+              </div>
+              <div className="text-xs">
+                <span className="font-bold text-white">Proofline Feature Active: </span>
+                <span className="text-zinc-300">
+                  Versioned scope, scope-drift change orders &amp; tamper-evident proof-to-payment receipts for cross-border freelancers.
+                </span>
+              </div>
+            </div>
+            <Link
+              href="/proofline"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-sm transition-colors shrink-0"
+            >
+              <span>Launch Proofline</span>
+              <ShieldCheck className="size-3.5" />
+            </Link>
+          </div>
+
           {/* Executive KPI Overview Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-[#121215] border border-zinc-800 hover:border-zinc-700 rounded-xl p-4 shadow-sm transition-colors">

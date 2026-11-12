@@ -10,12 +10,15 @@
 
 ## Executive Summary
 
-**VeriSettle AI** is an enterprise-grade autonomous operating system designed for modern B2B commerce. In high-value procurement, standard AI agents are notoriously unsafe: an LLM can hallucinate numbers, fall victim to prompt injection in vendor PDF attachments, or prematurely disburse cash.
+**VeriSettle AI & Proofline** is an enterprise-grade autonomous operating system and versioned proof-to-payment engine designed for modern B2B commerce and cross-border independent professionals. In high-value procurement and freelance delivery, standard AI agents are notoriously unsafe: an LLM can hallucinate numbers, fall victim to prompt injection in vendor PDF attachments, or prematurely disburse cash.
 
-VeriSettle solves this by enforcing an uncompromising separation of responsibilities:
-1. **Multimodal Machine Learning & AI:** LayoutLMv3 BIO token classification, Google Gemini 2.5 Flash, and leak-free tabular XGBoost extract accounting fields from supplier documents and score counterparty risk.
-2. **Deterministic Cryptographic Policy Firewall:** A TypeScript reference monitor compiles the `PAYPAL.md` Spend Mandate Constitution, enforces 3-way match variance thresholds ($\le 1.5\%$), clamps greedy agent proposals to verified delivery ratios, and seals every approved monetary action with a **FIPS 180-4 SHA-256 digest**.
-3. **PayPal Sandbox REST Rails:** Live execution of Orders v2 authorization holds (`intent: "AUTHORIZE"`), Authorizations v2 captures with `final_capture: true`, Invoicing v2 with dynamic early-payment discount gating, and Disputes v1 autonomous chargeback defense.
+VeriSettle & Proofline solve this by enforcing an uncompromising separation of responsibilities:
+1. **Multimodal Machine Learning & AI:** LayoutLMv3 BIO token classification, Google Gemini 2.5 Flash, and leak-free tabular XGBoost extract accounting fields from supplier documents, score counterparty risk, and perform source-cited scope extraction.
+2. **Deterministic Cryptographic Policy Firewall & Scope Versioning:** A TypeScript reference monitor compiles the `PAYPAL.md` Spend Mandate Constitution, enforces 3-way match variance thresholds ($\le 1.5\%$), computes FIPS 180-4 SHA-256 digests over immutable scope versions, and detects unpriced scope drift with automatic change order addenda.
+3. **PayPal Sandbox REST Rails:** Live execution of Orders v2 authorization holds (`intent: "AUTHORIZE"`), Authorizations v2 captures with `final_capture: true`, Invoicing v2 with dynamic early-payment discount gating & cross-border freelancer invoicing, and Disputes v1 autonomous chargeback defense.
+
+> **Featured Subsystem: Proofline (`/proofline`)**  
+> Dedicated evidence-backed scope, change-order, and payment workflow for independent professionals serving international clients. Catches scope creep before unpaid labor begins and generates a tamper-evident audit receipt. See [`PROOFLINE_GUIDE.md`](./PROOFLINE_GUIDE.md) for complete architecture and 2-minute demo walkthrough.
 
 ---
 

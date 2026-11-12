@@ -1,10 +1,10 @@
 # VeriSettle AI — Bug Inventory & Fixes Log
 
-**Version:** 1.1.0-hackathon  
+**Version:** 1.2.0-hackathon  
 **Audit Date:** 12 November 2026  
-**Total Bugs Cataloged:** 27  
-**Resolved Bugs:** 27  
-**Verification Pass Rate:** 100% (30/30 Vitest tests passing, 0 lint errors, 0 lint warnings)  
+**Total Bugs Cataloged:** 32  
+**Resolved Bugs:** 32  
+**Verification Pass Rate:** 100% (74/74 Vitest tests passing, 0 lint errors, 0 lint warnings, 0 typecheck errors, 39 Next.js routes compiled)  
 
 ---
 
@@ -40,6 +40,10 @@
 | **BUG-026** | P1 (High) | `src/app/availability/`, `src/lib/system-health.ts` | **RESOLVED** | Lack of dedicated real-time system health dashboard with circuit-breaker reset controls |
 | **BUG-027** | P1 (High) | `src/app/ai-sandbox/`, `src/lib/langfuse-tracer.ts`, `src/app/api/ai/*` | **RESOLVED** | Missing Langfuse Multi-Modal Sandbox suite (Chat, Voice, Image, Sentiment, RPS, Tracing) |
 | **BUG-028** | P2 (Medium) | `src/app/dashboard/dashboard.tsx` | **RESOLVED** | Command Center lacked executive analytics visualization comparing authorized holds vs settled captures |
+| **BUG-029** | P1 (High) | `src/app/api/paypal/webhook/route.ts` | **RESOLVED** | Invoicing v2 webhooks lacked deduplication by `event.id`, risking duplicate processing across PayPal retries |
+| **BUG-030** | P2 (Medium) | `src/lib/proofline/paypal-invoicing-adapter.ts` | **RESOLVED** | TypeScript compiler error TS2322 on `data.status || 'DRAFT'` typed as `{}` instead of `string` |
+| **BUG-031** | P2 (Medium) | `src/app/proofline/page.tsx` | **RESOLVED** | React 19 ESLint `react-hooks/set-state-in-effect` violations on synchronous state setters within `useEffect` |
+| **BUG-032** | P1 (High) | `src/lib/proofline/*`, `src/app/proofline/` | **RESOLVED** | Milestone payment systems suffer from ungrounded scope creep and lack tamper-evident proof connecting client chat to PayPal invoices |
 
 ---
 
@@ -397,6 +401,56 @@
 - **Fix**: Integrated a responsive Recharts Area chart in Zone 2 displaying a 6-month timeline of Authorized Holds vs. Settled Captures alongside top-level navigation links.
 - **Test Covering Fix**: Interactive dashboard smoke test and `npm run build`.
 - **Verification Status**: PASSED.
+
+---
+
+### BUG-029: Webhook Idempotency & Invoicing v2 Reconciliation
+- **Severity**: P1 (High)
+- **File & Location**: `src/app/api/paypal/webhook/route.ts`, `src/lib/proofline/store.ts`
+- **Root Cause**: In production, PayPal webhooks can re-deliver the same event ID up to 25 times over a 3-day window. Without event ID deduplication, invoice paid reconciliation could trigger multiple downstream audit entries or milestone state changes.
+- **Reproduction Steps**: Replay the same `INVOICING.INVOICE.PAID` webhook payload to `/api/paypal/webhook`.
+- **Fix**: Added `prooflineStore.isWebhookEventProcessed(event.id)` and `recordProcessedWebhookEventId(event.id)` to `src/lib/proofline/store.ts`. Added handling for `INVOICING.INVOICE.PAID`, `INVOICING.INVOICE.SENT`, and `INVOICING.INVOICE.REFUNDED` with automatic Proofline milestone and invoice reconciliation.
+- **Test Covering Fix**: `tests/proofline.test.ts` (Store & Invoicing tests).
+- **Verification Status**: PASSED. Duplicate webhook calls return HTTP 200 with `{ status: "IGNORED_DUPLICATE" }`.
+
+---
+
+### BUG-030: TypeScript Type Incompatibility in Invoicing Adapter
+- **Severity**: P2 (Medium)
+- **File & Location**: `src/lib/proofline/paypal-invoicing-adapter.ts` (L137)
+- **Root Cause**: Reading `data.status || 'DRAFT'` from `Record<string, unknown>` evaluated to `{}` in TypeScript's strict mode, failing the production build with `error TS2322: Type '{}' is not assignable to type 'string'`.
+- **Reproduction Steps**: Run `next build` or `tsc --noEmit`.
+- **Fix**: Explicitly cast the untyped property: `rawStatus: (data.status as string) || 'DRAFT'`.
+- **Test Covering Fix**: `npx tsc --noEmit` and `npm run build`.
+- **Verification Status**: PASSED. Strict TypeScript compiler passed with 0 errors.
+
+---
+
+### BUG-031: React 19 SetState in Effect Violations in Proofline Workspace
+- **Severity**: P2 (Medium)
+- **File & Location**: `src/app/proofline/page.tsx` (L107-L147)
+- **Root Cause**: Calling `loadProject()` and `setLoadingReceipt(true)` synchronously inside `useEffect` bodies triggered ESLint `react-hooks/set-state-in-effect` violations and risked cascading re-renders in React 19.
+- **Reproduction Steps**: Run `npm run lint`.
+- **Fix**: Refactored the initial mount and tab-switch effects to run within asynchronous fetch promises with proper cleanup `ignore` flags and wrapped external refresh triggers in `useCallback`.
+- **Test Covering Fix**: `npm run lint`.
+- **Verification Status**: PASSED. 0 lint errors, 0 lint warnings across the repository.
+
+---
+
+### BUG-032: Scope Creep & Proof Chaining Gap in Traditional Milestone Invoicing
+- **Severity**: P1 (High)
+- **File & Location**: `src/lib/proofline/*`, `src/app/proofline/page.tsx`
+- **Root Cause**: In freelance and agency B2B agreements, informal scope adjustments made in Slack/email chats lack grounded cryptographic provenance linking to PayPal invoices. AI agents can hallucinate payment terms or let clients slip in unpriced work.
+- **Reproduction Steps**: Client messages "Can you also add multi-currency exchange rates and automated daily reports before invoice release?" Freelancers absorb scope creep without a binding change order.
+- **Fix**: Built the full Proofline subsystem:
+  1. Grounded extraction with character-level `sourceSpans` and zero-hallucination policies (`needsConfirmation: true` for unstated rates).
+  2. Scope-drift classification with prompt injection defense.
+  3. Pure deterministic reference monitor (`policy-engine.ts`) enforcing accepted scope binding and invoice ceilings.
+  4. Server-side SHA-256 fingerprinting for deliverable artifacts with directory traversal sanitization.
+  5. Cryptographic proof receipt compiling hash-chained audit trails into a verifiable client artifact.
+- **Test Covering Fix**: `tests/proofline.test.ts` (18 unit/integration tests).
+- **Verification Status**: PASSED. All 18 Proofline tests passing.
+
 
 
 
