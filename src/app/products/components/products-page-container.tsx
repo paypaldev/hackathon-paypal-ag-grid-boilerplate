@@ -23,20 +23,20 @@ export function ProductsPageContainer({
   const [viewMode, setViewMode] = useState<'ADMIN_CATALOG' | 'PAYPAL_ENDPOINT'>('ADMIN_CATALOG');
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans">
       <MainNav />
 
       {/* Mode Toggle Header Bar */}
-      <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3">
-        <div className="text-xs text-slate-400">
+      <div className="bg-[#121215] border-b border-zinc-800 px-4 sm:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3">
+        <div className="text-xs text-zinc-400">
           Viewing: <strong className="text-white">{viewMode === 'ADMIN_CATALOG' ? 'Interactive Admin Catalog' : 'PayPal REST API Grid'}</strong>
         </div>
 
-        <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+        <div className="flex items-center bg-[#09090b] p-1 rounded-lg border border-zinc-800 text-xs">
           <button
             onClick={() => setViewMode('ADMIN_CATALOG')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
-              viewMode === 'ADMIN_CATALOG' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              viewMode === 'ADMIN_CATALOG' ? 'bg-zinc-100 text-zinc-950 shadow-sm' : 'text-zinc-400 hover:text-white'
             }`}
           >
             <Package className="w-3.5 h-3.5" />
@@ -45,7 +45,7 @@ export function ProductsPageContainer({
           <button
             onClick={() => setViewMode('PAYPAL_ENDPOINT')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
-              viewMode === 'PAYPAL_ENDPOINT' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              viewMode === 'PAYPAL_ENDPOINT' ? 'bg-zinc-100 text-zinc-950 shadow-sm' : 'text-zinc-400 hover:text-white'
             }`}
           >
             <Terminal className="w-3.5 h-3.5" />

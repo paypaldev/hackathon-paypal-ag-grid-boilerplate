@@ -22,28 +22,28 @@ export function EndpointPage({
   columns: ColDef<Row>[];
 }) {
   return (
-    <main className="flex h-dvh flex-col bg-pp-canvas px-8 py-6 font-paypal text-pp-ink">
-      <div className="flex items-center gap-4 text-sm font-semibold">
-        <Link href="/" className="text-pp-blue hover:underline">
-          ← All pages
+    <main className="flex h-dvh flex-col bg-[#09090b] px-6 sm:px-8 py-6 font-paypal text-zinc-100">
+      <div className="flex items-center gap-4 text-xs font-semibold">
+        <Link href="/" className="text-zinc-400 hover:text-white transition-colors">
+          ← All workspaces
         </Link>
-        <span className="text-pp-muted">·</span>
-        <Link href="/dashboard" className="text-pp-blue hover:underline">
+        <span className="text-zinc-600">·</span>
+        <Link href="/dashboard" className="text-zinc-300 hover:text-white transition-colors">
           Command Center →
         </Link>
       </div>
-      <h1 className="mt-3 text-[28px] font-semibold text-pp-navy">{title}</h1>
-      <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-pp-muted">
+      <h1 className="mt-3 text-2xl sm:text-[28px] font-bold text-white tracking-tight">{title}</h1>
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-400">
         {calls.map((call) => (
-          <code key={call} className="rounded bg-pp-highlight px-2 py-0.5 text-pp-navy">
+          <code key={call} className="rounded bg-zinc-900 border border-zinc-800 px-2 py-0.5 text-zinc-200 font-mono">
             {call}
           </code>
         ))}
         <span>
-          via <code className="text-pp-navy">{source}</code> · {rows.length} {rows.length === 1 ? 'row' : 'rows'}
+          via <code className="text-zinc-200 font-mono">{source}</code> · {rows.length} {rows.length === 1 ? 'row' : 'rows'}
         </span>
       </div>
-      {note && <p className="mt-2 max-w-4xl text-sm text-pp-muted">{note}</p>}
+      {note && <p className="mt-2 max-w-4xl text-xs text-zinc-400 leading-relaxed">{note}</p>}
       <div className="mt-5 flex min-h-0 flex-1 flex-col">
         <DataGrid rows={rows} columns={columns} />
       </div>

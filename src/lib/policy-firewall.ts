@@ -112,10 +112,10 @@ export function computeApprovalDigest(payload: {
 export function detectPromptInjection(text?: string): boolean {
   if (!text) return false;
   const injectionPatterns = [
-    /ignore\s+(previous|all|the)\s+instructions/i,
-    /ignore\s+paypal\.md/i,
-    /bypass\s+(limits|firewall|guardrails|policy)/i,
-    /override\s+(policy|budget|mandate)/i,
+    /(?:ignore|disregard)\s+(?:previous|all|the)\s+instructions/i,
+    /(?:ignore|disregard)\s+paypal\.md/i,
+    /(?:bypass|evade)\s+(?:limits|firewall|guardrails|policy)/i,
+    /(?:override|violate)\s+(?:policy|budget|mandate|spend)/i,
     /send\s+\$?\d+.*regardless/i,
     /system\s+prompt\s+override/i,
     /jailbreak/i,

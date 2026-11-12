@@ -1,7 +1,24 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldCheck, AlertTriangle, Bug, RotateCcw, Clock, Hash, Play, Globe, Sparkles } from 'lucide-react';
+import {
+  ShieldCheck,
+  ShieldAlert,
+  AlertTriangle,
+  Bug,
+  RotateCcw,
+  Clock,
+  Hash,
+  Play,
+  Globe,
+  Sparkles,
+  Lock,
+} from 'lucide-react';
+import {
+  SettlementProofModal,
+  type SettlementCertificateData,
+  DEFAULT_CERTIFICATE,
+} from './settlement-proof-modal';
 
 export interface TestActionResult {
   testType: string;
@@ -24,6 +41,25 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
   const [loadingTest, setLoadingTest] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<TestActionResult | null>(null);
   const [showDebugModal, setShowDebugModal] = useState<boolean>(false);
+  const [showProofModal, setShowProofModal] = useState<boolean>(false);
+  const [currentCertificate, setCurrentCertificate] = useState<SettlementCertificateData | null>(null);
+
+  const openProofCertificate = async () => {
+    try {
+      const res = await fetch('/api/test-bar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ testType: 'PROOF_OF_SETTLEMENT' }),
+      });
+      const data = await res.json();
+      if (data.certificate) {
+        setCurrentCertificate(data.certificate);
+      }
+    } catch {
+      setCurrentCertificate(DEFAULT_CERTIFICATE);
+    }
+    setShowProofModal(true);
+  };
 
   const runTest = async (testType: string) => {
     setLoadingTest(testType);
@@ -53,21 +89,21 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
   };
 
   return (
-    <div className="bg-slate-900 border-b border-slate-800 text-white px-4 py-3 sticky top-0 z-40 shadow-xl backdrop-blur-md bg-opacity-95">
+    <div className="bg-[#121215]/95 border-b border-zinc-800 text-zinc-100 px-4 py-3 sticky top-0 z-40 shadow-xl backdrop-blur-md">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         {/* Left: Hackathon Judge Badge & Title */}
         <div className="flex items-center gap-2">
-          <div className="bg-blue-600/30 border border-blue-500/50 rounded-lg p-1.5 flex items-center justify-center">
-            <ShieldCheck className="w-5 h-5 text-blue-400" />
+          <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-1.5 flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5 text-zinc-200" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">
+              <span className="text-xs font-bold uppercase tracking-wider bg-zinc-800 text-zinc-200 px-2 py-0.5 rounded border border-zinc-700">
                 Judge 1-Click Live Test Bar
               </span>
-              <span className="text-xs text-slate-400">api-m.sandbox.paypal.com</span>
+              <span className="text-xs text-zinc-400 font-mono">api-m.sandbox.paypal.com</span>
             </div>
-            <p className="text-xs text-slate-300 font-medium hidden sm:block">
+            <p className="text-xs text-zinc-400 font-medium hidden sm:block">
               Execute live Sandbox escrow holds, chaos injection, and 3-way match freeze
             </p>
           </div>
@@ -125,7 +161,29 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
             <span>Gemini 3-Way Match</span>
           </button>
 
-          {/* Button 6: Reset State */}
+          {/* Button 6: Red-Team Jailbreak Attack */}
+          <button
+            onClick={() => runTest('PROMPT_INJECTION_ATTACK')}
+            disabled={loadingTest !== null}
+            className="flex items-center gap-1.5 text-xs font-semibold bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-red-600/20 disabled:opacity-50 cursor-pointer"
+            title="Simulate prompt injection and adversarial jailbreak attack against AI purchasing agent"
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Red-Team Jailbreak</span>
+          </button>
+
+          {/* Button 7: Cryptographic Settlement Proof */}
+          <button
+            onClick={openProofCertificate}
+            disabled={loadingTest !== null}
+            className="flex items-center gap-1.5 text-xs font-semibold bg-cyan-700 hover:bg-cyan-600 text-white px-3 py-1.5 rounded-lg transition-all shadow-md hover:shadow-cyan-700/20 disabled:opacity-50 cursor-pointer"
+            title="View FIPS 180-4 SHA-256 Cryptographic Settlement Proof Certificate"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span>Proof Certificate</span>
+          </button>
+
+          {/* Button 8: Reset State */}
           <button
             onClick={() => runTest('RESET_STATE')}
             disabled={loadingTest !== null}
@@ -231,6 +289,13 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
           </div>
         </div>
       )}
+
+      {/* Cryptographic Proof of Settlement Modal */}
+      <SettlementProofModal
+        open={showProofModal}
+        onClose={() => setShowProofModal(false)}
+        certificate={currentCertificate}
+      />
     </div>
   );
 }

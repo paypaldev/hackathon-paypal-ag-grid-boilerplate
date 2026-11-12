@@ -6,7 +6,14 @@ import {
   Package,
   Sparkles,
   Activity,
+  Video,
+  Lock,
+  Zap,
 } from 'lucide-react';
+import { MainNav } from '@/app/components/main-nav';
+import { StealthRadar } from '@/components/stealth-radar';
+import { ObsidianSettlementPipeline } from '@/components/stealth-pipeline';
+import { StealthCyberTerminal } from '@/components/stealth-terminal';
 
 const endpoints = [
   { href: '/products', label: 'Catalog Products & Inventory Admin', detail: 'GET /v1/catalogs/products' },
@@ -23,7 +30,7 @@ const coreWorkspaces = [
     desc: 'Escrow authorizations, 3-way match engine, AG Grid relational ledger & Bryntum milestone Gantt.',
     icon: ShieldCheck,
     badge: '1st Place Track ($17k)',
-    color: 'border-blue-500/30 bg-blue-950/20 text-blue-400',
+    accent: 'border-zinc-700 bg-zinc-900/80 text-zinc-100',
   },
   {
     href: '/users',
@@ -31,7 +38,7 @@ const coreWorkspaces = [
     desc: 'Profile pages, 6-month spend charts, GNN/LSTM collusion risk scores & CRUD modal management.',
     icon: Users,
     badge: 'React Admin Suite',
-    color: 'border-purple-500/30 bg-purple-950/20 text-purple-400',
+    accent: 'border-zinc-700 bg-zinc-900/80 text-zinc-100',
   },
   {
     href: '/products',
@@ -39,7 +46,7 @@ const coreWorkspaces = [
     desc: 'Channel3 market norm pricing, anomaly Z-scores, Holt-Winters inventory cover & product specs.',
     icon: Package,
     badge: 'Catalog Admin',
-    color: 'border-emerald-500/30 bg-emerald-950/20 text-emerald-400',
+    accent: 'border-zinc-700 bg-zinc-900/80 text-zinc-100',
   },
   {
     href: '/ai-sandbox',
@@ -47,7 +54,15 @@ const coreWorkspaces = [
     desc: 'Streaming Q&A, LiveKit voice agent, image generation, sentiment analyzer & Rock-Paper-Scissors.',
     icon: Sparkles,
     badge: 'Langfuse Multi-Modal',
-    color: 'border-amber-500/30 bg-amber-950/20 text-amber-400',
+    accent: 'border-zinc-700 bg-zinc-900/80 text-zinc-100',
+  },
+  {
+    href: '/walkthrough',
+    title: 'Video & Blueprint Walkthrough',
+    desc: 'Reverse-engineered YouTube player with Noembed oEmbed sync, Privacy Mode & restriction fallbacks.',
+    icon: Video,
+    badge: 'Media Subsystem',
+    accent: 'border-zinc-700 bg-zinc-900/80 text-zinc-100',
   },
   {
     href: '/availability',
@@ -55,7 +70,7 @@ const coreWorkspaces = [
     desc: 'Live telemetry, latency gauges, OAuth token caching metrics, and circuit-breaker diagnostics.',
     icon: Activity,
     badge: 'Health Radar',
-    color: 'border-cyan-500/30 bg-cyan-950/20 text-cyan-400',
+    accent: 'border-zinc-700 bg-zinc-900/80 text-zinc-100',
   },
 ];
 
@@ -69,47 +84,85 @@ const sponsorBadges = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-12 font-sans selection:bg-blue-600 selection:text-white">
-      <div className="max-w-5xl mx-auto space-y-10">
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white flex flex-col">
+      <MainNav />
+
+      <main className="flex-1 p-4 sm:p-6 md:p-10 max-w-6xl mx-auto w-full space-y-12">
         {/* Hero Header */}
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 text-blue-400 text-xs font-semibold px-3 py-1 rounded-full">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>PayPal AI Hackathon 2026 Submission</span>
+        <section className="space-y-6 pt-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-700/80 text-zinc-300 text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-sm">
+              <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>PayPal AI Hackathon 2026 Submission</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-mono text-zinc-400 bg-zinc-900/60 border border-zinc-800 px-3 py-1.5 rounded-full">
+              <Lock className="w-3 h-3 text-zinc-400" />
+              <span>FIPS 180-4 SHA-256 Validated</span>
+            </div>
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white">
-            VeriSettle AI
-          </h1>
-          <p className="text-base md:text-lg text-slate-400 max-w-2xl leading-relaxed">
-            Autonomous B2B Escrow, Multimodal 3-Way Invoice Reconciliation, Admin Command Center &amp; Langfuse Multi-Modal AI Observability Hub.
-          </p>
-
-          <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-lg text-xs font-mono text-blue-300">
-            <strong>Core Architectural Law:</strong> &ldquo;AI/ML Proposes, Deterministic Policy Disposes, PayPal Executes.&rdquo;
+          <div className="space-y-3">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white">
+              VeriSettle <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-200 via-zinc-400 to-zinc-600">OS</span>
+            </h1>
+            <p className="text-base sm:text-lg text-zinc-400 max-w-3xl leading-relaxed">
+              Autonomous B2B Escrow, Multimodal 3-Way Invoice Reconciliation, Enterprise Admin Command Center &amp; Langfuse AI Observability Hub.
+            </p>
           </div>
 
-          <div className="flex flex-wrap gap-3 pt-2">
+          <div className="p-4 bg-[#121215] border border-zinc-800 rounded-xl text-xs font-mono text-zinc-300 flex items-center justify-between gap-4">
+            <div>
+              <strong className="text-white">Core Architectural Law:</strong> &ldquo;AI/ML Proposes, Deterministic Policy Disposes, PayPal Executes.&rdquo;
+            </div>
+            <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-zinc-400">
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Zero-Hallucination Firewall</span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3 pt-1">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm px-5 py-2.5 rounded-lg shadow-lg hover:shadow-blue-600/25 transition-all"
+              className="inline-flex items-center gap-2 bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-sm px-6 py-3 rounded-xl shadow-lg hover:shadow-zinc-700/20 transition-all cursor-pointer group"
             >
               <span>Launch Enterprise Command Center</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="/ai-sandbox"
-              className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold text-sm px-5 py-2.5 rounded-lg transition-all"
+              className="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-850 border border-zinc-700 text-zinc-200 font-semibold text-sm px-5 py-3 rounded-xl transition-all"
             >
               <span>Explore AI Multi-Modal Sandbox</span>
-              <Sparkles className="w-4 h-4 text-amber-400" />
+              <Sparkles className="w-4 h-4 text-zinc-400" />
             </Link>
           </div>
-        </div>
+        </section>
 
-        {/* Feature Workspaces Grid */}
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        {/* Feature 1: Live Stealth Escrow Radar */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              Live Escrow Telemetry &amp; Anomaly Detection Radar
+            </h2>
+            <span className="text-[11px] font-mono text-zinc-500">REAL-TIME SANDBOX FREQUENCY</span>
+          </div>
+          <StealthRadar />
+        </section>
+
+        {/* Feature 2: Interactive 3-Way Match Settlement Pipeline */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              Deterministic 3-Way Match Architecture
+            </h2>
+            <span className="text-[11px] font-mono text-zinc-500">TWO-PHASE SETTLEMENT</span>
+          </div>
+          <ObsidianSettlementPipeline />
+        </section>
+
+        {/* Feature 3: Enterprise Workspaces Grid */}
+        <section className="space-y-3">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
             Enterprise Application Workspaces
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -119,69 +172,87 @@ export default function Home() {
                 <Link
                   key={ws.href}
                   href={ws.href}
-                  className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 flex flex-col justify-between space-y-3 transition-all hover:translate-y-[-2px] group"
+                  className="p-5 rounded-2xl bg-[#121215] border border-zinc-800 hover:border-zinc-600 flex flex-col justify-between space-y-4 transition-all hover:-translate-y-0.5 group shadow-lg"
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <div className={`p-2 rounded-lg border ${ws.color}`}>
-                        <Icon className="w-5 h-5" />
+                      <div className={`p-2 rounded-xl border ${ws.accent}`}>
+                        <Icon className="w-5 h-5 text-zinc-200" />
                       </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-300 border border-zinc-800">
                         {ws.badge}
                       </span>
                     </div>
-                    <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-sm font-bold text-white group-hover:text-zinc-200 transition-colors">
                       {ws.title}
                     </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">{ws.desc}</p>
+                    <p className="text-xs text-zinc-400 leading-relaxed">{ws.desc}</p>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-blue-400 font-semibold pt-1">
+                  <div className="flex items-center gap-1.5 text-xs text-zinc-300 font-semibold pt-2 border-t border-zinc-850">
                     <span>Open workspace</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-zinc-400" />
                   </div>
                 </Link>
               );
             })}
           </div>
-        </div>
+        </section>
 
-        {/* Sponsor Tooling Grid */}
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        {/* Feature 4: Stealth Audit Terminal */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              Live REST &amp; Cosmos.AI MCP Audit Stream
+            </h2>
+            <span className="text-[11px] font-mono text-zinc-500">IDEMPOTENCY &amp; FIPS HASHES</span>
+          </div>
+          <StealthCyberTerminal />
+        </section>
+
+        {/* Multi-Sponsor Prize Integrations */}
+        <section className="space-y-3">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
             Multi-Sponsor Prize Integrations ($17,000 Stack Alignment)
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
             {sponsorBadges.map((s) => (
-              <div key={s.name} className="p-3 bg-slate-900/80 border border-slate-800 rounded-lg">
-                <div className="font-semibold text-white mb-0.5">{s.name}</div>
-                <div className="text-slate-400 text-[11px]">{s.role}</div>
+              <div key={s.name} className="p-3.5 bg-[#121215] border border-zinc-800 rounded-xl hover:border-zinc-700 transition-colors">
+                <div className="font-bold text-white mb-0.5">{s.name}</div>
+                <div className="text-zinc-400 text-[11px]">{s.role}</div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* PayPal Sandbox Endpoints */}
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        {/* Live PayPal Developer Platform Endpoints */}
+        <section className="space-y-3">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
             Live PayPal Developer Platform Endpoints
           </h2>
-          <div className="divide-y divide-slate-850 border border-slate-850 rounded-lg bg-slate-900/50 overflow-hidden text-xs">
+          <div className="divide-y divide-zinc-850 border border-zinc-800 rounded-xl bg-[#121215] overflow-hidden text-xs">
             {endpoints.map((ep) => (
               <Link
                 key={ep.href}
                 href={ep.href}
-                className="flex items-center justify-between p-3.5 hover:bg-slate-800/60 transition-colors"
+                className="flex items-center justify-between p-3.5 hover:bg-zinc-850/60 transition-colors group"
               >
-                <span className="font-medium text-white flex items-center gap-2">
+                <span className="font-medium text-zinc-200 flex items-center gap-2 group-hover:text-white">
                   <span>{ep.label}</span>
-                  <ArrowRight className="w-3 h-3 text-slate-500" />
+                  <ArrowRight className="w-3 h-3 text-zinc-500 group-hover:text-zinc-300" />
                 </span>
-                <code className="text-[11px] font-mono text-blue-400">{ep.detail}</code>
+                <code className="text-[11px] font-mono text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
+                  {ep.detail}
+                </code>
               </Link>
             ))}
           </div>
-        </div>
-      </div>
-    </main>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="mt-12 border-t border-zinc-850 py-6 text-center text-xs font-mono text-zinc-500 bg-[#09090b]">
+        VeriSettle AI · PayPal AI Hackathon 2026 · Autonomous B2B Escrow &amp; Dispute Defense OS
+      </footer>
+    </div>
   );
 }

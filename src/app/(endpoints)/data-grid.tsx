@@ -36,7 +36,7 @@ const modules = [
   ColumnAutoSizeModule,
 ];
 
-// Same PayPal tokens as the dashboard (app/globals.css).
+// Stealth Black & Grey theme tokens for AG Grid
 const theme = themeQuartz.withParams({
   fontFamily: 'var(--pp-font)',
   accentColor: 'var(--pp-blue)',
@@ -45,6 +45,9 @@ const theme = themeQuartz.withParams({
   headerFontWeight: 600,
   headerTextColor: 'var(--pp-muted)',
   rowHoverColor: 'var(--pp-highlight)',
+  backgroundColor: 'var(--pp-surface)',
+  headerBackgroundColor: 'var(--pp-canvas)',
+  chromeBackgroundColor: 'var(--pp-canvas)',
 });
 
 export type Row = Record<string, unknown>;
@@ -73,9 +76,9 @@ export function DataGrid({ rows, columns }: { rows: Row[]; columns: ColDef<Row>[
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search all columns…"
         aria-label="Search all columns"
-        className="h-10 w-72 rounded border border-pp-border px-3 text-sm outline-none focus:border-pp-blue"
+        className="h-10 w-72 rounded-lg border border-zinc-800 bg-[#121215] px-3 text-xs text-zinc-100 placeholder-zinc-500 outline-none focus:border-zinc-500 transition-colors"
       />
-      <div className="min-h-0 flex-1">
+      <div className="min-h-0 flex-1 rounded-xl overflow-hidden border border-zinc-800 bg-[#121215]">
         <AgGridProvider modules={modules}>
           <AgGridReact
             theme={theme}

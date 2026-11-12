@@ -68,6 +68,7 @@ import {
   Package,
   Sparkles,
   Activity,
+  Video,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -232,48 +233,55 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
   const avgRisk = data.mlAudits.reduce((acc, a) => acc + a.gnnLstmRiskScore, 0) / (data.mlAudits.length || 1);
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 font-sans">
+    <div className="flex flex-col min-h-screen bg-[#09090b] text-zinc-100 font-sans">
       {/* 1. TOP: Judge 1-Click Live Sandbox Test Bar */}
       <JudgeTestBar />
 
       {/* 2. Top-Level Mode Selector & Global Workspace Links */}
-      <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-[#121215] border-b border-zinc-800 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold px-2.5 py-1 rounded-lg text-sm tracking-wider shadow group-hover:scale-105 transition-transform">
-              VeriSettle AI
+            <div className="bg-zinc-800 border border-zinc-700 text-white font-extrabold px-2.5 py-1 rounded-lg text-sm tracking-wider shadow group-hover:scale-105 transition-transform">
+              VeriSettle OS
             </div>
           </Link>
-          <span className="text-xs text-slate-400 hidden xl:inline">
-            Autonomous B2B Escrow, Multimodal 3-Way Reconciliation &amp; Dispute Defense OS
+          <span className="text-xs text-zinc-400 hidden xl:inline">
+            Autonomous B2B Escrow, Multimodal 3-Way Reconciliation &amp; Dispute Defense
           </span>
 
           {/* Quick Links to newly integrated workspaces */}
-          <div className="hidden md:flex items-center gap-1.5 border-l border-slate-800 pl-3 text-xs">
+          <div className="hidden md:flex items-center gap-1.5 border-l border-zinc-800 pl-3 text-xs">
             <Link
               href="/users"
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-850 transition-colors"
             >
               <Users className="w-3.5 h-3.5" />
               <span>Users</span>
             </Link>
             <Link
               href="/products"
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-850 transition-colors"
             >
               <Package className="w-3.5 h-3.5" />
               <span>Products</span>
             </Link>
             <Link
               href="/ai-sandbox"
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-amber-400/90 hover:text-amber-300 hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-zinc-300 hover:text-white hover:bg-zinc-850 transition-colors"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>AI Sandbox &amp; Langfuse</span>
             </Link>
             <Link
+              href="/walkthrough"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-zinc-300 hover:text-white hover:bg-zinc-850 transition-colors"
+            >
+              <Video className="w-3.5 h-3.5" />
+              <span>Video Guide</span>
+            </Link>
+            <Link
               href="/availability"
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-emerald-400/90 hover:text-emerald-300 hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-zinc-300 hover:text-white hover:bg-zinc-850 transition-colors"
             >
               <Activity className="w-3.5 h-3.5" />
               <span>Health</span>
@@ -281,13 +289,13 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
           </div>
         </div>
 
-        <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+        <div className="flex items-center bg-[#09090b] p-1 rounded-lg border border-zinc-800 text-xs">
           <button
             onClick={() => setActiveTab('COMMAND_CENTER')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
               activeTab === 'COMMAND_CENTER'
-                ? 'bg-blue-600 text-white shadow'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-zinc-100 text-zinc-950 shadow-sm'
+                : 'text-zinc-400 hover:text-white'
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
@@ -297,8 +305,8 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
             onClick={() => setActiveTab('AG_STUDIO')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
               activeTab === 'AG_STUDIO'
-                ? 'bg-blue-600 text-white shadow'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-zinc-100 text-zinc-950 shadow-sm'
+                : 'text-zinc-400 hover:text-white'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
@@ -312,10 +320,10 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
         <main className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
           {/* Executive KPI Overview Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow">
-              <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+            <div className="bg-[#121215] border border-zinc-800 hover:border-zinc-700 rounded-xl p-4 shadow-sm transition-colors">
+              <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
                 <span>Active Escrow Under Hold</span>
-                <DollarSign className="w-4 h-4 text-blue-400" />
+                <DollarSign className="w-4 h-4 text-zinc-300" />
               </div>
               <div className="text-2xl font-bold font-mono text-white">$2,450.00</div>
               <div className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
@@ -323,67 +331,67 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow">
-              <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+            <div className="bg-[#121215] border border-zinc-800 hover:border-zinc-700 rounded-xl p-4 shadow-sm transition-colors">
+              <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
                 <span>3-Way Match Pass Rate</span>
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               </div>
               <div className="text-2xl font-bold font-mono text-emerald-400">
                 {(passRate * 100).toFixed(0)}%
               </div>
-              <div className="text-[11px] text-slate-400 mt-1">
+              <div className="text-[11px] text-zinc-400 mt-1">
                 LayoutLMv3 vs Channel3 vs PayPal
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow">
-              <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+            <div className="bg-[#121215] border border-zinc-800 hover:border-zinc-700 rounded-xl p-4 shadow-sm transition-colors">
+              <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
                 <span>Bayesian Model Avg Risk</span>
-                <TrendingUp className="w-4 h-4 text-purple-400" />
+                <TrendingUp className="w-4 h-4 text-zinc-300" />
               </div>
-              <div className="text-2xl font-bold font-mono text-purple-400">
+              <div className="text-2xl font-bold font-mono text-zinc-100">
                 {avgRisk.toFixed(2)}
               </div>
-              <div className="text-[11px] text-slate-400 mt-1">
+              <div className="text-[11px] text-zinc-400 mt-1">
                 Leak-Free XGBoost + GNN/LSTM EVT
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow">
-              <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+            <div className="bg-[#121215] border border-zinc-800 hover:border-zinc-700 rounded-xl p-4 shadow-sm transition-colors">
+              <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
                 <span>Margin Preserved (Skeptic)</span>
                 <ShieldCheck className="w-4 h-4 text-amber-400" />
               </div>
               <div className="text-2xl font-bold font-mono text-amber-400">+$2,450.00</div>
-              <div className="text-[11px] text-slate-400 mt-1">
+              <div className="text-[11px] text-zinc-400 mt-1">
                 Dilutive 2/10 Net 30 blocked
               </div>
             </div>
           </div>
 
           {/* Recharts Data Visualization: Escrow Velocity & Risk Distribution */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-800 pb-3">
+          <div className="bg-[#121215] border border-zinc-800 rounded-2xl p-5 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-zinc-800 pb-3">
               <div>
                 <h2 className="text-base font-bold text-white flex items-center gap-2">
                   <span>Executive Escrow Analytics &amp; Settlement Velocity</span>
-                  <span className="text-[10px] font-mono text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-mono text-zinc-300 bg-zinc-850 border border-zinc-700 px-2 py-0.5 rounded">
                     Recharts Visualization
                   </span>
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-zinc-400">
                   Tracking monthly authorized holds versus settled captures under the 1.5% variance clamp.
                 </p>
               </div>
 
               <div className="flex items-center gap-3 text-xs">
                 <div className="flex items-center gap-1.5">
-                  <span className="size-2.5 rounded-full bg-blue-500" />
-                  <span className="text-slate-300">Authorized ($ USD)</span>
+                  <span className="size-2.5 rounded-full bg-zinc-300" />
+                  <span className="text-zinc-300">Authorized ($ USD)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="size-2.5 rounded-full bg-emerald-500" />
-                  <span className="text-slate-300">Captured ($ USD)</span>
+                  <span className="text-zinc-300">Captured ($ USD)</span>
                 </div>
               </div>
             </div>
@@ -403,19 +411,19 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
                 >
                   <defs>
                     <linearGradient id="authGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0070e0" stopOpacity={0.5} />
-                      <stop offset="95%" stopColor="#0070e0" stopOpacity={0.0} />
+                      <stop offset="5%" stopColor="#d4d4d8" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#d4d4d8" stopOpacity={0.0} />
                     </linearGradient>
                     <linearGradient id="capGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.5} />
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
                       <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
-                  <XAxis dataKey="month" stroke="#64748b" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(val) => `$${val / 1000}k`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                  <XAxis dataKey="month" stroke="#71717a" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#71717a" fontSize={11} tickLine={false} tickFormatter={(val) => `$${val / 1000}k`} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0b0f17', borderColor: '#334155', borderRadius: '8px', fontSize: '12px' }}
+                    contentStyle={{ backgroundColor: '#09090b', borderColor: '#27272a', borderRadius: '8px', fontSize: '12px', color: '#f4f4f5' }}
                     formatter={(val: unknown, name: unknown) => [
                       `$${Number(val).toLocaleString()}`,
                       name === 'authorized' ? 'Authorized Hold' : 'Settled Capture',
@@ -424,7 +432,7 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
                   <Area
                     type="monotone"
                     dataKey="authorized"
-                    stroke="#0070e0"
+                    stroke="#d4d4d8"
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#authGrad)"

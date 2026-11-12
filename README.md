@@ -118,6 +118,18 @@ PayPal processes over 3.6 million MCP tool calls monthly across 3,318 tools usin
    - Maximum comprehensive risk score: **0.70**
 4. **Greedy Agent Clamping:**
    If a prompt-injected agent proposes capturing 100% of an authorization hold when the ledger confirms partial delivery (e.g. 70%), the policy engine deterministically overrides the capture amount to the verified delivery value and logs the override.
+5. **Interactive Adversarial Red-Team & Jailbreak Defense Arena:**
+   Judges can interactively trigger 5 adversarial attack vectors (e.g. emergency CEO bypass injection, sybil collusion ring, fake carrier BOL milestone) to observe the 4-stage fail-closed defense lifecycle and verify that PayPal funds remain strictly protected.
+6. **Autonomous Multi-Merchant RFQ Swarm:**
+   Buyer agents broadcast procurement requirements to competing Channel3 vendor agents who autonomously bid milestone escrow proposals. VeriSettle selects the Pareto-optimal bid, gates early-payment terms via MarginPulse Bandit, and binds the winning contract into a 3-stage PayPal Orders v2 escrow authorization hold.
+7. **FIPS 180-4 Cryptographic Proof of Settlement Certificate:**
+   Interactive modal (triggered from the top Judge Test Bar or by clicking any row in AG Grid Table 10) providing immutable SHA-256 digests, canonical JSON proofs, 3-way matching evidence, and PayPal REST trace details for enterprise SOX/SOC2 auditability.
+8. **Stealth Black & Grey Design System & Interactive Telemetry Radar:**
+   A high-end obsidian and dark titanium fintech user interface featuring:
+   - **Interactive Escrow Telemetry Radar (`StealthRadar`):** 360-degree rotating radar cone tracking live PayPal authorization nodes, latency waveforms, and cryptographic payload digests.
+   - **Deterministic 3-Way Match Settlement Pipeline (`ObsidianSettlementPipeline`):** 5-stage interactive workflow (`PO Verification` $\to$ `Multimodal AI Extract` $\to$ `PayPal Escrow Hold` $\to$ `Deterministic Policy Gate` $\to$ `Cryptographic Settlement`).
+   - **Cyber Audit Terminal (`StealthCyberTerminal`):** Real-time log inspector for PayPal REST headers, idempotency keys, Cosmos.AI MCP tools, and FIPS 180-4 integrity digests.
+   - **Unified Black & Grey Theme Tokens:** Seamlessly styled across AG Studio, AG Grid, AppShell, and all workspace modules.
 
 ---
 
@@ -151,9 +163,9 @@ Run the full automated test suite with Vitest:
 npm test
 ```
 
-### Passing Test Matrix (30/30 Tests Passed)
+### Passing Test Matrix (56/56 Tests Passed Across 5 Test Suites)
 ```
- ✓ tests/verisettle.test.ts (24 tests)
+ ✓ tests/verisettle.test.ts (27 tests)
    ✓ 1. oauth_token_cache: verifies OAuth 2.0 token reuse, in-memory caching, and refresh
    ✓ 2. idempotency_headers: confirms deterministic PayPal-Request-Id generation
    ✓ 3. three_way_match_pass: verifies LayoutLMv3 + Channel3 + PayPal Order match within <= 1.5% triggers CAPTURE
@@ -178,14 +190,26 @@ npm test
    ✓ 22. margin_pulse_bandit_dynamic_terms: verifies multi-armed bandit tier selection across early-discount options
    ✓ 23. restock_pilot_ap2_mandate_forecaster: computes Holt-Winters 80% prediction interval and issues AP2 spend mandate
    ✓ 24. partial_capture_final_capture_flag: validates finalCapture flag forwarding in authorizations settlement
+   ✓ 25. adversarial_prompt_injection_defense: verifies prompt injection is caught and fails closed before execution
+   ✓ 26. cryptographic_settlement_proof_fips180_4: generates deterministic SHA-256 certificate for 3-way matched settlement
+   ✓ 27. autonomous_rfq_swarm_negotiation: ranks multi-merchant bids, enforces milestone escrow, and disqualifies rogue vendors
+
+ ✓ tests/youtube-media.test.ts (12 tests)
+   ✓ validates oEmbed compliance, autoplay restrictions, responsive aspect ratios, and keyboard accessibility
+
+ ✓ tests/youtube-parser.test.ts (8 tests)
+   ✓ parses combined watch+playlist+context URLs, bare video IDs, shortlinks, and privacy embed URLs
 
  ✓ tests/admin-and-langfuse.test.ts (6 tests)
-   ✓ 25. users_data_store_and_crud: validates enterprise user search, role/status filtering, and balance mutations
-   ✓ 26. users_api_route_handlers: exercises GET/POST /api/users and GET/PUT/DELETE /api/users/[id] endpoints
-   ✓ 27. products_data_store_and_channel3_zscores: verifies catalog pricing anomalies and restock thresholds
-   ✓ 28. products_api_route_handlers: exercises GET/POST /api/products and GET/PUT /api/products/[id] endpoints
-   ✓ 29. langfuse_tracer_and_multimodal_api: verifies trace logging, token counting, latency, cost attribution, and feedback
-   ✓ 30. system_health_panel_and_circuit_breakers: tests health monitor states, latency tracking, and manual service recovery
+   ✓ 28. users_data_store_and_crud: validates enterprise user search, role/status filtering, and balance mutations
+   ✓ 29. users_api_route_handlers: exercises GET/POST /api/users and GET/PUT/DELETE /api/users/[id] endpoints
+   ✓ 30. products_data_store_and_channel3_zscores: verifies catalog pricing anomalies and restock thresholds
+   ✓ 31. products_api_route_handlers: exercises GET/POST /api/products and GET/PUT /api/products/[id] endpoints
+   ✓ 32. langfuse_tracer_and_multimodal_api: verifies trace logging, token counting, latency, cost attribution, and feedback
+   ✓ 33. system_health_panel_and_circuit_breakers: tests health monitor states, latency tracking, and manual service recovery
+
+ ✓ tests/noembed-service.test.ts (3 tests)
+   ✓ validates HTTPS endpoints, fallback metadata extraction, and invalid URL handling
 ```
 
 ---

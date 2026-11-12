@@ -18,7 +18,9 @@ import {
   ExternalLink,
   X,
   Download,
+  Video,
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AiSandboxPage() {
   const [activeTab, setActiveTab] = useState<LangfuseToolType>('qna_chatbot');
@@ -269,32 +271,32 @@ export default function AiSandboxPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans">
       <MainNav />
 
       <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 font-mono mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Langfuse Launch Week #2 Day 3 Multi-Modal Suite</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               AI Multi-Modal Playground &amp; Observability Hub
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400">
+            <p className="text-xs sm:text-sm text-zinc-400">
               Interactive test bench featuring streaming Q&amp;A, full-duplex voice, image synthesis, sentiment classification &amp; turn-based games.
             </p>
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <span className="text-xs font-mono text-slate-400 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
-              Session: <strong className="text-blue-400">{sessionId.substring(0, 14)}...</strong>
+            <span className="text-xs font-mono text-zinc-400 px-3 py-1.5 rounded-lg bg-[#121215] border border-zinc-800">
+              Session: <strong className="text-zinc-200">{sessionId.substring(0, 14)}...</strong>
             </span>
             <button
               onClick={fetchTraces}
-              className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer"
+              className="p-2 rounded-lg bg-[#121215] border border-zinc-800 hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors cursor-pointer"
               title="Refresh Traces"
             >
               <RotateCw className="w-4 h-4" />
@@ -303,11 +305,11 @@ export default function AiSandboxPage() {
         </div>
 
         {/* 5-Tool Navigation Bar */}
-        <div className="flex items-center gap-2 p-1.5 bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto text-xs font-semibold">
+        <div className="flex items-center gap-2 p-1.5 bg-[#121215] border border-zinc-800 rounded-xl overflow-x-auto text-xs font-semibold">
           <button
             onClick={() => setActiveTab('qna_chatbot')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all shrink-0 cursor-pointer ${
-              activeTab === 'qna_chatbot' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              activeTab === 'qna_chatbot' ? 'bg-zinc-100 text-zinc-950 font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
             }`}
           >
             <MessageSquare className="w-4 h-4" />
@@ -317,7 +319,7 @@ export default function AiSandboxPage() {
           <button
             onClick={() => setActiveTab('voice_agent')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all shrink-0 cursor-pointer ${
-              activeTab === 'voice_agent' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              activeTab === 'voice_agent' ? 'bg-zinc-100 text-zinc-950 font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
             }`}
           >
             <Mic className="w-4 h-4" />
@@ -327,7 +329,7 @@ export default function AiSandboxPage() {
           <button
             onClick={() => setActiveTab('image_generator')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all shrink-0 cursor-pointer ${
-              activeTab === 'image_generator' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              activeTab === 'image_generator' ? 'bg-zinc-100 text-zinc-950 font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
             }`}
           >
             <ImageIcon className="w-4 h-4" />
@@ -337,7 +339,7 @@ export default function AiSandboxPage() {
           <button
             onClick={() => setActiveTab('sentiment_analyzer')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all shrink-0 cursor-pointer ${
-              activeTab === 'sentiment_analyzer' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              activeTab === 'sentiment_analyzer' ? 'bg-zinc-100 text-zinc-950 font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
             }`}
           >
             <Smile className="w-4 h-4" />
@@ -353,6 +355,14 @@ export default function AiSandboxPage() {
             <Gamepad2 className="w-4 h-4" />
             <span>Rock-Paper-Scissors</span>
           </button>
+
+          <Link
+            href="/walkthrough"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all shrink-0 cursor-pointer text-blue-400 hover:text-white hover:bg-slate-800 border border-blue-500/20"
+          >
+            <Video className="w-4 h-4" />
+            <span>Video &amp; Blueprint Player</span>
+          </Link>
         </div>
 
         {/* Tool Playground Views */}

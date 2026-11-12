@@ -91,21 +91,21 @@ export default function AvailabilityPage() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans">
       <MainNav />
 
       <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 font-mono mb-1">
               <Activity className="w-3.5 h-3.5" />
               <span>Real-Time Infrastructure Telemetry</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               System Availability &amp; Health Hub
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400">
+            <p className="text-xs sm:text-sm text-zinc-400">
               Live status, latencies, and circuit breakers for PayPal REST, Gemini AI, and ML services.
             </p>
           </div>
@@ -114,7 +114,7 @@ export default function AvailabilityPage() {
             <button
               onClick={handleRefresh}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-200 hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#121215] border border-zinc-700 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 transition-colors disabled:opacity-50 cursor-pointer"
             >
               <RotateCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>Run Diagnostic</span>
@@ -122,7 +122,7 @@ export default function AvailabilityPage() {
             <button
               onClick={handleResync}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white shadow-md transition-colors disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-zinc-100 hover:bg-white text-xs font-bold text-zinc-950 shadow-md transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Zap className="w-3.5 h-3.5" />
               <span>Resync Services</span>
@@ -131,7 +131,7 @@ export default function AvailabilityPage() {
         </div>
 
         {/* Global Health Status Banner */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-[#121215] border border-zinc-800 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="size-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
               <CheckCircle className="w-6 h-6" />

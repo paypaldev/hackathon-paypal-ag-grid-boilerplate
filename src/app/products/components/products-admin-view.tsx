@@ -116,7 +116,7 @@ export function ProductsAdminView() {
             setEditingProduct(null);
             setIsModalOpen(true);
           }}
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-lg hover:shadow-blue-600/20 transition-all cursor-pointer self-start sm:self-auto"
+          className="inline-flex items-center gap-2 bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold px-4 py-2.5 rounded-lg shadow-md hover:shadow-zinc-700/20 transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Product</span>
@@ -125,65 +125,65 @@ export function ProductsAdminView() {
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="bg-[#121215] border border-zinc-800 rounded-xl p-4 shadow-sm hover:border-zinc-700 transition-colors">
+          <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
             <span>Total Catalog SKUs</span>
-            <Package className="w-4 h-4 text-blue-400" />
+            <Package className="w-4 h-4 text-zinc-300" />
           </div>
           <div className="text-2xl font-bold font-mono text-white">{products.length}</div>
-          <div className="text-[11px] text-slate-400 mt-1">{categories.length} Active Categories</div>
+          <div className="text-[11px] text-zinc-400 mt-1">{categories.length} Active Categories</div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="bg-[#121215] border border-zinc-800 rounded-xl p-4 shadow-sm hover:border-zinc-700 transition-colors">
+          <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
             <span>Inventory Valuation</span>
             <DollarSign className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl font-bold font-mono text-emerald-400">
             ${totalValuation.toLocaleString('en-US', { maximumFractionDigits: 0 })}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1">Across all warehouses</div>
+          <div className="text-[11px] text-zinc-400 mt-1">Across all warehouses</div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="bg-[#121215] border border-zinc-800 rounded-xl p-4 shadow-sm hover:border-zinc-700 transition-colors">
+          <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
             <span>Low Stock / Reorder Alerts</span>
             <AlertTriangle className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-2xl font-bold font-mono text-amber-400">{lowStockCount}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Holt-Winters reorder triggered</div>
+          <div className="text-[11px] text-zinc-400 mt-1">Holt-Winters reorder triggered</div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
+        <div className="bg-[#121215] border border-zinc-800 rounded-xl p-4 shadow-sm hover:border-zinc-700 transition-colors">
+          <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
             <span>Channel3 Anomaly Warnings</span>
             <Layers className="w-4 h-4 text-red-400" />
           </div>
           <div className="text-2xl font-bold font-mono text-red-400">{anomalyCount}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Variance &gt;1.5σ from market norm</div>
+          <div className="text-[11px] text-zinc-400 mt-1">Variance &gt;1.5σ from market norm</div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="bg-[#121215] border border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
           <input
             type="text"
             placeholder="Search by title, SKU, supplier..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+            className="w-full bg-[#09090b] border border-zinc-800 rounded-lg pl-9 pr-4 py-2 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-hidden focus:ring-1 focus:ring-zinc-400"
           />
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto text-xs">
+        <div className="flex items-center gap-2 overflow-x-auto text-xs font-mono">
           <div className="flex items-center gap-1.5">
-            <span className="text-slate-400 shrink-0">Category:</span>
+            <span className="text-zinc-400 shrink-0">Category:</span>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-slate-950 border border-slate-800 text-white rounded-lg px-2.5 py-2 text-xs focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+              className="bg-[#09090b] border border-zinc-800 text-white rounded-lg px-2.5 py-2 text-xs focus:outline-hidden focus:ring-1 focus:ring-zinc-400"
             >
               <option value="ALL">All Categories</option>
               {categories.map((c) => (
@@ -211,10 +211,10 @@ export function ProductsAdminView() {
       </div>
 
       {/* Catalog Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-[#121215] border border-zinc-800 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
+          <table className="w-full text-left text-xs text-zinc-300">
+            <thead className="bg-[#09090b] border-b border-zinc-800 text-zinc-400 uppercase tracking-wider text-[11px] font-semibold">
               <tr>
                 <th className="py-3.5 px-4 cursor-pointer hover:text-white" onClick={() => toggleSort('name')}>
                   <div className="flex items-center gap-1">
