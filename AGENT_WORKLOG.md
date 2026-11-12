@@ -104,11 +104,17 @@
   - `package.json`
   - `tsconfig.json`
   - `eslint.config.mjs`
+  - `.github/workflows/ci.yml`
+  - `.agents/skills/context7-mcp/`
   - `ml_service/*`
 - **Findings & Actions:**
   - Verified clean Next.js 16 Turbopack production compilation across 23 static & dynamic routes.
   - Tested Python ML benchmark generator (`python ml_service/train_benchmark.py`), confirming clean 0 exit code.
   - Confirmed `render.yaml` blueprint correctly specifies both Next.js Web Command Center and FastAPI ML microservice.
+  - Fixed BUG-023:
+    1. Removed 15 levels of recursively nested duplicate directory trees in `.agents/skills/context7-mcp/` that caused Windows checkout to exceed MAX_PATH.
+    2. Rewrote `.github/workflows/ci.yml` with dual verification gates (`full-stack-gate` and `ml-service-gate`) running the true project validation suite: `npm run lint`, `npx tsc --noEmit`, `npm test` (24/24 Vitest cases), `npm run build`, and `python ml_service/train_benchmark.py`.
+
 
 ---
 

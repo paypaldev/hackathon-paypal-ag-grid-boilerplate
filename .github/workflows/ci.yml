@@ -1,60 +1,68 @@
-﻿name: Antigravity CI / CD Quality Gate
+﻿name: VeriSettle AI · CI Quality Gate
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ main, master, "fix/**", "feat/**" ]
   pull_request:
-    branches: [ master, main ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  verify:
-    name: Master Quality Gate (${{ matrix.os }} - Py${{ matrix.python-version }})
+  full-stack-gate:
+    name: Full-Stack Quality Gate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.11', '3.12']
-    env:
-      PYTHONPATH: .
-      PYTHONIOENCODING: utf-8
-      PYTHONUTF8: "1"
-      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Configure Git for long paths (Windows)
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || npm install --legacy-peer-deps
+
+      - name: Run ESLint Quality Check
+        run: npm run lint
+
+      - name: Run TypeScript Strict Type Check
+        run: npx tsc --noEmit
+
+      - name: Run Vitest Verification Suite (24 Test Cases)
+        run: npm test
+
+      - name: Next.js Production Build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+  ml-service-gate:
+    name: ML Service & Fraud Benchmark Gate (Ubuntu)
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Setup Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.11'
           cache: 'pip'
 
-      - name: Install dependencies
-        shell: bash
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f campushire-relay/requirements.txt ]; then pip install -r campushire-relay/requirements.txt; fi
-          pip install pytest pytest-asyncio anyio httpx httpx2
+          pip install -r ml_service/requirements.txt
 
-      - name: Syntax & Compilation Validation
-        shell: bash
-        run: |
-          if [ -d switch_agent ]; then python -m compileall -q switch_agent; fi
-          if [ -d campushire-relay ]; then python -m compileall -q campushire-relay; fi
-          if [ -d scripts ]; then python -m compileall -q scripts; fi
-          if [ -d tests ]; then python -m compileall -q tests; fi
-
-      - name: Run Master Verification Suite
-        shell: bash
-        run: |
-          if [ -f run_all_tests.py ]; then
-            python run_all_tests.py
-          elif [ -f scripts/run_all_tests.py ]; then
-            python scripts/run_all_tests.py
-          else
-            pytest -v
-          fi
+      - name: Execute ML Benchmark & ROC-AUC Validation
+        run: python ml_service/train_benchmark.py

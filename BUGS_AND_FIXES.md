@@ -307,3 +307,20 @@
 - **Test Covering Fix**: `npm run build`.
 - **Verification Status**: PASSED.
 
+---
+
+### BUG-023: CI Workflow Failure and Windows Git Checkout Long Path Exception
+- **Severity**: P1 (High)
+- **File & Location**: `.github/workflows/ci.yml`, `.agents/skills/context7-mcp/`
+- **Root Cause**:
+  1. `.agents/skills/context7-mcp/` contained 15 levels of unintentionally nested duplicate directory trees (`context7-mcp/context7-mcp/...`), exceeding the 260-character Windows `MAX_PATH` limit and causing GitHub Actions checkout to abort with `Filename too long` (error 128).
+  2. `.github/workflows/ci.yml` inherited an unrelated CI template that targeted non-existent Python directories and executed `pytest -v` (which exited with code 5) instead of the actual Next.js 16 / TypeScript / Vitest / Python ML test suite.
+- **Reproduction Steps**: Trigger GitHub Actions workflow on PR or Windows runner.
+- **Fix**:
+  1. Removed the 15 levels of redundant nested directory recursion in `.agents/skills/context7-mcp/`.
+  2. Added `git config --system core.longpaths true` step on Windows runners.
+  3. Rewrote `.github/workflows/ci.yml` with dual verification gates: `full-stack-gate` running ESLint 9 (`npm run lint`), TypeScript strict check (`npx tsc --noEmit`), Vitest suite (`npm test`), and Next.js 16 build (`npm run build`) across Ubuntu & Windows; and `ml-service-gate` running the Python ML fraud benchmark (`python ml_service/train_benchmark.py`).
+- **Test Covering Fix**: Local gate dry-run and GitHub Actions workflow execution.
+- **Verification Status**: PASSED.
+
+

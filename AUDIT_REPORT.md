@@ -79,6 +79,7 @@ VeriSettle AI is an enterprise-grade autonomous operating system designed for mo
 | **BUG-020** | P2 | `src/app/dashboard/components/cosmos-audit-drawer.tsx` | `setLogs` unused; audit drawer could not receive external logs or reset | **RESOLVED** | Added `externalLogs` prop support and an audit log Reset action |
 | **BUG-021** | P3 | `src/app/layout.tsx` | Stale boilerplate metadata ("PayPal × AG Grid") | **RESOLVED** | Updated with VeriSettle AI title template and description |
 | **BUG-022** | P3 | `src/app/(endpoints)/endpoint-page.tsx` | Endpoint pages lacked navigation back to Command Center | **RESOLVED** | Added bidirectional navigation linking both `/` and `/dashboard` |
+| **BUG-023** | P1 | `.github/workflows/ci.yml`, `.agents/` | Windows git checkout long path failure & obsolete pytest CI script | **RESOLVED** | Flattened nested dir, enabled longpaths, rewritten CI workflow for Vitest + Next.js build + ML |
 
 ---
 
