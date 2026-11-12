@@ -1,4 +1,4 @@
-﻿name: VeriSettle AI · CI Quality Gate
+name: VeriSettle AI · CI Quality Gate
 
 on:
   push:
@@ -40,11 +40,20 @@ jobs:
 
       - name: Run Vitest Verification Suite (24 Test Cases)
         run: npm test
+        env:
+          GEMINI_API_KEY: AIzaSyTestKeyForContinuousIntegration12345
+          CHANNEL3_API_KEY: c3_test_key_continuous_integration
+          PAYPAL_CLIENT_ID: test-client-id
+          PAYPAL_CLIENT_SECRET: test-client-secret
 
       - name: Next.js Production Build
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
+          GEMINI_API_KEY: AIzaSyTestKeyForContinuousIntegration12345
+          CHANNEL3_API_KEY: c3_test_key_continuous_integration
+          PAYPAL_CLIENT_ID: test-client-id
+          PAYPAL_CLIENT_SECRET: test-client-secret
 
   ml-service-gate:
     name: ML Service & Fraud Benchmark Gate (Ubuntu)

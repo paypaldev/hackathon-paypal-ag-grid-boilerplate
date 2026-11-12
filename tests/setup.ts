@@ -24,3 +24,18 @@ function loadEnvFile(filePath: string) {
 loadEnvFile(envLocalPath);
 loadEnvFile(envPath);
 
+// Provide default test credentials for CI environments where .env.local is not present
+if (!process.env.GEMINI_API_KEY) {
+  process.env.GEMINI_API_KEY = 'AIzaSyTestKeyForContinuousIntegration12345';
+}
+if (!process.env.CHANNEL3_API_KEY) {
+  process.env.CHANNEL3_API_KEY = 'c3_test_key_continuous_integration';
+}
+if (!process.env.PAYPAL_CLIENT_ID) {
+  process.env.PAYPAL_CLIENT_ID = 'test-client-id';
+}
+if (!process.env.PAYPAL_CLIENT_SECRET) {
+  process.env.PAYPAL_CLIENT_SECRET = 'test-client-secret';
+}
+
+
