@@ -1,51 +1,40 @@
-import { NextResponse } from "next/server";
-import { checkPayPalHealth } from "@/lib/paypal-auth";
-import { checkGeminiHealth } from "@/lib/gemini";
-import { checkChannel3Health } from "@/lib/channel3";
-import { checkMlServiceHealth } from "@/lib/ml-service-client";
+import { NextResponse } from 'next/server';
+import { getSystemHealth, markServiceAvailable, resyncAllServices } from '@/lib/system-health';
 
 export async function GET() {
-  const start = performance.now();
-
-  // Run all integration health checks concurrently
-  const [paypalHealth, geminiHealth, channel3Health, mlHealth] = await Promise.all([
-    checkPayPalHealth(),
-    checkGeminiHealth(),
-    checkChannel3Health(),
-    checkMlServiceHealth(),
-  ]);
-
-  const webhookId = process.env.PAYPAL_WEBHOOK_ID?.trim();
-  const webhookConfigured = Boolean(webhookId && !webhookId.startsWith("your_"));
-
-  const webhookStatus = {
-    status: webhookConfigured ? "configured" : "pending_registration",
-    configured: webhookConfigured,
-    webhookIdPreview: webhookConfigured && webhookId ? `${webhookId.slice(0, 4)}...${webhookId.slice(-4)}` : "not_configured",
-    message: webhookConfigured
-      ? "PayPal Webhook listener registered and ready to receive events."
-      : "PAYPAL_WEBHOOK_ID is not configured in .env.local; operating in local sandbox simulation mode.",
-    timestamp: new Date().toISOString(),
-  };
-
-  // Determine overall status
-  const services = {
-    paypal: paypalHealth,
-    gemini: geminiHealth,
-    channel3: channel3Health,
-    ml_service: mlHealth,
-    paypal_webhook: webhookStatus,
-  };
-
-  const totalLatencyMs = Math.round(performance.now() - start);
-
-  return NextResponse.json({
-    status: "ok",
-    system: "VeriSettle AI — API Gateway & Policy Monitor",
-    environment: process.env.NODE_ENV || "development",
-    totalLatencyMs,
-    timestamp: new Date().toISOString(),
-    services,
-  });
+  try {
+    const services = getSystemHealth();
+    const allOperational = services.every((s) => s.status === 'OPERATIONAL' || s.status === 'SIMULATED');
+    return NextResponse.json({
+      overallStatus: allOperational ? 'HEALTHY' : 'DEGRADED',
+      checkedAt: new Date().toISOString(),
+      services,
+    });
+  } catch (error: unknown) {
+    const err = error as Error;
+    return NextResponse.json({ error: err.message || 'Health check failed' }, { status: 500 });
+  }
 }
 
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const action = body.action;
+
+    if (action === 'mark-available') {
+      const { serviceId } = body;
+      const updated = markServiceAvailable(serviceId);
+      return NextResponse.json({ success: true, service: updated });
+    }
+
+    if (action === 'resync') {
+      const refreshed = resyncAllServices();
+      return NextResponse.json({ success: true, services: refreshed });
+    }
+
+    return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
+  } catch (error: unknown) {
+    const err = error as Error;
+    return NextResponse.json({ error: err.message || 'Action failed' }, { status: 500 });
+  }
+}

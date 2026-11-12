@@ -1,10 +1,10 @@
 # VeriSettle AI — Bug Inventory & Fixes Log
 
-**Version:** 1.0.0-hackathon  
+**Version:** 1.1.0-hackathon  
 **Audit Date:** 12 November 2026  
-**Total Bugs Cataloged:** 22  
-**Resolved Bugs:** 22  
-**Verification Pass Rate:** 100% (24/24 Vitest tests passing, 0 lint errors, 0 lint warnings)  
+**Total Bugs Cataloged:** 27  
+**Resolved Bugs:** 27  
+**Verification Pass Rate:** 100% (30/30 Vitest tests passing, 0 lint errors, 0 lint warnings)  
 
 ---
 
@@ -34,6 +34,12 @@
 | **BUG-020** | P2 (Medium) | `src/app/dashboard/components/cosmos-audit-drawer.tsx` | **RESOLVED** | Audit drawer `setLogs` unused; lacked ability to stream external test logs or reset |
 | **BUG-021** | P3 (Low) | `src/app/layout.tsx` | **RESOLVED** | Stale boilerplate metadata ("PayPal × AG Grid") instead of VeriSettle AI branding |
 | **BUG-022** | P3 (Low) | `src/app/(endpoints)/endpoint-page.tsx` | **RESOLVED** | Endpoint pages lacked navigation back to `/dashboard` Command Center |
+| **BUG-023** | P1 (High) | `.github/workflows/ci.yml`, `.agents/skills/context7-mcp/` | **RESOLVED** | CI Windows checkout MAX_PATH error and obsolete pytest template |
+| **BUG-024** | P1 (High) | `src/app/users/`, `src/lib/users-data.ts`, `src/app/api/users/` | **RESOLVED** | Missing Enterprise Users Management suite, spend analytics charts, and dynamic profile views |
+| **BUG-025** | P1 (High) | `src/app/products/`, `src/lib/products-data.ts`, `src/app/api/products/` | **RESOLVED** | Missing Interactive Catalog Admin with Channel3 market price benchmarking and restock alerts |
+| **BUG-026** | P1 (High) | `src/app/availability/`, `src/lib/system-health.ts` | **RESOLVED** | Lack of dedicated real-time system health dashboard with circuit-breaker reset controls |
+| **BUG-027** | P1 (High) | `src/app/ai-sandbox/`, `src/lib/langfuse-tracer.ts`, `src/app/api/ai/*` | **RESOLVED** | Missing Langfuse Multi-Modal Sandbox suite (Chat, Voice, Image, Sentiment, RPS, Tracing) |
+| **BUG-028** | P2 (Medium) | `src/app/dashboard/dashboard.tsx` | **RESOLVED** | Command Center lacked executive analytics visualization comparing authorized holds vs settled captures |
 
 ---
 
@@ -322,5 +328,75 @@
   3. Rewrote `.github/workflows/ci.yml` with dual verification gates: `full-stack-gate` running ESLint 9 (`npm run lint`), TypeScript strict check (`npx tsc --noEmit`), Vitest suite (`npm test`), and Next.js 16 build (`npm run build`) across Ubuntu & Windows; and `ml-service-gate` running the Python ML fraud benchmark (`python ml_service/train_benchmark.py`).
 - **Test Covering Fix**: Local gate dry-run and GitHub Actions workflow execution.
 - **Verification Status**: PASSED.
+
+---
+
+### BUG-024: Missing Enterprise Users Management Suite & Spend Analytics
+- **Severity**: P1 (High)
+- **File & Location**: `src/app/users/page.tsx`, `src/app/users/[id]/page.tsx`, `src/lib/users-data.ts`, `src/app/api/users/route.ts`
+- **Root Cause**: The application lacked an administrative dashboard for enterprise counterparties, preventing administrators from inspecting supplier/buyer roles, spend velocity, transaction histories, or toggling access status.
+- **Reproduction Steps**: Attempt to navigate to `/users` or view supplier profile details at `/users/usr-enterprise-01`.
+- **Fix**:
+  1. Built `src/lib/users-data.ts` data store with 8 initial enterprise counterparties with 6-month spend history and verified escrow ledgers.
+  2. Implemented full CRUD REST endpoints (`GET/POST /api/users` and `GET/PUT/DELETE /api/users/[id]`).
+  3. Created `/users` DataGrid with search, role filters, status toggles, and new user modal.
+  4. Created dynamic route `/users/[id]` with Recharts Area chart (spend volume over time) and Bar chart (transactions count).
+- **Test Covering Fix**: `tests/admin-and-langfuse.test.ts` (Tests 1 & 2).
+- **Verification Status**: PASSED.
+
+---
+
+### BUG-025: Missing Interactive Catalog Admin & Pricing Discrepancy Explorer
+- **Severity**: P1 (High)
+- **File & Location**: `src/app/products/components/*`, `src/app/products/[id]/page.tsx`, `src/lib/products-data.ts`, `src/app/api/products/route.ts`
+- **Root Cause**: The `/products` route only displayed raw PayPal REST API json in AG Grid without administrative controls, price variance Z-score indicators, restock alert flags, or dynamic product detail pages.
+- **Reproduction Steps**: Navigate to `/products` and attempt to inspect Channel3 pricing benchmarks or update product inventory.
+- **Fix**:
+  1. Created `src/lib/products-data.ts` catalog store with Channel3 market norms, anomaly Z-scores, stock reorder thresholds, and historical price points.
+  2. Built `ProductsPageContainer` providing seamless switching between Interactive Admin Catalog and raw PayPal REST Endpoint (`GET /v1/catalogs/products`).
+  3. Created dynamic route `/products/[id]` featuring Recharts Line chart (unit price vs. Channel3 market average) and AP2 Spend Mandate envelope specs.
+  4. Implemented full REST API (`/api/products`, `/api/products/[id]`).
+- **Test Covering Fix**: `tests/admin-and-langfuse.test.ts` (Tests 3 & 4).
+- **Verification Status**: PASSED.
+
+---
+
+### BUG-026: Missing Unified Real-Time System Health Panel with Circuit Breaker Resets
+- **Severity**: P1 (High)
+- **File & Location**: `src/app/availability/page.tsx`, `src/lib/system-health.ts`, `src/app/api/health/route.ts`
+- **Root Cause**: Operators had no visual interface to view the operational status and latency of the 5 core integrations (PayPal Sandbox, Gemini OCR, Python ML, Channel3, Webhook Relay) or to manually reset tripped circuit breakers.
+- **Reproduction Steps**: Navigate to `/availability` or attempt to recover a degraded service.
+- **Fix**:
+  1. Built `src/lib/system-health.ts` monitoring service health with latency tracking, uptime percentage, and circuit-breaker state resets (`markServiceAvailable`, `resyncAllServices`).
+  2. Implemented dedicated `/availability` dashboard with live status badges, latency gauges, and one-click diagnostic actions.
+  3. Updated `/api/health` to expose and manipulate system health state.
+- **Test Covering Fix**: `tests/admin-and-langfuse.test.ts` (Test 6) & `tests/verisettle.test.ts` (Test 18).
+- **Verification Status**: PASSED.
+
+---
+
+### BUG-027: Missing Langfuse Multi-Modal Sandbox Suite & Trace Telemetry
+- **Severity**: P1 (High)
+- **File & Location**: `src/app/ai-sandbox/page.tsx`, `src/lib/langfuse-tracer.ts`, `src/app/api/ai/*`
+- **Root Cause**: Judges and operators lacked an interactive multi-modal testing harness for AI tools (Q&A Chatbot, Voice Agent with LiveKit, Image Generator with rate limiting, Sentiment Analysis, Rock-Paper-Scissors) with live observability into execution traces, latency, and cost attribution.
+- **Reproduction Steps**: Attempt to access `/ai-sandbox` to test multi-modal models and review Langfuse spans.
+- **Fix**:
+  1. Created `src/lib/langfuse-tracer.ts` observability store tracking tokens, model versions, latency ms, simulated cost, user feedback, and multi-modal payloads (WAV RIFF audio, SVG visuals).
+  2. Built 5 dedicated API routes: `/api/ai/chat`, `/api/ai/voice`, `/api/ai/image`, `/api/ai/sentiment`, `/api/ai/rps`, and `/api/ai/traces`.
+  3. Implemented full interactive playground at `/ai-sandbox` with a collapsible real-time Langfuse Trace Inspector drawer.
+- **Test Covering Fix**: `tests/admin-and-langfuse.test.ts` (Test 5).
+- **Verification Status**: PASSED.
+
+---
+
+### BUG-028: Executive Analytics Visualization Missing from Command Center
+- **Severity**: P2 (Medium)
+- **File & Location**: `src/app/dashboard/dashboard.tsx`
+- **Root Cause**: The Command Center lacked high-level time-series visualizations comparing Authorized Escrow Holds against Settled Captures over the fiscal quarter.
+- **Reproduction Steps**: View `/dashboard` and attempt to inspect overall cash flow trajectory over time.
+- **Fix**: Integrated a responsive Recharts Area chart in Zone 2 displaying a 6-month timeline of Authorized Holds vs. Settled Captures alongside top-level navigation links.
+- **Test Covering Fix**: Interactive dashboard smoke test and `npm run build`.
+- **Verification Status**: PASSED.
+
 
 

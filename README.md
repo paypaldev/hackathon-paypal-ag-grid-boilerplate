@@ -151,9 +151,9 @@ Run the full automated test suite with Vitest:
 npm test
 ```
 
-### Passing Test Matrix (23/23 Tests Passed)
+### Passing Test Matrix (30/30 Tests Passed)
 ```
- ✓ tests/verisettle.test.ts (23 tests)
+ ✓ tests/verisettle.test.ts (24 tests)
    ✓ 1. oauth_token_cache: verifies OAuth 2.0 token reuse, in-memory caching, and refresh
    ✓ 2. idempotency_headers: confirms deterministic PayPal-Request-Id generation
    ✓ 3. three_way_match_pass: verifies LayoutLMv3 + Channel3 + PayPal Order match within <= 1.5% triggers CAPTURE
@@ -177,6 +177,15 @@ npm test
    ✓ 21. collusion_guard_mcp_risk_fusion: verifies GAT + LSTM Autoencoder + Leak-Free XGBoost risk scoring and fail-closed block
    ✓ 22. margin_pulse_bandit_dynamic_terms: verifies multi-armed bandit tier selection across early-discount options
    ✓ 23. restock_pilot_ap2_mandate_forecaster: computes Holt-Winters 80% prediction interval and issues AP2 spend mandate
+   ✓ 24. partial_capture_final_capture_flag: validates finalCapture flag forwarding in authorizations settlement
+
+ ✓ tests/admin-and-langfuse.test.ts (6 tests)
+   ✓ 25. users_data_store_and_crud: validates enterprise user search, role/status filtering, and balance mutations
+   ✓ 26. users_api_route_handlers: exercises GET/POST /api/users and GET/PUT/DELETE /api/users/[id] endpoints
+   ✓ 27. products_data_store_and_channel3_zscores: verifies catalog pricing anomalies and restock thresholds
+   ✓ 28. products_api_route_handlers: exercises GET/POST /api/products and GET/PUT /api/products/[id] endpoints
+   ✓ 29. langfuse_tracer_and_multimodal_api: verifies trace logging, token counting, latency, cost attribution, and feedback
+   ✓ 30. system_health_panel_and_circuit_breakers: tests health monitor states, latency tracking, and manual service recovery
 ```
 
 ---
@@ -228,11 +237,16 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 *(If the Python service is not running, VeriSettle AI automatically cascades to the embedded high-performance zero-latency TypeScript ML engine.)*
 
-### 5. Running the Next.js Enterprise Command Center
+### 5. Running the Next.js Enterprise Command Center & Admin Suite
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) or [http://localhost:3000/dashboard](http://localhost:3000/dashboard).
+Open your browser to explore the modules:
+- **Command Center:** [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
+- **Enterprise Users:** [http://localhost:3000/users](http://localhost:3000/users) (or inspect profile: `/users/usr-enterprise-01`)
+- **Products Catalog Admin:** [http://localhost:3000/products](http://localhost:3000/products) (or SKU analytics: `/products/prod-001`)
+- **Langfuse AI Sandbox:** [http://localhost:3000/ai-sandbox](http://localhost:3000/ai-sandbox) (Multi-modal playground & live traces)
+- **Integration Health:** [http://localhost:3000/availability](http://localhost:3000/availability) (Real-time latency & circuit breakers)
 
 ### 6. Checking API Health
 You can inspect the live status of all integrated services at any time:
@@ -242,10 +256,10 @@ curl http://localhost:3000/api/health
 
 ### 7. Running Quality Gates & Automated Verification Suite
 ```bash
-npm run lint          # ESLint 9 (0 errors, 0 warnings)
+npm run lint          # ESLint 9 (0 errors, 0 warnings across all files)
 npx tsc --noEmit      # Strict TypeScript check (0 errors)
-npm test              # 24 automated unit/integration tests
-npm run build         # Next.js 16 Turbopack production build
+npm test              # 30 automated unit/integration tests
+npm run build         # Next.js 16 Turbopack production build (34 routes)
 ```
 
 ---

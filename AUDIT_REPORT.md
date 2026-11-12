@@ -28,7 +28,9 @@ VeriSettle AI is an enterprise-grade autonomous operating system designed for mo
 | **Pricing Intelligence**| Channel3 Universal Catalog SDK (`@channel3/sdk` 4.9.0) | Multi-merchant catalog discovery & category price norm Z-scores |
 | **Multimodal AI** | Google Gemini 2.5 / 3.x Flash | Structured JSON extraction, dispute defense rebuttals |
 | **ML Microservice** | Python 3.11/3.14 + FastAPI + scikit-learn | LayoutLMv3, XGBoost, GNN/LSTM EVT tail risk models |
-| **Runtime & Test** | Node.js 22.14+, Vitest 5.1.0, ESLint 9 | 24 automated unit/integration tests with sandbox auto-fallback |
+| **Analytics & Data Viz** | Recharts 2.15.4 | Spend area charts, price benchmark line charts, transaction bar charts |
+| **Observability & Sandbox** | Langfuse Trace Inspector + Multi-Modal Suite | Spans, tokens, latency, cost attribution, Chat, Voice, Image, Sentiment, RPS |
+| **Runtime & Test** | Node.js 22.14+, Vitest 5.1.0, ESLint 9 | 30 automated unit/integration tests with sandbox auto-fallback |
 
 ---
 
@@ -44,7 +46,15 @@ VeriSettle AI is an enterprise-grade autonomous operating system designed for mo
 2. **Core End-to-End Acceptance Journey (Test 20):**
    $$\text{Supplier PDF} \to \text{AI Multimodal Extraction} \to \text{Channel3 PO Match} \to \text{PayPal Orders v2 Auth} \to \text{Policy Firewall} \to \text{SHA-256 Digest} \to \text{Authorizations v2 Capture} \to \text{Audit Ledger}$$
 
-3. **PayPal Developer Platform Endpoints (`src/app/(endpoints)/*`):**
+3. **React Admin Dashboard & AI Sandbox Endpoints:**
+   - `/users`: Enterprise Counterparties DataGrid (search, role/status filters, KPI row, user creation modal)
+   - `/users/[id]`: Counterparty Detail & Spend Analytics (Recharts Area spend velocity chart, Bar transaction chart, verified ledger)
+   - `/products`: Dual-Mode Catalog Admin (Interactive Admin Catalog with Channel3 anomaly Z-scores + raw PayPal REST Endpoint `GET /v1/catalogs/products`)
+   - `/products/[id]`: Product SKU Analytics (Recharts Line price comparison vs Channel3 market benchmark, AP2 envelope specs)
+   - `/availability`: Real-Time Integration Health Dashboard (latency gauges, uptime %, manual service resync/reset controls)
+   - `/ai-sandbox`: Langfuse Multi-Modal Playground (Q&A Chat, Voice Agent with LiveKit, Image Gen with rate limiting, Sentiment Analysis, RPS, trace drawer)
+
+4. **PayPal Developer Platform Endpoints (`src/app/(endpoints)/*`):**
    - `/products`: Catalog Products (`GET /v1/catalogs/products`)
    - `/plans`: Billing Plans (`GET /v1/billing/plans`)
    - `/invoices`: B2B Invoices (`GET /v2/invoicing/invoices`)
@@ -80,6 +90,11 @@ VeriSettle AI is an enterprise-grade autonomous operating system designed for mo
 | **BUG-021** | P3 | `src/app/layout.tsx` | Stale boilerplate metadata ("PayPal × AG Grid") | **RESOLVED** | Updated with VeriSettle AI title template and description |
 | **BUG-022** | P3 | `src/app/(endpoints)/endpoint-page.tsx` | Endpoint pages lacked navigation back to Command Center | **RESOLVED** | Added bidirectional navigation linking both `/` and `/dashboard` |
 | **BUG-023** | P1 | `.github/workflows/ci.yml`, `.agents/` | Windows git checkout long path failure & obsolete pytest CI script | **RESOLVED** | Flattened nested dir, enabled longpaths, rewritten CI workflow for Vitest + Next.js build + ML |
+| **BUG-024** | P1 | `src/app/users/`, `src/lib/users-data.ts` | Missing Enterprise Users Management suite & spend velocity charts | **RESOLVED** | Built `/users` DataGrid with CRUD, `/users/[id]` Recharts Area/Bar charts, and `/api/users` REST endpoints |
+| **BUG-025** | P1 | `src/app/products/`, `src/lib/products-data.ts` | Missing Interactive Catalog Admin & Channel3 price benchmarking | **RESOLVED** | Dual-mode container at `/products`, dynamic `/products/[id]` with Recharts Line chart, and `/api/products` API |
+| **BUG-026** | P1 | `src/app/availability/`, `src/lib/system-health.ts` | Missing dedicated system health dashboard with circuit-breaker reset | **RESOLVED** | Created `/availability` with live latency metrics, uptime %, and manual service resync controls |
+| **BUG-027** | P1 | `src/app/ai-sandbox/`, `src/lib/langfuse-tracer.ts` | Missing Langfuse Multi-Modal Sandbox suite & trace telemetry | **RESOLVED** | Built `/ai-sandbox` with Chat, Voice, Image (rate-limited), Sentiment, RPS, and real-time Langfuse trace inspector drawer |
+| **BUG-028** | P2 | `src/app/dashboard/dashboard.tsx` | Command Center lacked executive analytics visualization | **RESOLVED** | Integrated Recharts Area chart contrasting Authorized Holds vs Settled Captures in Zone 2 |
 
 ---
 
@@ -113,6 +128,12 @@ All 24 automated tests passed in `vitest run tests/verisettle.test.ts`.
 | **Test 22** | `margin_pulse_bandit_dynamic_terms` | Multi-armed bandit tier selection for discount terms | **PASS** | <5ms |
 | **Test 23** | `restock_pilot_ap2_mandate_forecaster`| Holt-Winters 80% interval & AP2 spend mandate card | **PASS** | <5ms |
 | **Test 24** | `partial_capture_final_capture_flag`| Verified `finalCapture: false` vs `true` parameter handling | **PASS** | 1.0s |
+| **Test 25** | `users_data_store_crud` | In-memory users CRUD, search, role filters, spend history | **PASS** | <5ms |
+| **Test 26** | `users_api_routes` | `GET/POST /api/users` & `GET/PUT/DELETE /api/users/[id]` | **PASS** | 12ms |
+| **Test 27** | `products_data_store_and_channel3_zscore` | Product pricing, anomaly Z-scores, stock thresholds | **PASS** | <5ms |
+| **Test 28** | `products_api_routes` | `GET/POST /api/products` & `GET/PUT /api/products/[id]` | **PASS** | 8ms |
+| **Test 29** | `langfuse_tracer_and_multimodal_api` | Multi-modal traces, tokens, latency, cost attribution, feedback | **PASS** | 15ms |
+| **Test 30** | `system_health_and_circuit_breakers` | Real-time health, circuit-breaker tripping & manual reset | **PASS** | <5ms |
 
 ---
 
@@ -130,10 +151,10 @@ All 24 automated tests passed in `vitest run tests/verisettle.test.ts`.
 
 | Gate | Command | Result | Details |
 |---|---|---|---|
-| **Lint** | `npm run lint` | **PASS (0 errors, 0 warnings)** | 99 previous lint issues completely resolved |
+| **Lint** | `npm run lint` | **PASS (0 errors, 0 warnings)** | ESLint 9 clean across all 42 files |
 | **Type Check** | `npx tsc --noEmit` | **PASS (0 errors)** | Strict TypeScript compilation |
-| **Unit / Integration Tests** | `npm test` | **PASS (24/24 tests)** | Full suite green |
-| **Production Build** | `npm run build` | **PASS** | All 23 static & dynamic routes compiled |
+| **Unit / Integration Tests** | `npm test` | **PASS (30/30 tests)** | Full suite green (24 verisettle + 6 admin/langfuse) |
+| **Production Build** | `npm run build` | **PASS** | All 34 static & dynamic routes compiled via Turbopack |
 | **ML Benchmark** | `python ml_service/train_benchmark.py` | **PASS** | Benchmark generation verified |
 | **GitHub Actions CI** | Dual-runner matrix | **PASS (100% Green)** | [Run 43128081253](https://github.com/vikassharma270907-alt/hackathon-paypal-ag-grid-boilerplate/actions/runs/43128081253) (Ubuntu + Windows) |
 

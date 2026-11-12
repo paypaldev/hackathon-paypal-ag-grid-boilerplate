@@ -58,7 +58,27 @@ import { BryntumGanttPanel } from './components/bryntum-gantt-panel';
 import { Channel3CatalogExplorer } from './components/channel3-catalog-explorer';
 import { SkepticDisputeSimulator } from './components/skeptic-dispute-simulator';
 import { CosmosAuditDrawer } from './components/cosmos-audit-drawer';
-import { ShieldCheck, BarChart3, TrendingUp, CheckCircle2, DollarSign } from 'lucide-react';
+import {
+  ShieldCheck,
+  BarChart3,
+  TrendingUp,
+  CheckCircle2,
+  DollarSign,
+  Users,
+  Package,
+  Sparkles,
+  Activity,
+} from 'lucide-react';
+import Link from 'next/link';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 if (process.env.NODE_ENV !== 'production') {
   enableStudioDevValidations();
@@ -216,34 +236,70 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
       {/* 1. TOP: Judge 1-Click Live Sandbox Test Bar */}
       <JudgeTestBar />
 
-      {/* 2. Top-Level Mode Selector (Command Center vs AG Studio BI) */}
-      <div className="bg-slate-900 border-b border-slate-800 px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      {/* 2. Top-Level Mode Selector & Global Workspace Links */}
+      <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold px-3 py-1 rounded-lg text-sm tracking-wider shadow">
-            VeriSettle AI
-          </div>
-          <span className="text-xs text-slate-400 hidden sm:inline">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold px-2.5 py-1 rounded-lg text-sm tracking-wider shadow group-hover:scale-105 transition-transform">
+              VeriSettle AI
+            </div>
+          </Link>
+          <span className="text-xs text-slate-400 hidden xl:inline">
             Autonomous B2B Escrow, Multimodal 3-Way Reconciliation &amp; Dispute Defense OS
           </span>
+
+          {/* Quick Links to newly integrated workspaces */}
+          <div className="hidden md:flex items-center gap-1.5 border-l border-slate-800 pl-3 text-xs">
+            <Link
+              href="/users"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Users</span>
+            </Link>
+            <Link
+              href="/products"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            >
+              <Package className="w-3.5 h-3.5" />
+              <span>Products</span>
+            </Link>
+            <Link
+              href="/ai-sandbox"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-amber-400/90 hover:text-amber-300 hover:bg-slate-800 transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>AI Sandbox &amp; Langfuse</span>
+            </Link>
+            <Link
+              href="/availability"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-emerald-400/90 hover:text-emerald-300 hover:bg-slate-800 transition-colors"
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>Health</span>
+            </Link>
+          </div>
         </div>
 
         <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
           <button
             onClick={() => setActiveTab('COMMAND_CENTER')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${activeTab === 'COMMAND_CENTER'
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
+              activeTab === 'COMMAND_CENTER'
                 ? 'bg-blue-600 text-white shadow'
                 : 'text-slate-400 hover:text-white'
-              }`}
+            }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Autonomous Command Center</span>
           </button>
           <button
             onClick={() => setActiveTab('AG_STUDIO')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${activeTab === 'AG_STUDIO'
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
+              activeTab === 'AG_STUDIO'
                 ? 'bg-blue-600 text-white shadow'
                 : 'text-slate-400 hover:text-white'
-              }`}
+            }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
             <span>AG Studio Visual BI &amp; Reports</span>
@@ -302,6 +358,87 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
               <div className="text-[11px] text-slate-400 mt-1">
                 Dilutive 2/10 Net 30 blocked
               </div>
+            </div>
+          </div>
+
+          {/* Recharts Data Visualization: Escrow Velocity & Risk Distribution */}
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-800 pb-3">
+              <div>
+                <h2 className="text-base font-bold text-white flex items-center gap-2">
+                  <span>Executive Escrow Analytics &amp; Settlement Velocity</span>
+                  <span className="text-[10px] font-mono text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded">
+                    Recharts Visualization
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Tracking monthly authorized holds versus settled captures under the 1.5% variance clamp.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <span className="size-2.5 rounded-full bg-blue-500" />
+                  <span className="text-slate-300">Authorized ($ USD)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="size-2.5 rounded-full bg-emerald-500" />
+                  <span className="text-slate-300">Captured ($ USD)</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={[
+                    { month: 'Jun 2026', authorized: 42000, captured: 41200 },
+                    { month: 'Jul 2026', authorized: 68000, captured: 66500 },
+                    { month: 'Aug 2026', authorized: 84000, captured: 81000 },
+                    { month: 'Sep 2026', authorized: 98000, captured: 95400 },
+                    { month: 'Oct 2026', authorized: 112000, captured: 108900 },
+                    { month: 'Nov 2026', authorized: 135000, captured: 131500 },
+                  ]}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="authGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#0070e0" stopOpacity={0.5} />
+                      <stop offset="95%" stopColor="#0070e0" stopOpacity={0.0} />
+                    </linearGradient>
+                    <linearGradient id="capGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.5} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
+                  <XAxis dataKey="month" stroke="#64748b" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(val) => `$${val / 1000}k`} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#0b0f17', borderColor: '#334155', borderRadius: '8px', fontSize: '12px' }}
+                    formatter={(val: unknown, name: unknown) => [
+                      `$${Number(val).toLocaleString()}`,
+                      name === 'authorized' ? 'Authorized Hold' : 'Settled Capture',
+                    ]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="authorized"
+                    stroke="#0070e0"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#authGrad)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="captured"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#capGrad)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
