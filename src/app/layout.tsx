@@ -17,7 +17,11 @@ export const metadata: Metadata = {
   description: "Autonomous B2B Escrow, Multimodal 3-Way Invoice Reconciliation & Dispute Defense OS for PayPal AI Hackathon 2026",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
       lang="en"
