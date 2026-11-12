@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run tests"
+    "test": "vitest run tests",
+    "eval": "tsx scripts/eval.ts"
   },
   "dependencies": {
     "@channel3/sdk": "^4.9.0",
@@ -33,6 +34,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vite": "^8.3.8",
     "vitest": "^5.1.0"

@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Video,
   FileCheck,
+  Coffee,
 } from 'lucide-react';
 
 export function MainNav() {
@@ -19,6 +20,8 @@ export function MainNav() {
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
+    { href: '/demo', label: 'RestockPilot Café', icon: Coffee },
+    { href: '/evidence', label: 'Evidence', icon: ShieldCheck },
     { href: '/proofline', label: 'Proofline (Scope & Invoicing)', icon: FileCheck },
     { href: '/dashboard', label: 'Command Center', icon: ShieldCheck },
     { href: '/users', label: 'Users', icon: Users },
