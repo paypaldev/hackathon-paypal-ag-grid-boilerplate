@@ -103,3 +103,4 @@ describe('RestockPilot Read-Only MCP Server Security Boundary', () => {
     expect(quotesParsed.verifiedPeerMedianPrice).toBe(63.25);
   });
 });
+

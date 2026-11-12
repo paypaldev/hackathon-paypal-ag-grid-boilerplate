@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { CandidateOffer, InventorySkuInput, Mandate, PolicyDecision } from './policy';
+import type { InventorySkuInput, Mandate, PolicyDecision } from './policy';
 
 export type ClaimStatus =
   | 'DRAFT'

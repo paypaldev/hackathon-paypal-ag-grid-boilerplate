@@ -5,14 +5,10 @@ import Link from 'next/link';
 import {
   ShieldCheck,
   CheckCircle2,
-  ExternalLink,
-  Layers,
   Lock,
   ArrowLeft,
   RefreshCw,
-  Search,
   FileText,
-  AlertTriangle,
   Flame,
 } from 'lucide-react';
 
@@ -353,7 +349,7 @@ export default function EvidencePage() {
                 <tr className="hover:bg-zinc-800/40">
                   <td className="py-2.5 px-3 font-semibold text-white">Pre-Capture Status & Amount Verification</td>
                   <td className="py-2.5 px-3 font-mono text-[11px] text-blue-300">src/lib/paypal.ts:captureApprovedOrder()</td>
-                  <td className="py-2.5 px-3 text-emerald-400 font-semibold">tests/paypal-restock.test.ts (Checks status === 'APPROVED')</td>
+                  <td className="py-2.5 px-3 text-emerald-400 font-semibold">tests/paypal-restock.test.ts (Checks status === &apos;APPROVED&apos;)</td>
                 </tr>
                 <tr className="hover:bg-zinc-800/40">
                   <td className="py-2.5 px-3 font-semibold text-white">Raw-Body Webhook Splicing</td>

@@ -372,7 +372,7 @@ export async function getBalances(): Promise<Balances> {
 // RestockPilot Two-Phase Idempotent PayPal Orders v2 Engine
 // ============================================================================
 
-import { restockStore, computeSha256, type RestockClaim, type RestockPurchaseOrder } from './restock-store';
+import { restockStore, computeSha256, type RestockClaim } from './restock-store';
 
 /**
  * Hard Sandbox Host Guard

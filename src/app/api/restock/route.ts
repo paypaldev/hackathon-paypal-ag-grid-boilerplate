@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   restockStore,
-  SEEDED_MANDATE,
   type RestockPurchaseOrder,
 } from '@/lib/restock-store';
 import {
@@ -17,7 +16,6 @@ import {
   reconcileUnknownOrder,
   getExecutionMode,
 } from '@/lib/paypal';
-import { parseOwnerMandate, rankSourcedOffers } from '@/lib/ai';
 
 // Seeded Multi-Merchant Offers simulating live Channel3 catalog lookups
 const CHANNEL3_SEEDED_OFFERS: Record<string, CandidateOffer[]> = {

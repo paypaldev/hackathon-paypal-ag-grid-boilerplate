@@ -5,8 +5,6 @@ import Link from 'next/link';
 import {
   Coffee,
   CheckCircle2,
-  AlertTriangle,
-  XCircle,
   RefreshCw,
   ExternalLink,
   ShieldCheck,
@@ -18,7 +16,6 @@ import {
   Database,
   Lock,
   PlayCircle,
-  FileCode2,
 } from 'lucide-react';
 import {
   ClientSideRowModelModule,
@@ -93,8 +90,25 @@ export default function RestockPilotDemoPage() {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    let ignore = false;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/restock');
+        if (res.ok) {
+          const json = await res.json();
+          if (!ignore) {
+            setData(json);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load restock data:', e);
+      }
+    };
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   // One-click actions
   const handleRunCycle = async () => {
@@ -209,24 +223,26 @@ export default function RestockPilotDemoPage() {
   };
 
   // Filtered rows for AG Grid
+  const ledger = data?.ledger;
+
   const filteredLedgerRows = useMemo(() => {
-    if (!data?.ledger) return [];
-    if (activeStatusFilter === 'ALL') return data.ledger;
-    return data.ledger.filter((r) => r.status === activeStatusFilter || r.decision === activeStatusFilter);
-  }, [data?.ledger, activeStatusFilter]);
+    if (!ledger) return [];
+    if (activeStatusFilter === 'ALL') return ledger;
+    return ledger.filter((r) => r.status === activeStatusFilter || r.decision === activeStatusFilter);
+  }, [ledger, activeStatusFilter]);
 
   // Totals calculations
   const totalApprovedSpend = useMemo(() => {
-    if (!data?.ledger) return 0;
-    return data.ledger
+    if (!ledger) return 0;
+    return ledger
       .filter((r) => r.status === 'CAPTURED' || r.status === 'WEBHOOK_VERIFIED')
       .reduce((sum, r) => sum + r.total, 0);
-  }, [data?.ledger]);
+  }, [ledger]);
 
   const totalSavingsVsMedian = useMemo(() => {
-    if (!data?.ledger) return 0;
-    return data.ledger.reduce((sum, r) => sum + (r.savingsVsMedian || 0), 0);
-  }, [data?.ledger]);
+    if (!ledger) return 0;
+    return ledger.reduce((sum, r) => sum + (r.savingsVsMedian || 0), 0);
+  }, [ledger]);
 
   const pinnedBottomRow = useMemo(() => {
     if (!data) return [];
@@ -382,7 +398,7 @@ export default function RestockPilotDemoPage() {
                   )}
                 </div>
                 <p className="text-xs text-zinc-400 mt-0.5 font-medium">
-                  "Your café never runs out, and your agent never overspends. AI proposes, deterministic code decides, the owner approves, and PayPal verifies."
+                  &ldquo;Your café never runs out, and your agent never overspends. AI proposes, deterministic code decides, the owner approves, and PayPal verifies.&rdquo;
                 </p>
               </div>
             </div>
@@ -562,7 +578,7 @@ export default function RestockPilotDemoPage() {
                 onClick={handleRunCycle}
                 className="text-xs px-3 py-1.5 rounded-lg bg-blue-600/30 text-blue-300 border border-blue-700 hover:bg-blue-600/50"
               >
-                Click "Run Café Restock Cycle" to generate proposals
+                Click &quot;Run Café Restock Cycle&quot; to generate proposals
               </button>
             )}
           </div>

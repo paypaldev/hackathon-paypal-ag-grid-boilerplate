@@ -127,3 +127,4 @@ RestockPilot automates the entire café replenishment lifecycle while guaranteei
 - [x] **GitHub Repo URL:** (Public repository URL)
 - [x] **Testing Instructions:** Included in README.md (`npm install`, `npm test`, `npm run eval`, `npm run dev`)
 - [x] **Credentials:** Configured via `.env.local` with Sandbox credentials; includes instant zero-friction simulated mode fallback.
+
