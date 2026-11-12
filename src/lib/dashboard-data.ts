@@ -515,7 +515,7 @@ export async function getDashboardData(asOf = new Date()) {
       balances: balanceRows(balances),
       mlAudits: mlAuditRows(),
     };
-  } catch (_err) {
+  } catch {
     return defaultSeedData(asOf);
   }
 }

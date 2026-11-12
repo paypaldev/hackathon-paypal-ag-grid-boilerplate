@@ -4,16 +4,12 @@ import React, { useState, useEffect } from 'react';
 import {
   Terminal,
   Activity,
-  CheckCircle2,
   AlertTriangle,
   X,
-  Hash,
   RefreshCw,
   Play,
   Sparkles,
   ShieldCheck,
-  ChevronDown,
-  ChevronUp,
   ExternalLink,
   Copy,
   Check,
@@ -33,12 +29,39 @@ interface HealthData {
   };
 }
 
+interface TestActionPayload {
+  title?: string;
+  status?: string;
+  error?: string;
+  testType?: string;
+  details?: string;
+  authorizedAmount?: string;
+  tamperedInvoiceTotal?: string;
+  variancePct?: number;
+  thresholdPct?: number;
+  actionTaken?: string;
+  paypalDebugId?: string;
+  latencyMs?: number;
+  reasons?: string[];
+  source?: string;
+  query?: string;
+  meanPrice?: string;
+  stdDev?: string;
+  zScore?: number;
+  merchantCount?: number;
+  extractedCompany?: string;
+  confidence?: number;
+  modelUsed?: string;
+  trace?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
 export function FloatingDevTools() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'health' | 'tests' | 'trace'>('health');
   const [health, setHealth] = useState<HealthData | null>(null);
   const [loadingHealth, setLoadingHealth] = useState(false);
-  const [lastAction, setLastAction] = useState<any>(null);
+  const [lastAction, setLastAction] = useState<TestActionPayload | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -58,7 +81,16 @@ export function FloatingDevTools() {
   };
 
   useEffect(() => {
-    fetchHealth();
+    let isMounted = true;
+    fetch('/api/health')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: HealthData | null) => {
+        if (isMounted && data) {
+          setHealth(data);
+        }
+      })
+      .catch(() => {});
+
     // Keyboard shortcut Alt + D to toggle
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && (e.key === 'd' || e.key === 'D')) {
@@ -67,7 +99,10 @@ export function FloatingDevTools() {
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      isMounted = false;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const triggerTest = async (testType: string) => {
@@ -81,8 +116,9 @@ export function FloatingDevTools() {
       const data = await res.json();
       setLastAction(data);
       setActiveTab('trace');
-    } catch (err: any) {
-      setLastAction({ error: err?.message || 'Failed to call test endpoint' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setLastAction({ error: msg || 'Failed to call test endpoint' });
       setActiveTab('trace');
     } finally {
       setLoadingAction(null);
@@ -356,7 +392,7 @@ export function FloatingDevTools() {
                         <div className="text-slate-400 flex items-center justify-between">
                           <span>PayPal-Debug-Id:</span>
                           <button
-                            onClick={() => copyToClipboard(lastAction.paypalDebugId)}
+                            onClick={() => copyToClipboard(lastAction.paypalDebugId || '')}
                             className="hover:text-white cursor-pointer"
                           >
                             {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}

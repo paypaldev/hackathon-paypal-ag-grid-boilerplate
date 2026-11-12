@@ -6,7 +6,7 @@
  *   node --env-file=.env.local scripts/seed-paypal.ts catalog payouts
  */
 
-interface SeedProduct {
+export interface SeedProduct {
   id?: string;
   name: string;
   description: string;
@@ -14,7 +14,7 @@ interface SeedProduct {
   category: string;
 }
 
-interface SeedPlan {
+export interface SeedPlan {
   id?: string;
   product_id: string;
   name: string;

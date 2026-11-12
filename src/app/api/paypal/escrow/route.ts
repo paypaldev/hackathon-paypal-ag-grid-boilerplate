@@ -6,9 +6,8 @@ import {
   getOrderDetails,
   authorizeOrder,
   getAuthorizationDetails,
-  PayPalAuditTrace,
 } from "@/lib/paypal-escrow-disputes";
-import { evaluatePolicyFirewall, PolicyEvaluationInput } from "@/lib/policy-firewall";
+import { evaluatePolicyFirewall } from "@/lib/policy-firewall";
 
 export async function POST(req: NextRequest) {
   try {

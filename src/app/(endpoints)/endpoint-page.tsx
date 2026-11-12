@@ -23,9 +23,15 @@ export function EndpointPage({
 }) {
   return (
     <main className="flex h-dvh flex-col bg-pp-canvas px-8 py-6 font-paypal text-pp-ink">
-      <Link href="/" className="text-sm font-semibold text-pp-blue hover:underline">
-        ← All pages
-      </Link>
+      <div className="flex items-center gap-4 text-sm font-semibold">
+        <Link href="/" className="text-pp-blue hover:underline">
+          ← All pages
+        </Link>
+        <span className="text-pp-muted">·</span>
+        <Link href="/dashboard" className="text-pp-blue hover:underline">
+          Command Center →
+        </Link>
+      </div>
       <h1 className="mt-3 text-[28px] font-semibold text-pp-navy">{title}</h1>
       <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-pp-muted">
         {calls.map((call) => (

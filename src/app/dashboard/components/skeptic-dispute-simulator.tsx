@@ -2,20 +2,12 @@
 
 import React, { useState } from 'react';
 import {
-  DollarSign,
   ShieldAlert,
   Percent,
-  ArrowRight,
-  CheckCircle2,
-  Lock,
-  ExternalLink,
   Calculator,
-  ShieldCheck,
   TrendingUp,
   ShoppingCart,
   Cpu,
-  FileText,
-  AlertTriangle,
 } from 'lucide-react';
 import {
   evaluateEarlyDiscountSkepticGate,
@@ -60,8 +52,8 @@ export function SkepticDisputeSimulator() {
 
   // 3. CollusionGuard MCP State
   const [vendorTxns, setVendorTxns] = useState<number>(45);
-  const [totalTxns, setTotalTxns] = useState<number>(500);
-  const [lateTxns, setLateTxns] = useState<number>(1);
+  const totalTxns = 500;
+  const lateTxns = 1;
   const [proposalAmount, setProposalAmount] = useState<number>(2450);
   const [lstmZ, setLstmZ] = useState<number>(0.4);
   const [gatScore, setGatScore] = useState<number>(0.12);

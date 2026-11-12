@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldCheck, AlertTriangle, Bug, RotateCcw, CheckCircle2, Clock, Hash, ExternalLink, Play, Globe, Sparkles } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, Bug, RotateCcw, Clock, Hash, Play, Globe, Sparkles } from 'lucide-react';
 
 export interface TestActionResult {
   testType: string;
@@ -10,7 +10,7 @@ export interface TestActionResult {
   details: string;
   paypalDebugId?: string;
   latencyMs?: number;
-  trace?: any;
+  trace?: Record<string, unknown>;
   variancePct?: number;
   actionTaken?: string;
   reasons?: string[];
@@ -36,12 +36,13 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
       const data = await res.json();
       setLastResult(data);
       if (onTestExecuted) onTestExecuted(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
       const fallbackResult: TestActionResult = {
         testType,
         title: "Test Execution Error",
         status: "ERROR",
-        details: err?.message || "Failed to contact /api/test-bar",
+        details: msg || "Failed to contact /api/test-bar",
         latencyMs: 12,
       };
       setLastResult(fallbackResult);
@@ -201,7 +202,7 @@ export function JudgeTestBar({ onTestExecuted }: JudgeTestBarProps) {
               </div>
               <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
                 <div className="text-slate-400">Endpoint & HTTP Status:</div>
-                <div className="text-emerald-400">POST {lastResult.trace?.path || '/v2/checkout/orders'} (HTTP {lastResult.trace?.status || 201})</div>
+                <div className="text-emerald-400">POST {String(lastResult.trace?.path || '/v2/checkout/orders')} (HTTP {String(lastResult.trace?.status || 201)})</div>
               </div>
               <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
                 <div className="text-slate-400">Execution Latency:</div>

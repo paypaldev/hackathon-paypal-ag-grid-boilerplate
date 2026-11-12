@@ -27,13 +27,14 @@ export async function POST(req: NextRequest) {
 
     const extracted = await extractInvoiceWithGemini(rawText);
 
-    // Compute variance against authorized benchmark
+    // Compute variance and risk against authorized benchmark using deterministic 3-way match
     const benchmark = paypalAuthorizedAmount > 0 ? paypalAuthorizedAmount : channel3Quote;
-    const variancePct = benchmark > 0
-      ? Math.round((Math.abs(extracted.total_amount - benchmark) / benchmark) * 100 * 100) / 100
-      : 0;
-
-    const isMatchPassed = variancePct <= 1.5;
+    const match = evaluate3WayMatch({
+      paypalAuthorizedAmountUsd: benchmark,
+      extractedInvoiceTotalUsd: extracted.total_amount,
+      channel3QuoteUsd: channel3Quote || benchmark,
+      extractedSupplierName: extracted.company_name,
+    });
 
     return NextResponse.json({
       status: "success",
@@ -41,10 +42,11 @@ export async function POST(req: NextRequest) {
       reconciliation: {
         extractedTotal: extracted.total_amount,
         benchmarkAmount: benchmark,
-        variancePct,
+        variancePct: match.variancePct,
         thresholdPct: 1.5,
-        isMatched: isMatchPassed,
-        matchStatus: isMatchPassed ? "MATCHED_OK" : "FROZEN_VARIANCE_EXCEEDED",
+        isMatched: match.isMatchPassed,
+        matchStatus: match.matchStatus,
+        comprehensiveRiskScore: match.comprehensiveRiskScore,
       },
     });
   } catch (err: unknown) {

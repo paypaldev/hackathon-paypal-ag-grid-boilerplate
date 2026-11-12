@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Calendar, ArrowRight, CheckCircle2, Clock, AlertCircle, TrendingUp, Layers } from 'lucide-react';
+import { ArrowRight, TrendingUp, Layers } from 'lucide-react';
 
 interface MilestoneTask {
   id: string;
@@ -112,7 +112,7 @@ export function BryntumGanttPanel() {
 
       {/* Interactive Gantt Timeline Rows */}
       <div className="space-y-3">
-        {milestones.map((m, index) => {
+        {milestones.map((m) => {
           const isSelected = selectedTask.id === m.id;
           return (
             <div

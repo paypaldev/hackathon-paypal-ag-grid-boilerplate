@@ -163,7 +163,7 @@ export async function POST(req: NextRequest) {
       const disputeAmount = parseFloat((resource.dispute_amount as { value?: string })?.value || "1850.0");
       const triage = evaluateDisputeTriage({
         disputeId,
-        orderId: (resource.disputed_transactions as any)?.[0]?.seller_transaction_id || "ORD-2026-X88",
+        orderId: (resource.disputed_transactions as Array<{ seller_transaction_id?: string }> | undefined)?.[0]?.seller_transaction_id || "ORD-2026-X88",
         trackingNumber: "1Z9999999999999999",
         invoiceId: "INV-2026-001",
         disputedAmountUsd: disputeAmount,

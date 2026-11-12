@@ -189,7 +189,8 @@ export async function settleAuthorizationHold(
   action: "CAPTURE" | "VOID",
   verifiedCaptureAmount: string,
   currencyCode: string = "USD",
-  requestId: string
+  requestId: string = `settle-${Date.now().toString(36)}`,
+  finalCapture: boolean = true
 ): Promise<{ data: Record<string, unknown>; trace: PayPalAuditTrace }> {
   const start = performance.now();
   const isSimulated = accessToken.startsWith("simulated_") || authorizationId.startsWith("SIM-");
@@ -213,7 +214,7 @@ export async function settleAuthorizationHold(
             id: `SIM-CAP-${Date.now().toString(36).toUpperCase()}`,
             status: "COMPLETED",
             amount: { currency_code: currencyCode, value: verifiedCaptureAmount },
-            final_capture: true,
+            final_capture: finalCapture,
           },
       trace,
     };
@@ -229,7 +230,7 @@ export async function settleAuthorizationHold(
       ? undefined
       : JSON.stringify({
           amount: { currency_code: currencyCode, value: verifiedCaptureAmount },
-          final_capture: true,
+          final_capture: finalCapture,
           note_to_payer: "Released after 3-Way Match (LayoutLMv3 + Channel3 + PayPal Order)",
         });
 
@@ -499,7 +500,7 @@ export async function captureAuthorization(
   finalCapture: boolean = true,
   requestId: string = `cap-${authorizationId}-${Date.now().toString(36)}`
 ): Promise<{ data: Record<string, unknown>; trace: PayPalAuditTrace }> {
-  return settleAuthorizationHold(accessToken, authorizationId, "CAPTURE", amountValue, currencyCode, requestId);
+  return settleAuthorizationHold(accessToken, authorizationId, "CAPTURE", amountValue, currencyCode, requestId, finalCapture);
 }
 
 // 2e. Payments v2: Void an Authorization Hold (POST /v2/payments/authorizations/{id}/void)

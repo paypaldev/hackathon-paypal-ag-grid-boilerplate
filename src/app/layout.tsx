@@ -11,10 +11,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s · PayPal × AG Grid",
-    default: "PayPal × AG Grid",
+    template: "%s · VeriSettle AI",
+    default: "VeriSettle AI · Autonomous B2B Escrow & Settlement OS",
   },
-  description: "PayPal sandbox data in AG Grid and AG Studio",
+  description: "Autonomous B2B Escrow, Multimodal 3-Way Invoice Reconciliation & Dispute Defense OS for PayPal AI Hackathon 2026",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

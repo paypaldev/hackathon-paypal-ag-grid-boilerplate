@@ -1,4 +1,4 @@
-import { computeApprovalDigest, evaluatePolicyFirewall, PolicyEvaluationInput } from "./policy-firewall";
+import { evaluatePolicyFirewall, PolicyEvaluationInput } from "./policy-firewall";
 import { searchChannel3Catalog, getCategoryPriceNorm } from "./channel3";
 
 /**

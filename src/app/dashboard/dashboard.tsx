@@ -58,7 +58,7 @@ import { BryntumGanttPanel } from './components/bryntum-gantt-panel';
 import { Channel3CatalogExplorer } from './components/channel3-catalog-explorer';
 import { SkepticDisputeSimulator } from './components/skeptic-dispute-simulator';
 import { CosmosAuditDrawer } from './components/cosmos-audit-drawer';
-import { ShieldCheck, BarChart3, Database, Layers, Calculator, Terminal, TrendingUp, CheckCircle2, DollarSign } from 'lucide-react';
+import { ShieldCheck, BarChart3, TrendingUp, CheckCircle2, DollarSign } from 'lucide-react';
 
 if (process.env.NODE_ENV !== 'production') {
   enableStudioDevValidations();
@@ -208,8 +208,6 @@ function ReportsDashboard({ data, licenseKey, aiModels }: DashboardProps) {
   const pages = pagesFor({ pageTitles: saved.pageTitles, state });
 
   // Calculate high-level KPIs
-  const totalInvoiced = data.invoices.reduce((acc, inv) => acc + inv.total, 0);
-  const totalPaid = data.invoices.reduce((acc, inv) => acc + inv.paidAmount, 0);
   const passRate = data.mlAudits.filter((a) => a.matchStatus === 'MATCHED_OK').length / (data.mlAudits.length || 1);
   const avgRisk = data.mlAudits.reduce((acc, a) => acc + a.gnnLstmRiskScore, 0) / (data.mlAudits.length || 1);
 

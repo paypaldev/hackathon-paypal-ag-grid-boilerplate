@@ -231,9 +231,41 @@ export async function searchChannel3Catalog(
       config: options.mode ? { mode: options.mode } : undefined,
     });
 
-    const rawList = (page as any).data || (page as any).response?.products || [];
-    const products: Channel3ProductSummary[] = rawList.map((p: any) => {
-      const offers: Channel3OfferSummary[] = (p.offers || []).map((o: any) => {
+    interface RawChannel3Offer {
+      domain?: string;
+      price?: number | { price?: number | string; currency?: string };
+      availability?: string;
+      condition?: string;
+      url?: string;
+    }
+
+    interface RawChannel3Product {
+      id?: string;
+      title?: string;
+      description?: string;
+      brand?: string;
+      brands?: Array<{ name?: string }>;
+      category?: string | { title?: string; slug?: string };
+      image_url?: string;
+      imageUrl?: string;
+      images?: Array<{ url?: string }>;
+      price?: number;
+      offers?: RawChannel3Offer[];
+    }
+
+    interface RawChannel3Page {
+      data?: RawChannel3Product[];
+      response?: {
+        products?: RawChannel3Product[];
+      };
+    }
+
+    const rawList: RawChannel3Product[] =
+      (page as unknown as RawChannel3Page).data ||
+      (page as unknown as RawChannel3Page).response?.products ||
+      [];
+    const products: Channel3ProductSummary[] = rawList.map((p: RawChannel3Product) => {
+      const offers: Channel3OfferSummary[] = (p.offers || []).map((o: RawChannel3Offer) => {
         let priceVal = 0;
         let cur = "USD";
         if (typeof o.price === "number") {
@@ -264,7 +296,14 @@ export async function searchChannel3Catalog(
         title: p.title || "Untitled Product",
         description: p.description || "",
         brand: p.brands?.[0]?.name || "Generic",
-        category: p.category?.title || p.category?.slug || options.category || "General Hardware",
+        category:
+          (typeof p.category === "object" && p.category !== null
+            ? p.category.title || p.category.slug
+            : typeof p.category === "string"
+            ? p.category
+            : undefined) ||
+          options.category ||
+          "General Hardware",
         imageUrl: p.images?.[0]?.url || null,
         lowestPrice,
         currency: offers[0]?.currency || "USD",
@@ -417,7 +456,7 @@ export async function checkChannel3Health(): Promise<Channel3HealthStatus> {
 
     const page = await client.products.search({ query: "server", limit: 1 });
     const latencyMs = Math.round(performance.now() - start);
-    const count = (page as any).data?.length ?? 0;
+    const count = (page as { data?: unknown[] }).data?.length ?? 0;
 
     return {
       status: "healthy",

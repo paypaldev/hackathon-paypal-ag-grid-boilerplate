@@ -3,26 +3,21 @@ import {
   getPayPalAccessToken,
   generateRequestId,
   invalidateTokenCache,
-  isUsingSimulatedToken,
   getCachedTokenMetadata,
   checkPayPalHealth,
 } from '../src/lib/paypal-auth';
 import {
   createEscrowAuthorizationOrder,
-  settleAuthorizationHold,
   getOrderDetails,
   authorizeOrder,
   getAuthorizationDetails,
   captureAuthorization,
   voidAuthorization,
-  executeDisputeResolution,
 } from '../src/lib/paypal-escrow-disputes';
 import {
   evaluatePolicyFirewall,
   computeApprovalDigest,
-  canonicalJsonStringify,
   detectPromptInjection,
-  VERISETTLE_POLICY,
 } from '../src/lib/policy-firewall';
 import {
   evaluateEarlyDiscountSkepticGate,
@@ -242,12 +237,12 @@ describe('VeriSettle AI — Automated Verification Suite (10 Mandatory Test Case
     expect(trace.status).toBe(400);
     expect(trace.paypalDebugId).toBeDefined();
     expect(trace.paypalDebugId).not.toBeNull();
-    expect((data as any).details?.[0]?.issue).toBe('INSTRUMENT_DECLINED');
+    expect((data as { details?: Array<{ issue?: string }> }).details?.[0]?.issue).toBe('INSTRUMENT_DECLINED');
   });
 
   // TEST 11: channel3_catalog_pricing_norm
   it('11. channel3_catalog_pricing_norm: discovers multi-merchant products and calculates category price norms', async () => {
-    const { products, source } = await searchChannel3Catalog('42U Server Rack', { limit: 3 });
+    const { products } = await searchChannel3Catalog('42U Server Rack', { limit: 3 });
     expect(products.length).toBeGreaterThan(0);
     expect(products[0].title).toBeDefined();
 
@@ -272,7 +267,7 @@ describe('VeriSettle AI — Automated Verification Suite (10 Mandatory Test Case
     expect(exec.success).toBe(true);
     expect(exec.audit.tool).toBe('channel3_search_products');
     expect(exec.audit.verifiedDoubleAuth).toBe(true);
-    expect((exec.result as any).productsCount).toBeGreaterThan(0);
+    expect((exec.result as { productsCount?: number }).productsCount).toBeGreaterThan(0);
   });
 
   // TEST 13: gemini_api_key_and_client
@@ -320,25 +315,25 @@ describe('VeriSettle AI — Automated Verification Suite (10 Mandatory Test Case
       reqId
     );
     expect(orderTrace.status).toBeLessThan(400);
-    const orderId = (orderData as any).id;
+    const orderId = (orderData as { id?: string }).id;
     expect(orderId).toBeDefined();
 
     // 2. Retrieve Order Details
-    const { data: fetchedOrder, trace: fetchTrace } = await getOrderDetails(token, orderId);
+    const { data: fetchedOrder, trace: fetchTrace } = await getOrderDetails(token, orderId!);
     expect(fetchTrace.status).toBe(200);
-    expect((fetchedOrder as any).id).toBe(orderId);
+    expect((fetchedOrder as { id?: string }).id).toBe(orderId);
 
     // 3. Authorize Order
-    const { data: authData, trace: authTrace } = await authorizeOrder(token, orderId);
+    const { data: authData, trace: authTrace } = await authorizeOrder(token, orderId!);
     expect(authTrace.status).toBeLessThan(400);
     const authId =
-      (authData as any).purchase_units?.[0]?.payments?.authorizations?.[0]?.id || `AUTH-${orderId}`;
+      ((authData as { purchase_units?: Array<{ payments?: { authorizations?: Array<{ id?: string }> } }> }).purchase_units?.[0]?.payments?.authorizations?.[0]?.id) || `AUTH-${orderId}`;
     expect(authId).toBeDefined();
 
     // 4. Get Authorization Details
     const { data: authDetails, trace: authDetailTrace } = await getAuthorizationDetails(token, authId);
     expect(authDetailTrace.status).toBe(200);
-    expect((authDetails as any).id).toBe(authId);
+    expect((authDetails as { id?: string }).id).toBe(authId);
 
     // 5. Capture Authorization Hold
     const { data: capData, trace: capTrace } = await captureAuthorization(
@@ -349,13 +344,13 @@ describe('VeriSettle AI — Automated Verification Suite (10 Mandatory Test Case
       true
     );
     expect(capTrace.status).toBeLessThan(400);
-    expect((capData as any).status).toMatch(/COMPLETED|PENDING/);
+    expect((capData as { status?: string }).status).toMatch(/COMPLETED|PENDING/);
 
     // 6. Void Authorization Hold (on a distinct authorization)
     const voidAuthId = `AUTH-VOID-${Date.now().toString(36)}`;
     const { data: voidData, trace: voidTrace } = await voidAuthorization(token, voidAuthId);
     expect(voidTrace.status).toBeLessThan(400);
-    expect((voidData as any).status).toBe('VOIDED');
+    expect((voidData as { status?: string }).status).toBe('VOIDED');
   });
 
   // TEST 16: gemini_invoice_extraction_and_structured_response
@@ -419,7 +414,7 @@ describe('VeriSettle AI — Automated Verification Suite (10 Mandatory Test Case
       annualCapitalCost: 0.15,
     });
     expect(econResult.result).toBeDefined();
-    expect((econResult.result as any).decision).toBe('BLOCK_DISCOUNT');
+    expect((econResult.result as { decision?: string }).decision).toBe('BLOCK_DISCOUNT');
   }, 20000);
 
   // TEST 18: full_system_health_checks
@@ -524,23 +519,24 @@ describe('VeriSettle AI — Automated Verification Suite (10 Mandatory Test Case
       reqId
     );
     expect(orderTrace.status).toBeLessThan(400);
-    const orderId = (orderData as any).id || 'ORD-2026-E2E';
+    const orderId = (orderData as { id?: string }).id || 'ORD-2026-E2E';
 
     // Verify Order details on PayPal Sandbox
     const { data: fetchedOrder, trace: fetchTrace } = await getOrderDetails(token, orderId);
     expect(fetchTrace.status).toBe(200);
+    expect((fetchedOrder as { id?: string }).id).toBe(orderId);
 
     // Authorize order to place the escrow hold
     const { data: authData, trace: authTrace } = await authorizeOrder(token, orderId);
     expect(authTrace.status).toBeLessThan(400);
     const authId =
-      (authData as any).purchase_units?.[0]?.payments?.authorizations?.[0]?.id || `AUTH-${orderId}`;
+      ((authData as { purchase_units?: Array<{ payments?: { authorizations?: Array<{ id?: string }> } }> }).purchase_units?.[0]?.payments?.authorizations?.[0]?.id) || `AUTH-${orderId}`;
     expect(authId).toBeDefined();
 
     // Verify Authorization hold is active
     const { data: authDetails, trace: authDetailTrace } = await getAuthorizationDetails(token, authId);
     expect(authDetailTrace.status).toBe(200);
-    expect((authDetails as any).id).toBe(authId);
+    expect((authDetails as { id?: string }).id).toBe(authId);
 
     // STEP 5: Run deterministic policy firewall (PAYPAL.md Constitution)
     const policyResult = evaluatePolicyFirewall({
@@ -578,7 +574,7 @@ describe('VeriSettle AI — Automated Verification Suite (10 Mandatory Test Case
       true
     );
     expect(captureTrace.status).toBeLessThan(400);
-    expect((captureData as any).status).toMatch(/COMPLETED|PENDING/);
+    expect((captureData as { status?: string }).status).toMatch(/COMPLETED|PENDING/);
     expect(captureTrace.paypalDebugId).toBeDefined();
 
     // STEP 8: Update audit ledger (Relational Table 10 record)
@@ -703,6 +699,34 @@ describe('VeriSettle AI — Automated Verification Suite (10 Mandatory Test Case
     });
 
     expect(overBudget.budgetCompliance).toBe('EXCEEDS_BUDGET');
+  });
+
+  // TEST 24: partial_capture_final_capture_flag (Regression test for BUG-019)
+  it('24. partial_capture_final_capture_flag: verifies finalCapture boolean is honored for partial vs final settlement', async () => {
+    const token = await getPayPalAccessToken();
+    const authId = `AUTH-FLAG-${Date.now().toString(36)}`;
+
+    // Partial capture with finalCapture: false
+    const { data: partialCap, trace: partialTrace } = await captureAuthorization(
+      token,
+      authId,
+      '500.00',
+      'USD',
+      false
+    );
+    expect(partialTrace.status).toBeLessThan(400);
+    expect((partialCap as { final_capture?: boolean }).final_capture).toBe(false);
+
+    // Final capture with finalCapture: true (default)
+    const { data: finalCap, trace: finalTrace } = await captureAuthorization(
+      token,
+      authId,
+      '1215.00',
+      'USD',
+      true
+    );
+    expect(finalTrace.status).toBeLessThan(400);
+    expect((finalCap as { final_capture?: boolean }).final_capture).toBe(true);
   });
 });
 

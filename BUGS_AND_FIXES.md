@@ -1,10 +1,10 @@
 # VeriSettle AI — Bug Inventory & Fixes Log
 
 **Version:** 1.0.0-hackathon  
-**Audit Date:** November 2026  
-**Total Bugs Cataloged:** 12  
-**Resolved Bugs:** 12  
-**Verification Pass Rate:** 100% (19/19 Vitest tests passing)  
+**Audit Date:** 12 November 2026  
+**Total Bugs Cataloged:** 22  
+**Resolved Bugs:** 22  
+**Verification Pass Rate:** 100% (24/24 Vitest tests passing, 0 lint errors, 0 lint warnings)  
 
 ---
 
@@ -24,6 +24,16 @@
 | **BUG-010** | P2 (Medium) | `vitest.config.ts`, `tests/setup.ts` | **RESOLVED** | Vitest test runner not loading environment variables from `.env.local` by default |
 | **BUG-011** | P2 (Medium) | `src/app/dashboard/components/bryntum-gantt-panel.tsx` | **RESOLVED** | Gantt timeline not reflecting live milestone policy approval state transitions |
 | **BUG-012** | P3 (Low) | `src/app/dashboard/components/skeptic-dispute-simulator.tsx` | **RESOLVED** | Dispute simulator generated synthetic rebuttals without Gemini multimodal citations |
+| **BUG-013** | P2 (Medium) | `src/app/components/floating-devtools.tsx` | **RESOLVED** | React Compiler / ESLint `react-hooks/set-state-in-effect` on synchronous health check trigger |
+| **BUG-014** | P2 (Medium) | `src/app/dashboard/components/channel3-catalog-explorer.tsx` | **RESOLVED** | Synchronous `setState` in `useEffect` in catalog explorer causing render cascades |
+| **BUG-015** | P3 (Low) | `src/app/page.tsx` | **RESOLVED** | Unescaped double quotes `"` in JSX hero section |
+| **BUG-016** | P3 (Low) | `src/app/dashboard/components/relational-table-workspace.tsx` | **RESOLVED** | Unescaped single quotes `'` in custom money format label |
+| **BUG-017** | P2 (Medium) | Multiple API & Component files | **RESOLVED** | Unsafe `any` casts violating strict TypeScript linting across 7 files |
+| **BUG-018** | P2 (Medium) | 14 codebase files | **RESOLVED** | 68 unused imports, variables, and parameters causing lint warnings |
+| **BUG-019** | P1 (High) | `src/lib/paypal-escrow-disputes.ts` | **RESOLVED** | `finalCapture` parameter ignored in `captureAuthorization` and hardcoded to `true` |
+| **BUG-020** | P2 (Medium) | `src/app/dashboard/components/cosmos-audit-drawer.tsx` | **RESOLVED** | Audit drawer `setLogs` unused; lacked ability to stream external test logs or reset |
+| **BUG-021** | P3 (Low) | `src/app/layout.tsx` | **RESOLVED** | Stale boilerplate metadata ("PayPal × AG Grid") instead of VeriSettle AI branding |
+| **BUG-022** | P3 (Low) | `src/app/(endpoints)/endpoint-page.tsx` | **RESOLVED** | Endpoint pages lacked navigation back to `/dashboard` Command Center |
 
 ---
 
@@ -186,3 +196,114 @@
 - **Fix**: Hooked rebuttal generator to `generateDisputeRebuttalWithGemini()` in `src/lib/gemini.ts`, producing legally grounded, ID-cited dispute packages.
 - **Test Covering Fix**: `tests/verisettle.test.ts` (Test 14).
 - **Verification Status**: PASSED.
+
+---
+
+### BUG-013: React Compiler & ESLint Cascading Render Warning in FloatingDevTools
+- **Severity**: P2 (Medium)
+- **File & Location**: `src/app/components/floating-devtools.tsx` (L61)
+- **Root Cause**: Calling `fetchHealth()` synchronously inside the `useEffect` body triggered `setLoadingHealth(true)` synchronously during initial render tick, violating `react-hooks/set-state-in-effect`.
+- **Reproduction Steps**: Run `npm run lint`.
+- **Fix**: Decoupled initial health check from synchronous render cycle with unmounted-safe async promise chain.
+- **Test Covering Fix**: `npm run lint` and `npm run build`.
+- **Verification Status**: PASSED (0 lint errors).
+
+---
+
+### BUG-014: Channel3 Catalog Explorer Synchronous State Update in Effect
+- **Severity**: P2 (Medium)
+- **File & Location**: `src/app/dashboard/components/channel3-catalog-explorer.tsx` (L102)
+- **Root Cause**: Calling `fetchChannel3Data()` synchronously within `useEffect` directly dispatched `setLoading(true)` on mount.
+- **Reproduction Steps**: Run `npm run lint`.
+- **Fix**: Converted to clean async effect with cancellation safeguard.
+- **Test Covering Fix**: `npm run lint` and `npm run build`.
+- **Verification Status**: PASSED.
+
+---
+
+### BUG-015: Unescaped Double Quote Entities in Hero Landing Page
+- **Severity**: P3 (Low)
+- **File & Location**: `src/app/page.tsx` (L39)
+- **Root Cause**: Literal `"` characters used in JSX prose violated `react/no-unescaped-entities`.
+- **Reproduction Steps**: Run `npm run lint`.
+- **Fix**: Escaped quotes with `&ldquo;` and `&rdquo;`.
+- **Test Covering Fix**: `npm run lint`.
+- **Verification Status**: PASSED.
+
+---
+
+### BUG-016: Unescaped Single Quotes in Relational Table Format Label
+- **Severity**: P3 (Low)
+- **File & Location**: `src/app/dashboard/components/relational-table-workspace.tsx` (L57)
+- **Root Cause**: Literal `'money'` in description text triggered `react/no-unescaped-entities`.
+- **Reproduction Steps**: Run `npm run lint`.
+- **Fix**: Replaced with `&apos;money&apos;`.
+- **Test Covering Fix**: `npm run lint`.
+- **Verification Status**: PASSED.
+
+---
+
+### BUG-017: Unsafe `any` Casts Violating Strict TypeScript Lint
+- **Severity**: P2 (Medium)
+- **File & Location**: Multiple API routes, UI components, and `tests/verisettle.test.ts`
+- **Root Cause**: 31 `@typescript-eslint/no-explicit-any` errors due to loose response typing.
+- **Reproduction Steps**: Run `npm run lint`.
+- **Fix**: Defined strict typed response interfaces (`RawChannel3Product`, `PayPalOrderResponse`, `TestActionPayload`).
+- **Test Covering Fix**: `npm run lint` and `npx tsc --noEmit`.
+- **Verification Status**: PASSED (0 errors).
+
+---
+
+### BUG-018: 68 Unused Imports, Variables, and Parameters
+- **Severity**: P2 (Medium)
+- **File & Location**: 14 codebase files
+- **Root Cause**: Accumulated unused Lucide icons, unused parameters, and unreferenced type imports.
+- **Reproduction Steps**: Run `npm run lint`.
+- **Fix**: Cleaned up all unused imports across the repository.
+- **Test Covering Fix**: `npm run lint`.
+- **Verification Status**: PASSED (0 warnings).
+
+---
+
+### BUG-019: `finalCapture` Parameter Ignored in `captureAuthorization`
+- **Severity**: P1 (High)
+- **File & Location**: `src/lib/paypal-escrow-disputes.ts` (L499)
+- **Root Cause**: `captureAuthorization` accepted `finalCapture: boolean = true` but did not forward it to `settleAuthorizationHold`, which hardcoded `final_capture: true`. This prevented partial settlement holds from remaining open for subsequent deliveries.
+- **Reproduction Steps**: Call `captureAuthorization(token, authId, "500.00", "USD", false)` and inspect outbound JSON payload and returned simulated trace.
+- **Fix**: Updated `settleAuthorizationHold` signature to accept `finalCapture: boolean = true` and forwarded the value to both request body and simulation object.
+- **Test Covering Fix**: `tests/verisettle.test.ts` (Test 24).
+- **Verification Status**: PASSED (Test 24 verified green).
+
+---
+
+### BUG-020: Cosmos Audit Drawer Lacked External Telemetry Injection and Reset
+- **Severity**: P2 (Medium)
+- **File & Location**: `src/app/dashboard/components/cosmos-audit-drawer.tsx`
+- **Root Cause**: `setLogs` state setter was unused, preventing external test actions from appending audit events and lacking a manual log reset option.
+- **Reproduction Steps**: Execute Judge Test Bar actions and observe audit drawer.
+- **Fix**: Added `externalLogs` prop support and an audit log Reset action.
+- **Test Covering Fix**: Interactive dashboard smoke test and `npm run build`.
+- **Verification Status**: PASSED.
+
+---
+
+### BUG-021: Stale Boilerplate Metadata Title and Description
+- **Severity**: P3 (Low)
+- **File & Location**: `src/app/layout.tsx` (L12-L18)
+- **Root Cause**: Layout metadata defaulted to "PayPal × AG Grid" boilerplate rather than VeriSettle AI.
+- **Reproduction Steps**: Inspect browser tab title on `/` and `/dashboard`.
+- **Fix**: Updated `metadata` with VeriSettle AI branding, title template, and hackathon description.
+- **Test Covering Fix**: `npm run build`.
+- **Verification Status**: PASSED.
+
+---
+
+### BUG-022: Endpoint Pages Missing Navigation to Command Center
+- **Severity**: P3 (Low)
+- **File & Location**: `src/app/(endpoints)/endpoint-page.tsx`
+- **Root Cause**: Endpoint pages only provided a backlink to `/`, requiring manual URL changes to reach the Command Center.
+- **Reproduction Steps**: Navigate to `/invoices` and try to return to `/dashboard`.
+- **Fix**: Added bidirectional navigation linking both `/` and `/dashboard`.
+- **Test Covering Fix**: `npm run build`.
+- **Verification Status**: PASSED.
+

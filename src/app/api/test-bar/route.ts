@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPayPalAccessToken, generateRequestId } from "@/lib/paypal-auth";
-import { createEscrowAuthorizationOrder, settleAuthorizationHold } from "@/lib/paypal-escrow-disputes";
+import { createEscrowAuthorizationOrder } from "@/lib/paypal-escrow-disputes";
 import { evaluate3WayMatch } from "@/lib/ml-fallback";
 import { evaluatePolicyFirewall } from "@/lib/policy-firewall";
 import { searchChannel3Catalog, getCategoryPriceNorm, evaluateChannel3PricingAnomaly } from "@/lib/channel3";
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
         testType: "ESCROW_AUTH",
         title: "1-Click Sandbox Escrow Authorization",
         status: "SUCCESS",
-        orderId: (data as any)?.id || "ORD-2026-LIVE",
+        orderId: (data as { id?: string })?.id || "ORD-2026-LIVE",
         authorizedAmount: "$2,450.00 USD",
         intent: "AUTHORIZE",
         paypalDebugId: trace.paypalDebugId || "SANDBOX-DEBUG-ID-OK",

@@ -4,15 +4,11 @@ import React, { useState, useEffect } from 'react';
 import {
   Globe,
   Search,
-  ShoppingCart,
   ExternalLink,
   ShieldCheck,
   AlertTriangle,
-  TrendingUp,
-  Cpu,
   RefreshCw,
   Sparkles,
-  Building2,
   Tag,
 } from 'lucide-react';
 
@@ -68,7 +64,6 @@ export function Channel3CatalogExplorer() {
   const [priceNorm, setPriceNorm] = useState<Channel3PriceNorm | null>(null);
   const [anomaly, setAnomaly] = useState<Channel3Anomaly | null>(null);
   const [source, setSource] = useState<'channel3_live_api' | 'channel3_fallback'>('channel3_live_api');
-  const [hasQueried, setHasQueried] = useState(false);
 
   const fetchChannel3Data = async (searchQuery: string, priceStr: string, searchMode: 'default' | 'agentic') => {
     setLoading(true);
@@ -89,7 +84,6 @@ export function Channel3CatalogExplorer() {
         setPriceNorm(data.priceNorm || null);
         setAnomaly(data.anomalyEvaluation || null);
         setSource(data.source || 'channel3_live_api');
-        setHasQueried(true);
       }
     } catch (err) {
       console.error('Failed to query Channel3 API:', err);
@@ -99,7 +93,33 @@ export function Channel3CatalogExplorer() {
   };
 
   useEffect(() => {
-    fetchChannel3Data('42U Server Rack', '1150', 'default');
+    let isMounted = true;
+    fetch('/api/channel3', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: '42U Server Rack',
+        proposedPrice: 1150,
+        limit: 6,
+        mode: 'default',
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data?.success) {
+          setProducts(data.products || []);
+          setPriceNorm(data.priceNorm || null);
+          setAnomaly(data.anomalyEvaluation || null);
+          setSource(data.source || 'channel3_live_api');
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to query Channel3 API:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {

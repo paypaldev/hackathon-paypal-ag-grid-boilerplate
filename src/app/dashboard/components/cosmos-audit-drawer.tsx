@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Terminal, Shield, CheckCircle, AlertOctagon, Clock, Hash, ChevronRight, RefreshCw } from 'lucide-react';
+import { Terminal, Hash } from 'lucide-react';
 
 export interface AuditEntry {
   id: string;
@@ -58,12 +58,17 @@ const INITIAL_AUDIT_LOGS: AuditEntry[] = [
   },
 ];
 
-export function CosmosAuditDrawer() {
+interface CosmosAuditDrawerProps {
+  externalLogs?: AuditEntry[];
+}
+
+export function CosmosAuditDrawer({ externalLogs }: CosmosAuditDrawerProps = {}) {
   const [logs, setLogs] = useState<AuditEntry[]>(INITIAL_AUDIT_LOGS);
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const [filterType, setFilterType] = useState<string>('ALL');
 
-  const filteredLogs = logs.filter((l) => (filterType === 'ALL' ? true : l.eventType === filterType));
+  const combinedLogs = externalLogs ? [...externalLogs, ...logs] : logs;
+  const filteredLogs = combinedLogs.filter((l) => (filterType === 'ALL' ? true : l.eventType === filterType));
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
@@ -93,6 +98,14 @@ export function CosmosAuditDrawer() {
             <option value="POLICY_FIREWALL">Policy Firewall</option>
             <option value="PAYPAL_REST">PayPal REST</option>
           </select>
+
+          <button
+            onClick={() => setLogs(INITIAL_AUDIT_LOGS)}
+            title="Reset audit logs"
+            className="text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800 text-[11px] cursor-pointer"
+          >
+            Reset
+          </button>
 
           <button
             onClick={() => setIsOpen(!isOpen)}

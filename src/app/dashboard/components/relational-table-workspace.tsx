@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table, ShieldAlert, CheckCircle2, DollarSign, Database, Hash, AlertTriangle, Layers } from 'lucide-react';
-import type { DashboardData, MlAuditRow } from '@/lib/dashboard-data';
+import { Database } from 'lucide-react';
+import type { DashboardData } from '@/lib/dashboard-data';
 
 interface RelationalWorkspaceProps {
   data: DashboardData;
@@ -54,7 +54,7 @@ export function RelationalTableWorkspace({ data }: RelationalWorkspaceProps) {
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Joined multi-entity schema with custom type: 'money' renderers, 3-way variance badges, and PayPal-Debug-Id chips
+              Joined multi-entity schema with custom type: &apos;money&apos; renderers, 3-way variance badges, and PayPal-Debug-Id chips
             </p>
           </div>
         </div>
@@ -208,7 +208,7 @@ export function RelationalTableWorkspace({ data }: RelationalWorkspaceProps) {
               Table: {tableTabs.find((t) => t.id === selectedTable)?.label}
             </p>
             <p>
-              Displaying {((data as any)[selectedTable] || []).length} relational records. Full schema and bindings loaded into AG Studio memory.
+              Displaying {(Array.isArray(data[selectedTable]) ? data[selectedTable].length : 0)} relational records. Full schema and bindings loaded into AG Studio memory.
             </p>
           </div>
         )}

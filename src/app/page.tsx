@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldCheck, ArrowRight, Database, Layers, ExternalLink, Cpu, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, ArrowRight } from 'lucide-react';
 
 const endpoints = [
   { href: '/products', label: 'Catalog Products', detail: 'GET /v1/catalogs/products' },
@@ -36,7 +36,7 @@ export default function Home() {
           </p>
 
           <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-lg text-xs font-mono text-blue-300">
-            <strong>Core Architectural Law:</strong> "AI/ML Proposes, Deterministic Policy Disposes, PayPal Executes."
+            <strong>Core Architectural Law:</strong> &ldquo;AI/ML Proposes, Deterministic Policy Disposes, PayPal Executes.&rdquo;
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">

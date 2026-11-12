@@ -301,7 +301,7 @@ export async function checkGeminiHealth(): Promise<GeminiHealthStatus> {
 
   const start = performance.now();
   try {
-    const { text, model } = await callGemini("Respond with exactly: {\"status\":\"healthy\"}", {
+    const { model } = await callGemini("Respond with exactly: {\"status\":\"healthy\"}", {
       jsonMode: true,
       preferredModel: "gemini-flash-lite-latest",
       timeoutMs: 6000,
