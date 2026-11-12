@@ -135,6 +135,7 @@ All 24 automated tests passed in `vitest run tests/verisettle.test.ts`.
 | **Unit / Integration Tests** | `npm test` | **PASS (24/24 tests)** | Full suite green |
 | **Production Build** | `npm run build` | **PASS** | All 23 static & dynamic routes compiled |
 | **ML Benchmark** | `python ml_service/train_benchmark.py` | **PASS** | Benchmark generation verified |
+| **GitHub Actions CI** | Dual-runner matrix | **PASS (100% Green)** | [Run 43128081253](https://github.com/vikassharma270907-alt/hackathon-paypal-ag-grid-boilerplate/actions/runs/43128081253) (Ubuntu + Windows) |
 
 ---
 
