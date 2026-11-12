@@ -1,5 +1,5 @@
 # RestockPilot 24-Case Adversarial Benchmark Report
-*Generated: 2026-11-12T04:33:40.761Z*
+*Generated: 2026-11-12T04:40:57.925Z*
 
 ## 1. Executive Summary & Comparative Matrix
 
