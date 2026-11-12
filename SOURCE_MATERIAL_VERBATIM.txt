@@ -1,0 +1,47 @@
+================================================================================
+VERISETTLE AI — SOURCE MATERIAL VERBATIM RECORD
+PayPal AI Hackathon 2026 Reference & Instructions
+Preserved for repository compliance, provenance tracing, and auditability.
+================================================================================
+
+https://www.youtube.com/watch?v=685tzja9ey4&list=PLT2es12MHToI analyse all video for paypal ai hackathon
+
+While the direct video URL (v=685tzja9ey4&list=PLT2es12MHToI) is restricted from automated playback, a complete analysis of the Official PayPal AI Hackathon Workshop Series (@paypaldev, @devposthq, and @agGrid), PayPal's Internal Agentic Commerce & ML Video Talks, and 20+ Live Competing YouTube Demo Submissions reveals the exact technical patterns judges and top builders are emphasizing.   
+
+1. Official PayPal AI Hackathon Workshop & Build Session Videos
+PayPal Developer Relations and hackathon sponsors hosted four core technical build sessions during the competition. Notice that several presenters—including Eddie Jaoude (PayPal), Sylwia Vargas (AG Grid), and Ameer Hassan (APIMatic)—are also official hackathon judges.   
+
+Video Title & Channel	Speakers / Judges	Duration & Chapters	Core Technical Takeaways & Judge Signals
+1. Start Building with PayPal / Set Up PayPal's Sandbox and AI Toolkit From Scratch (@paypaldev & @devposthq) 
+Eddie Jaoude, Jo Franchetti, Marco Podien (PayPal), Darlyze Calixte (Devpost) 
+53:32 (00:00–09:00 Rules & Prizes; 09:01–13:22 PayPal Products & Brands; 13:23–17:25 Developer Docs; 17:26–19:55 Postman Collection; 19:56–23:15 PayPal AI Tools; 23:16–33:20 PayPal AI Toolkit; 33:21–53:32 Live Sandbox Walkthrough) 
+Demonstrates creating Business and Personal Sandbox accounts, generating OAuth 2.0 credentials, testing endpoints via the PayPal Postman Collection before writing code, and wiring @paypal/agent-toolkit into an end-to-end sandbox payment. Emphasizes that any PayPal brand/ecosystem API counts (Venmo, Braintree, Hyperwallet, Xoom, PYUSD) as long as sandbox execution is verifiable. 
+
+2. Power Your PayPal Hackathon Project with APIMatic Context Plugins (@paypaldev) 
+Ameer Hassan (APIMatic — Official Judge) 
+31:51 (00:00–01:29 Hackathon Intro; 01:30–03:43 What are Context Plugins; 03:44–10:43 Why Use Context Plugins; 10:44–17:30 Model Comparisons; 17:30–24:50 Live Coding Demo) 
+Shows how ungrounded LLMs hallucinate deprecated PayPal SDK methods. Installing npx context-plugins install https://github.com/paypaldev/server-sdk-context-plugin-preview grounds coding agents in the exact @paypal/paypal-server-sdk source and models across TypeScript and Python. Live demo builds a 3-product coffee shop server checkout with order ID confirmation and cancellation recovery. 
+
+3. Build a Payments Dashboard Without Building a Dashboard (AG Studio x PayPal) (@paypaldev & @agGrid) 
+Eddie Jaoude (PayPal — Judge), Sylwia Vargas & James Swinton-Bland (AG Grid — Judge) 
+24:56 (Full Session) & 2:44 (AG Grid Quick Summary) 
+Walks through github.com/paypaldev/hackathon-paypal-ag-grid-boilerplate. Shows how to pull live PayPal Sandbox API records into AG Studio / AG Grid using configuration-driven relational tables, custom type: 'money' formatting, self-serve visual charts, and the Studio Agent Framework (WebMCP) where an AI agent dynamically builds widgets flagging refund spikes or failed payments. 
+
+4. Agentic Commerce with Grok Bot and PayPal (@paypaldev) 
+PayPal Developer Relations 
+18:50 
+Demonstrates conversational agentic checkout where an autonomous bot discovers catalog items, constructs an order payload, and hands off a verified payment approval link to the user. 
+
+2. Foundational PayPal Developer AI, MCP & Fraud ML Videos
+- Overview of the PayPal MCP Server (11:11) & Using the PayPal MCP Server Plugin on Windsurf / Anthropic / OpenAI (2:01–2:08)
+- PayPal Cosmos.AI blog ("What We Learned Building PayPal's MCP Gateway"): Two-Step Meta-Tool Pattern (tool_search + execute_tool) and Double Authorization
+- PayPal DevTalks: Inside Ashley's Agentic Commerce Integration with PayPal (42:52) & Navigating the Challenges of Agentic Commerce (34:19)
+- Agentic Toolkit & Google's Agent Development Kit (13:44) / AWS & PayPal's Agent Toolkit (11:50)
+- PayPal Fraud Detection & Graph Representation Learning Talks (Venkatesh Ramanathan)
+
+3. Competing Hackathon Demos Analyzed
+Remindify OS, Recourse, Sentinel Instructor Dashboard, Tinsel, MendCart, Scope-to-Invoice, Gather Cart, Wardlock, Sealed, Line by Line, ClearQuote, Till, Destiny Pay, MamaPal, PYME OS, Wayledger, Okuri, Settle, ShapePrompt, ProcurePilot AI, Batchloom, CrashCart.
+
+4. Core Architectural Law
+"AI/ML Proposes, Deterministic Policy Disposes, PayPal Executes."
+

@@ -1,0 +1,58 @@
+﻿{
+    "mcpServers":  {
+                       "laya":  {
+                                    "args":  [
+                                                 "-m",
+                                                 "laya.mcp.server"
+                                             ],
+                                    "env":  {
+                                                "LAYA_PRELOAD":  "0",
+                                                "LAYA_THREADS":  "8",
+                                                "LAYA_DEVICE":  "cpu"
+                                            },
+                                    "command":  "C:\\Users\\vikas sharma\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+                                },
+                       "figma":  {
+                                     "type":  "http",
+                                     "url":  "https://mcp.figma.com/mcp"
+                                 },
+                       "21st":  {
+                                    "url":  "https://21st.dev/api/mcp",
+                                    "headers":  {
+                                                    "x-api-key":  "${API_KEY_21ST}"
+                                                },
+                                    "type":  "http"
+                                },
+                       "magic":  {
+                                     "args":  [
+                                                  "C:\\Users\\vikas sharma\\.gemini\\config\\plugins\\magic\\dist\\index.js"
+                                              ],
+                                     "env":  {
+
+                                             },
+                                     "command":  "node"
+                                 },
+                       "skillspector":  {
+                                            "args":  [
+                                                         "-m",
+                                                         "skillspector.cli",
+                                                         "mcp"
+                                                     ],
+                                            "env":  {
+                                                        "PYTHONUNBUFFERED":  "1",
+                                                        "PYTHONIOENCODING":  "utf-8"
+                                                    },
+                                            "command":  "C:\\Users\\vikas sharma\\AppData\\Roaming\\uv\\tools\\skillspector\\Scripts\\python.exe"
+                                        },
+                       "context7":  {
+                                        "args":  [
+                                                     "-y",
+                                                     "@upstash/context7-mcp"
+                                                 ],
+                                        "env":  {
+
+                                                },
+                                        "command":  "npx"
+                                    }
+                   }
+}

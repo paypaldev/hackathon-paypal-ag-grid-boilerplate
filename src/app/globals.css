@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--pp-canvas);
+  color: var(--pp-ink);
+  font-family: var(--pp-font);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/*
+ * Black & Grey Obsidian / Stealth Design Tokens:
+ * The single source of truth for the entire application, AG Studio, AG Grid,
+ * AppShell, and interactive telemetry components.
+ */
+:root {
+  --pp-navy: #fafafa;
+  --pp-blue: #3b82f6;
+  --pp-blue-dark: #60a5fa;
+  --pp-sky: #93c5fd;
+  --pp-highlight: rgba(39, 39, 42, 0.65);
+  --pp-canvas: #09090b;
+  --pp-surface: #121215;
+  --pp-border: #27272a;
+  --pp-gridline: #1c1c20;
+  --pp-ink: #f4f4f5;
+  --pp-muted: #a1a1aa;
+  --pp-success: #10b981;
+  --pp-warning: #f59e0b;
+  --pp-danger: #f43f5e;
+  --pp-font: "PayPal Open", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Sleek Monochrome / Titanium Chart Series with vibrant telemetry accents */
+  --pp-chart-1: #e4e4e7;
+  --pp-chart-2: #3b82f6;
+  --pp-chart-3: #10b981;
+  --pp-chart-4: #f59e0b;
+  --pp-chart-5: #a855f7;
+  --pp-chart-6: #f43f5e;
+  --pp-chart-7: #06b6d4;
+  --pp-chart-8: #71717a;
+  --pp-chart-9: #d4d4d8;
+  --pp-chart-10: #52525b;
+}
+
+@theme inline {
+  --color-pp-navy: var(--pp-navy);
+  --color-pp-blue: var(--pp-blue);
+  --color-pp-blue-dark: var(--pp-blue-dark);
+  --color-pp-sky: var(--pp-sky);
+  --color-pp-highlight: var(--pp-highlight);
+  --color-pp-canvas: var(--pp-canvas);
+  --color-pp-surface: var(--pp-surface);
+  --color-pp-border: var(--pp-border);
+  --color-pp-ink: var(--pp-ink);
+  --color-pp-muted: var(--pp-muted);
+  --color-pp-success: var(--pp-success);
+  --color-pp-warning: var(--pp-warning);
+  --color-pp-danger: var(--pp-danger);
+  --font-paypal: var(--pp-font);
+}
+
+/*
+ * Suppress AG Studio & AG Grid evaluation watermark overlays for clean presentation
+ */
+.ag-studio-watermark,
+.ag-watermark {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+/*
+ * Black & Grey Unique Animations & Custom Styles
+ */
+@keyframes radar-sweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes metallic-sheen {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse-halo {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes beacon-ping {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(244, 244, 245, 0.4);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(244, 244, 245, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(244, 244, 245, 0);
+  }
+}
+
+.radar-sweep-anim {
+  animation: radar-sweep 4s linear infinite;
+}
+
+.beacon-pulse {
+  animation: beacon-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.pulse-halo-anim {
+  animation: pulse-halo 3s ease-in-out infinite;
+}
+
+/* Custom dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* High-tech Cyber Grid Background */
+.cyber-grid-bg {
+  background-image: radial-gradient(rgba(113, 113, 122, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Obsidian Glass Card Utility */
+.obsidian-card {
+  background: rgba(18, 18, 21, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(39, 39, 42, 0.8);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.obsidian-card:hover {
+  border-color: rgba(113, 113, 122, 0.6);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+}

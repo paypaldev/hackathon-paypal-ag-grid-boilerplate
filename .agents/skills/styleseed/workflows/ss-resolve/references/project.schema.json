@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://styleseed.dev/schemas/project.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "projectId", "defaults", "brand"],
+  "properties": {
+    "spacing": { "$ref": "#/$defs/spacing" },
+    "tokens": { "$ref": "#/$defs/tokens" },
+    "schemaVersion": { "const": 1 },
+    "projectId": { "$ref": "#/$defs/id" },
+    "defaults": {
+      "type": "object", "additionalProperties": false,
+      "required": ["agent", "domain", "adapter", "recipe", "palette", "profile", "fallback"],
+      "properties": {
+        "agent": { "enum": ["claude", "codex", "cursor", "factory", "gemini", "kiro", "opencode", "windsurf"] },
+        "domain": { "enum": ["ai-assistant", "booking", "content", "developer-tools", "ecommerce", "education", "fintech", "health", "marketplace", "none", "productivity", "saas", "social"] },
+        "adapter": { "enum": ["document-report", "product-ui", "single-frame", "slide-deck", "social-carousel"] },
+        "recipe": { "enum": ["calm-consumer", "commerce-operator", "creative-professional", "developer-platform", "editorial-authority", "enterprise-workbench", "expressive-brand", "native-mobile", "public-service"] },
+        "palette": { "enum": ["civic-blue", "cobalt-instrument", "deep-lime-studio", "editorial-ink", "nocturne-violet", "quiet-mineral", "signal-coral", "warm-clay-commerce"] },
+        "profile": { "enum": ["brutalist-lite", "editorial", "minimal-mono", "none", "swiss", "technical", "warm-dtc"] },
+        "fallback": { "enum": [null, "commerce-conversion", "consumer-service", "editorial-reading", "expressive-marketing", "institutional-service", "operations-console", "sequential-story", "technical-instrument"] }
+      }
+    },
+    "brand": {
+      "type": "object", "additionalProperties": false,
+      "required": ["keyColor", "paletteCharacter", "paletteMode", "paletteHarmony", "surfaceTemperature", "fontFamilies", "radius", "elevation", "density", "motion", "imageryRole"],
+      "properties": {
+        "keyColor": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "paletteCharacter": { "enum": ["calm", "balanced", "vivid", "deep"] },
+        "paletteMode": { "enum": ["light", "dark"] },
+        "paletteHarmony": { "enum": ["auto", "tonal", "adjacent", "contrast"] },
+        "surfaceTemperature": { "enum": ["neutral", "warm", "cool"] },
+        "fontFamilies": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[\\p{L}\\p{N} .,'-]+$" } },
+        "radius": { "enum": ["sharp", "restrained", "balanced", "soft", "pill"] },
+        "elevation": { "enum": ["flat", "tonal", "restrained-shadow", "layered"] },
+        "density": { "enum": ["compact", "comfortable", "spacious"] },
+        "motion": {
+          "type": "object", "additionalProperties": false, "required": ["seed", "intensity"],
+          "properties": { "seed": { "enum": ["spring", "silk", "snap", "float", "pulse"] }, "intensity": { "enum": ["restrained", "standard", "lively"] } }
+        },
+        "imageryRole": { "enum": ["data-first", "product-proof-first", "editorial-media", "people-context", "generated-atmosphere", "none"] }
+      }
+    }
+  },
+  "$defs": {
+    "spacingLength": {"oneOf": [{"type": "number", "minimum": 0, "maximum": 256}, {"type": "string", "pattern": "^var\\(--(?!ss-space-)[a-zA-Z][a-zA-Z0-9-]{0,63}\\)$"}]},
+    "spacingRole": {"type": "object", "additionalProperties": false, "required": ["base"], "properties": {"base": {"$ref": "#/$defs/spacingLength"}, "wide": {"$ref": "#/$defs/spacingLength"}}},
+    "spacing": {"type": "object", "additionalProperties": false, "required": ["roles"], "properties": {"wideMinWidth": {"type": "integer", "minimum": 320, "maximum": 3840}, "roles": {"type": "object", "additionalProperties": false, "minProperties": 1, "properties": {"pageInset": {"$ref": "#/$defs/spacingRole"}, "sectionGap": {"$ref": "#/$defs/spacingRole"}, "groupGap": {"$ref": "#/$defs/spacingRole"}, "stackGap": {"$ref": "#/$defs/spacingRole"}, "inlineGap": {"$ref": "#/$defs/spacingRole"}, "componentInset": {"$ref": "#/$defs/spacingRole"}}}}},
+ "tokenPath": { "type": "string", "minLength": 1, "maxLength": 240, "pattern": "^[^\\u0000-\\u001f\\u007f{}]+$" },
+ "tokens": { "type": "object", "additionalProperties": false, "required": ["source", "format"], "description": "Imported token canon: the project's own token file. Palette generation does not run; roles map onto imported tokens.", "properties": {
+   "source": { "type": "string", "pattern": "\\.json$", "description": "Project-relative path to the token file" },
+   "format": { "enum": ["dtcg", "tokens-studio", "figma-variables"] },
+   "modes": { "type": "object", "additionalProperties": false, "minProperties": 1, "properties": { "light": { "type": "string", "maxLength": 80 }, "dark": { "type": "string", "maxLength": 80 } }, "description": "Figma mode or Tokens Studio theme name per StyleSeed mode; not for dtcg" },
+   "roles": { "type": "object", "additionalProperties": false, "minProperties": 1, "properties": {"background": {"$ref": "#/$defs/tokenPath"}, "surface": {"$ref": "#/$defs/tokenPath"}, "chrome": {"$ref": "#/$defs/tokenPath"}, "foreground": {"$ref": "#/$defs/tokenPath"}, "mutedForeground": {"$ref": "#/$defs/tokenPath"}, "chromeForeground": {"$ref": "#/$defs/tokenPath"}, "border": {"$ref": "#/$defs/tokenPath"}, "primary": {"$ref": "#/$defs/tokenPath"}, "primaryForeground": {"$ref": "#/$defs/tokenPath"}, "accent": {"$ref": "#/$defs/tokenPath"}, "accentForeground": {"$ref": "#/$defs/tokenPath"}, "focus": {"$ref": "#/$defs/tokenPath"}, "success": {"$ref": "#/$defs/tokenPath"}, "successForeground": {"$ref": "#/$defs/tokenPath"}, "warning": {"$ref": "#/$defs/tokenPath"}, "warningForeground": {"$ref": "#/$defs/tokenPath"}, "danger": {"$ref": "#/$defs/tokenPath"}, "dangerForeground": {"$ref": "#/$defs/tokenPath"}}, "description": "Role to token path overrides; the canon default map covers files that follow semantic.{fg|bg|bd}[.role].{emphasis}" } } },
+ "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" } }
+}

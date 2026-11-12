@@ -1,0 +1,12 @@
+{
+  "ecc-auto-setup": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "node \"C:\\Users\\vikas sharma\\.gemini\\config\\plugins\\everything-claude-code\\hooks\\session-start.js\"",
+        "timeout": 30
+      }
+    ]
+  }
+}
+

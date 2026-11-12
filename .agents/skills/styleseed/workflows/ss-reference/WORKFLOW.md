@@ -1,0 +1,63 @@
+---
+name: ss-reference
+description: Compile screenshots, URLs, Figma exports, or an existing UI into a project-local output grammar. Use when the user supplies a design reference StyleSeed does not already model.
+argument-hint: "[reference paths or URLs] [--name slug]"
+allowed-tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch
+---
+
+Before this workflow, follow the once-per-session [update preflight](../ss-update/references/update-preflight.md).
+
+
+# Compile references into a design grammar
+## Registry-first artifact boundary
+
+When `.styleseed/project.json` and `.styleseed/artifacts/index.json` exist, resolve the requested artifact ID first, then read only `.styleseed/bundles/<artifact-id>.md` and `.styleseed/manifests/<artifact-id>.json`. Never fall back to the global legacy bundle for a registry project. Legacy projects may use `.styleseed/effective-rules.md` only when no registry exists.
+
+Do not merely imitate the supplied screen. Read `PRODUCT-PRINCIPLES.md`, `RULESETS.md`,
+`ADAPTERS.md`, and `REFERENCE-COMPILER.md`, then execute the compiler pipeline in full.
+
+## Workflow
+
+1. Ingest every supplied reference and assign evidence IDs (`R1`, `R2`, ...). If a URL can be
+   rendered, measure it first with `scripts/measure-reference.mjs <url> --out <dir>` (a browser
+   module from `--browser`, `STYLESEED_BROWSER_MODULE`, or the project's own `playwright`; nothing
+   is installed). It writes `measurements/observations.json`, `measurements/summary.json`, a
+   twelve-axis draft, and `case.draft.json` in the format of `research/cases/README.md`. The
+   derived accent is the colour of filled primary actions, then of coloured links; read the
+   `roleEvidence` counts before trusting it. `--designlang` adds a pinned third-party token
+   extraction when `npx` is available; its `brand.primary` is not a role decision. If an image
+   cannot be seen, stop claiming visual analysis for it.
+   Distinguish discovery, inspected previews, and live states; deduplicate repeated projects
+   and note shared creator/template lineage. Awards and preview counts are not usability evidence.
+2. Separate references by surface adapter and job. Do not merge a marketing homepage with an app
+   dashboard unless the user explicitly wants both languages connected.
+3. Observe and measure the twelve axes. Every rule cites evidence IDs and a confidence level.
+   Prefer readable Figma variables and components to pixel guesses. Do not infer unseen
+   interaction, motion, or responsive states from a static screenshot. Mark measurements as
+   measured, estimated, or unknown. For media record subject, role, crop, text-safe area,
+   caption/source, and fallback where applicable; do not invent absent assets or behavior.
+4. Resolve contradictions instead of averaging them. Explain any material choice briefly.
+   For each proposed decision record task/applicability, allowed variation, a counterexample,
+   verification needed, and unresolved human choices. Preserve equivalent comparison patterns;
+   do not convert gallery recurrence into a mandatory shape or component-count rule.
+5. Choose the nearest built-in fallback grammar and adapter, then compile the project artifacts required by
+   `REFERENCE-COMPILER.md` under `.styleseed/rulesets/<slug>/`.
+6. After explicit approval of the inferred grammar, select `reference:<slug>` in the chosen artifact's project-owned configuration for registry
+   projects; only when neither registry file exists, update the legacy `STYLESEED.md`.
+   Preserve bounded brand choices. A partial or invalid registry is an error, not a fallback.
+7. Validate transfer: apply the grammar to one representative screen not present in the source
+   set, including valid alternatives and a failure case in its checks. Run `/ss-score`, then
+   `/ss-verify` if renderable. Within the authorized validation scope,
+   fix and repeat until passing or three correction passes per gate, counting delegated passes.
+   Do not reset the budget by switching skills; report actual scores and unresolved failures.
+8. Report what was learned, what remains low-confidence, where the artifacts live, and the
+   validation result.
+
+## Rules
+
+- Visible evidence before adjectives. “Calm” is not a rule; the spacing, type, color, hierarchy,
+  and motion decisions that create calm are rules.
+- Never copy protected assets, brand marks, or prose.
+- One reference produces a provisional grammar. Say so and keep confidence low where warranted.
+- The generated grammar is project-local. Do not edit `RULESETS.md` or publish it as built-in.
+- Core invariants and accessibility remain non-negotiable.

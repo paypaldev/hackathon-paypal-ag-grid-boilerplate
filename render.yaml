@@ -1,0 +1,54 @@
+services:
+  # 1. Next.js 16 Web Command Center & Cosmos.AI Gateway
+  - type: web
+    name: verisettle-web
+    env: node
+    plan: standard
+    buildCommand: npm install --include=dev --legacy-peer-deps && npm run build
+    startCommand: npx next start -p $PORT -H 0.0.0.0
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.14.0
+      - key: NODE_ENV
+        value: production
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
+      - key: NPM_FLAGS
+        value: --legacy-peer-deps
+      - key: PAYPAL_ENVIRONMENT
+        value: SANDBOX
+      - key: PAYPAL_BASE_URL
+        value: https://api-m.sandbox.paypal.com
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CHANNEL3_API_KEY
+        sync: false
+      - key: ML_SERVICE_URL
+        fromService:
+          type: web
+          name: verisettle-ml
+          property: host
+      - key: ML_MODE
+        value: cached
+
+  # 2. Python FastAPI ML/DL Microservice (LayoutLMv3 + XGBoost + GNN/LSTM)
+  - type: web
+    name: verisettle-ml
+    env: python
+    plan: standard
+    buildCommand: cd ml_service && pip install -r requirements.txt
+    startCommand: cd ml_service && uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: GEMINI_API_KEY
+        sync: false
+

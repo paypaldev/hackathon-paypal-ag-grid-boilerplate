@@ -1,0 +1,77 @@
+name: VeriSettle AI · CI Quality Gate
+
+on:
+  push:
+    branches: [ main, master, "fix/**", "feat/**" ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  full-stack-gate:
+    name: Full-Stack Quality Gate (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Configure Git for long paths (Windows)
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || npm install --legacy-peer-deps
+
+      - name: Run ESLint Quality Check
+        run: npm run lint
+
+      - name: Run TypeScript Strict Type Check
+        run: npx tsc --noEmit
+
+      - name: Run Vitest Verification Suite (24 Test Cases)
+        run: npm test
+        env:
+          GEMINI_API_KEY: AIzaSyTestKeyForContinuousIntegration12345
+          CHANNEL3_API_KEY: c3_test_key_continuous_integration
+          PAYPAL_CLIENT_ID: test-client-id
+          PAYPAL_CLIENT_SECRET: test-client-secret
+
+      - name: Next.js Production Build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          GEMINI_API_KEY: AIzaSyTestKeyForContinuousIntegration12345
+          CHANNEL3_API_KEY: c3_test_key_continuous_integration
+          PAYPAL_CLIENT_ID: test-client-id
+          PAYPAL_CLIENT_SECRET: test-client-secret
+
+  ml-service-gate:
+    name: ML Service & Fraud Benchmark Gate (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ml_service/requirements.txt
+
+      - name: Execute ML Benchmark & ROC-AUC Validation
+        run: python ml_service/train_benchmark.py
